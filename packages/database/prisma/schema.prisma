@@ -12,3 +12,26 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+
+model Transactions{
+  id  String @id @default(uuid())
+  amount Int
+  type  TxType
+  from Int
+  to Int?
+  date DateTime @default(now())
+  status TxStatus
+}
+
+enum TxType {
+  DEPOSIT
+  WITHDRAW
+  TRANSFER
+}
+
+enum TxStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}

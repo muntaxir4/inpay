@@ -3,13 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    ".": "./src/client.ts"
+    ".": {
+      "default": "./src/client.js",
+      "types": "./src/client.d.ts"
+    }
   },
   "scripts": {
-    "dev": "echo 'Add dev script here'",
-    "build": "echo 'Add build script here'",
-    "test": "echo 'Add test script here'",
-    "lint": "echo 'Add lint script here'"
+    "lint": "echo 'Add lint script here'",
+    "generate": "prisma generate"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",

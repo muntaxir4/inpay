@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@repo/db": "*",
+    "axios": "^1.7.3",
     "express": "^4.19.2"
   }
 }

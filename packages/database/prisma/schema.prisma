@@ -33,7 +33,7 @@ model Transactions{
   from Int
   to Int?
   date DateTime @default(now())
-  status TxStatus
+  status TxStatus @default(PENDING)
 }
 
 enum TxType {

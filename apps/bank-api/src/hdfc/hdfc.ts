@@ -6,6 +6,7 @@ import {
   scryptSync,
 } from "node:crypto";
 import { prisma } from "@repo/db";
+import axios from "axios";
 
 interface withdrawTokenRequest {
   txId: string;
@@ -19,12 +20,20 @@ interface withdrawRequest {
   fromAcc: string; //email
 }
 
+interface depositRequest {
+  fromAcc: string; //email
+  toAcc: string; //email
+  amount: number;
+  txId: string;
+  webhookUrl: string;
+}
+
 const hdfc = Router();
 hdfc.use(json());
 
 //encrypt and decrypt logic
 function encrypt(text: string, key: Buffer) {
-  const iv = randomBytes(16); // Generate a random IV
+  const iv = randomBytes(16);
   const cipher = createCipheriv("aes-128-cbc", key, iv);
   let encryptedData = cipher.update(text, "utf8", "base64");
   encryptedData += cipher.final("base64");
@@ -62,21 +71,16 @@ hdfc.post("/withdraw/token", async (req, res) => {
   }
 });
 
+async function informWebhook(webhookUrl: string, txId: string, status: string) {
+  const response = await axios.post(webhookUrl, { txId, status });
+  console.log(response.data);
+}
+
 hdfc.post("/withdraw", async (req, res) => {
   const { token, fromAcc }: withdrawRequest = req.body;
   const decryptedData = decrypt(token, key);
   const { txId, webhookUrl, toAcc, amount } = JSON.parse(decryptedData);
 
-  async function informWebhook(status: string) {
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ txId, status }),
-    });
-    console.log(await response.json());
-  }
   try {
     const user = await prisma.bankUser.findFirst({
       where: {
@@ -110,11 +114,44 @@ hdfc.post("/withdraw", async (req, res) => {
         },
       }),
     ]);
-    await informWebhook("SUCCESS");
+    await informWebhook(webhookUrl, txId, "SUCCESS");
     res.status(200).json({ message: "Withdrawal Request Completed" });
   } catch (error) {
-    await informWebhook("FAILED");
+    await informWebhook(webhookUrl, txId, "FAILED");
     res.status(400).json({ message: "Insufficient HDFC Balance" });
+  }
+});
+
+hdfc.post("/deposit", async (req, res) => {
+  const { fromAcc, toAcc, amount, txId, webhookUrl }: depositRequest = req.body;
+  try {
+    await prisma.$transaction([
+      prisma.bankUser.update({
+        where: {
+          email: fromAcc,
+        },
+        data: {
+          balance: {
+            decrement: amount,
+          },
+        },
+      }),
+      prisma.bankUser.update({
+        where: {
+          email: toAcc,
+        },
+        data: {
+          balance: {
+            increment: amount,
+          },
+        },
+      }),
+    ]);
+    await informWebhook(webhookUrl, txId, "SUCCESS");
+    res.status(200).json({ message: "Deposit Request Completed" });
+  } catch (error) {
+    await informWebhook(webhookUrl, txId, "FAILED");
+    res.status(400).json({ message: "Deposit Request Failed" });
   }
 });
 

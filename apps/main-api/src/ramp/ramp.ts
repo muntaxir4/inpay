@@ -13,7 +13,6 @@ ramp.post("/hdfc/onramp", async (req, res) => {
         from: userId,
         amount,
         type: "DEPOSIT",
-        status: "PENDING",
       },
       select: {
         id: true,
@@ -43,6 +42,52 @@ ramp.post("/hdfc/onramp", async (req, res) => {
     }
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
+ramp.post("/hdfc/offramp", async (req, res) => {
+  const { amount, userId } = req.body;
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+      select: {
+        email: true,
+        userAccount: {
+          select: {
+            balance: true,
+          },
+        },
+      },
+    });
+    if (!user) throw "User not found";
+    if (user.userAccount && user.userAccount.balance < amount) {
+      return res.status(400).json({ message: "Insufficient Balance" });
+    }
+    const tx = await prisma.transactions.create({
+      data: {
+        from: userId,
+        amount,
+        type: "WITHDRAW",
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    await axios.post("http://localhost:3002/api/v1/hdfc/deposit", {
+      fromAcc: "hdfc@inpay.mallik.tech",
+      toAcc: user.email,
+      amount,
+      txId: tx.id,
+      webhookUrl: "http://localhost:3001/api/v1/bank/withdraw",
+    });
+    res.status(200).json({ message: "Request Successful" });
+  } catch (error) {
+    if (error === "User not found")
+      return res.status(404).json({ message: "User not found" });
     res.status(500).json({ message: "Request Failed" });
   }
 });

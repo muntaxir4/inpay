@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres
+    container_name: inpay-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: inpay123
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis
+    container_name: inpay-webhook-redis
+    ports:
+      - "6379:6379"

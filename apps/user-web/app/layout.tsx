@@ -27,8 +27,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Providers>
-          <Navbar />
-          {children}
+          <div className="flex flex-col h-screen overflow-hidden">
+            <Navbar />
+            <div className="flex flex-1 overflow-hidden">{children}</div>
+          </div>
         </Providers>
       </body>
     </html>

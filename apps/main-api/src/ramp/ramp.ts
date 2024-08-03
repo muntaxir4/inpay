@@ -20,10 +20,18 @@ ramp.post("/hdfc/onramp", async (req, res) => {
       },
     });
     try {
-      await axios.post("http://localhost:3002/api/v1/hdfc/withdraw", {
-        txId: tx.id,
-      });
-      res.status(200).json({ message: "Request Successful" });
+      const response = await axios.post(
+        "http://localhost:3002/api/v1/hdfc/withdraw/token",
+        {
+          txId: tx.id,
+          webhookUrl: "http://localhost:3001/api/v1/bank/deposit",
+          toAcc: "hdfc@inpay.mallik.tech",
+          amount,
+        }
+      );
+      res
+        .status(200)
+        .json({ message: "Request Successful", token: response.data.token });
     } catch (error) {
       console.error(error);
       await prisma.transactions.delete({

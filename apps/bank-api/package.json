@@ -19,6 +19,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@repo/db": "*",
     "express": "^4.19.2"
   }
 }

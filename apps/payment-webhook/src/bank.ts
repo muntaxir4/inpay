@@ -38,14 +38,30 @@ async function depositToInpay() {
     const value: BankResponse = JSON.parse(frontTx?.element ?? "");
     if (!value) continue;
     try {
-      await prisma.transactions.update({
+      const tx = await prisma.transactions.update({
         where: {
           id: value.txId,
         },
         data: {
           status: value.status,
         },
+        select: {
+          from: true,
+          amount: true,
+        },
       });
+      if (value.status === "SUCCESS") {
+        await prisma.userAccount.update({
+          where: {
+            id: tx.from,
+          },
+          data: {
+            balance: {
+              increment: tx.amount,
+            },
+          },
+        });
+      }
     } catch (error) {
       console.error(error);
     }

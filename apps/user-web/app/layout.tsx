@@ -29,7 +29,7 @@ export default function RootLayout({
         <Providers>
           <div className="flex flex-col h-screen overflow-hidden">
             <Navbar />
-            <div className="flex flex-1 overflow-hidden">{children}</div>
+            <div className="flex flex-auto overflow-auto">{children}</div>
           </div>
         </Providers>
       </body>

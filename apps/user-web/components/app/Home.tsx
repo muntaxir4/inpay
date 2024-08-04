@@ -21,7 +21,7 @@ import { Badge } from "../ui/badge";
 
 function BalanceCard() {
   return (
-    <Card>
+    <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow">
       <CardHeader>
         <CardTitle>Welcome to inPay</CardTitle>
         <CardDescription>
@@ -59,7 +59,7 @@ function BalanceCard() {
 
 function RecentTransactions() {
   return (
-    <Card>
+    <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow">
       <CardHeader>
         <CardTitle>Recent Transactions</CardTitle>
         <CardDescription>View your recent financial activity.</CardDescription>
@@ -116,7 +116,7 @@ function RecentTransactions() {
 
 export default function Home() {
   return (
-    <div className="px-4 my-4 grid gap-3 overflow-auto">
+    <div className="p-4 grid gap-3 overflow-auto">
       <BalanceCard />
       <BalanceOverview />
       <RecentTransactions />

@@ -17,7 +17,7 @@ import {
 
 export default function BalanceOverview() {
   return (
-    <Card className="flex flex-col w-full">
+    <Card className="flex flex-col w-full hover:shadow-lg hover:shadow-primary/30 transition-shadow">
       <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2 [&>div]:flex-1">
         <div>
           <CardDescription>Resting HR</CardDescription>

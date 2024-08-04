@@ -5,7 +5,7 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <nav className="flex gap-1 border-b">
+    <nav className="flex gap-1 border-b bg-muted/40 p-2">
       <button onClick={() => setTheme("light")}>Light</button>
       <button onClick={() => setTheme("dark")}>Dark</button>
     </nav>

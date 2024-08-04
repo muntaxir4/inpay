@@ -11,7 +11,10 @@
   "devDependencies": {
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.7",
     "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20",
     "eslint": "^8",
     "eslint-config-next": "15.0.0-rc.0",
@@ -21,6 +24,10 @@
   "dependencies": {
     "@repo/db": "*",
     "axios": "^1.7.3",
-    "express": "^4.19.2"
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2"
   }
 }

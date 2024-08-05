@@ -88,7 +88,7 @@ user.get("/recent/transactions", async (req, res) => {
   try {
     const transactions = await prisma.transactions.findMany({
       where: {
-        from: req.body.userId,
+        OR: [{ from: req.body.userId }, { to: req.body.userId }],
       },
       take: 5,
     });

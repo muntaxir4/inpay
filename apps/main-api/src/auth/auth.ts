@@ -32,6 +32,7 @@ auth.post("/signup", async (req, res) => {
         lastName,
         email,
         password: hashedPassword,
+        userAccount: {},
       },
     });
 

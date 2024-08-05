@@ -99,4 +99,79 @@ user.get("/recent/transactions", async (req, res) => {
   }
 });
 
+user.post("/send", async (req, res) => {
+  try {
+    const { from, to, amount } = req.body;
+    if (from === to)
+      return res.status(400).json({ message: "Cannot send to self" });
+    else if (amount <= 0)
+      return res.status(400).json({ message: "Invalid Amount" });
+    const userAcc = await prisma.userAccount.findFirst({
+      where: {
+        id: from,
+      },
+    });
+    if (userAcc?.balance && userAcc.balance >= amount) {
+      const txId = await prisma.transactions.create({
+        data: {
+          type: "TRANSFER",
+          amount,
+          from,
+          to,
+        },
+        select: {
+          id: true,
+        },
+      });
+      await prisma.$transaction(async (tx) => {
+        const sender = await prisma.userAccount.update({
+          where: {
+            id: from,
+          },
+          data: {
+            balance: {
+              decrement: amount,
+            },
+          },
+        });
+        if (sender.balance < 0) {
+          await tx.transactions.update({
+            where: {
+              id: txId.id,
+            },
+            data: {
+              status: "FAILED",
+            },
+          });
+          throw new Error("Insufficient Balance");
+        }
+        await prisma.userAccount.update({
+          where: {
+            id: to,
+          },
+          data: {
+            balance: {
+              increment: amount,
+            },
+          },
+        });
+        await tx.transactions.update({
+          where: {
+            id: txId.id,
+          },
+          data: {
+            status: "SUCCESS",
+          },
+        });
+      });
+      res.status(200).json({ message: "Request Successful" });
+    } else {
+      res.status(400).json({ message: "Insufficient Balance" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
 export default user;

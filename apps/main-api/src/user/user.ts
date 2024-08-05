@@ -1,10 +1,12 @@
 import { Router, json } from "express";
 import { prisma } from "@repo/db";
+
+import Authenticate from "../auth/Authenticate";
 const user = Router();
 
 user.use(json());
 
-user.get("/", async (req, res) => {
+user.get("/", Authenticate, async (req, res) => {
   try {
     const userAcc = await prisma.userAccount.findFirst({
       where: {
@@ -21,7 +23,7 @@ user.get("/", async (req, res) => {
 });
 
 // Recently onboarded users
-user.get("/recent/users", async (req, res) => {
+user.get("/recent/users", Authenticate, async (req, res) => {
   try {
     const users = await prisma.user.findMany({
       where: {
@@ -47,7 +49,7 @@ user.get("/recent/users", async (req, res) => {
 });
 
 // Recently interacted users for a user
-user.get("/recent/interacted", async (req, res) => {
+user.get("/recent/interacted", Authenticate, async (req, res) => {
   try {
     const userInteractions = await prisma.transactions.findMany({
       where: {
@@ -84,7 +86,7 @@ user.get("/recent/interacted", async (req, res) => {
 });
 
 //Recent transactions for a user
-user.get("/recent/transactions", async (req, res) => {
+user.get("/recent/transactions", Authenticate, async (req, res) => {
   try {
     const transactions = await prisma.transactions.findMany({
       where: {
@@ -99,9 +101,10 @@ user.get("/recent/transactions", async (req, res) => {
   }
 });
 
-user.post("/send", async (req, res) => {
+user.post("/send", Authenticate, async (req, res) => {
   try {
-    const { from, to, amount } = req.body;
+    const { to, amount } = req.body;
+    const from = req.body.userId;
     if (from === to)
       return res.status(400).json({ message: "Cannot send to self" });
     else if (amount <= 0)

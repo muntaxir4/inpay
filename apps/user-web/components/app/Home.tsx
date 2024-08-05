@@ -18,6 +18,7 @@ import {
   TableRow,
 } from "../ui/table";
 import { Badge } from "../ui/badge";
+import Link from "next/link";
 
 function BalanceCard() {
   return (
@@ -33,7 +34,7 @@ function BalanceCard() {
         <div className="grid gap-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-1">
-              <label htmlFor="balance">Current Balance</label>
+              <label htmlFor="balance">Available Balance</label>
               <div className="text-2xl font-semibold">$5,432.00</div>
             </div>
             <div className="grid gap-1">
@@ -42,14 +43,18 @@ function BalanceCard() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Button className="rounded-2xl">
-              <SendIcon className="mr-2 h-4 w-4" />
-              Transfer
-            </Button>
-            <Button variant="outline" className="rounded-2xl">
-              <WalletIcon className="mr-2 h-4 w-4" />
-              Deposit
-            </Button>
+            <Link href="/app/transfer">
+              <Button className="rounded-2xl w-full">
+                <SendIcon className="mr-2 h-4 w-4" />
+                Transfer
+              </Button>
+            </Link>
+            <Link href="/app/deposit">
+              <Button variant="outline" className="rounded-2xl w-full">
+                <WalletIcon className="mr-2 h-4 w-4" />
+                Deposit
+              </Button>
+            </Link>
           </div>
         </div>
       </CardContent>

@@ -25,7 +25,7 @@ function DepositCard() {
 
 export default function Deposit() {
   return (
-    <div className="p-4 grid gap-4">
+    <div className="p-4 grid gap-3 overflow-auto">
       <DepositCard />
       <WithdrawCard />
     </div>

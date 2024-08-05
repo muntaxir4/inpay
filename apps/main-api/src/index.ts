@@ -8,7 +8,7 @@ app.use(
   "/api/v1",
   cors({
     credentials: true,
-    origin: "http://localhost:3000",
+    origin: "http://192.168.0.168:5173",
   })
 );
 app.use("/api/v1/auth", AuthRouter);

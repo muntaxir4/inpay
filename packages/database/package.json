@@ -9,6 +9,7 @@
     }
   },
   "scripts": {
+    "db:init": "prisma migrate dev && prisma generate",
     "lint": "echo 'Add lint script here'",
     "generate": "prisma generate"
   },

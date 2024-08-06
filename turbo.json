@@ -15,8 +15,10 @@
       "persistent": true
     },
     "start": {
-      "dependsOn": ["build"],
       "persistent": true
+    },
+    "db:init": {
+      "dependsOn": ["^db:init"]
     }
   }
 }

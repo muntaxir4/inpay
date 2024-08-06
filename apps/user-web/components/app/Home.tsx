@@ -8,15 +8,6 @@ import {
   CardTitle,
 } from "../ui/card";
 import BalanceOverview from "./BalanceOverview";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
-import { Badge } from "../ui/badge";
 import Link from "next/link";
 import { BalanceComponent } from "./UserStates";
 import RecentTxContent from "./RecentTxContent";
@@ -73,6 +64,7 @@ function RecentTransactions() {
         <CardDescription>View your recent financial activity.</CardDescription>
       </CardHeader>
       <CardContent>
+        {/* Make it visible properly on mobile */}
         <div className="grid sm:block grid-cols-12">
           <div className="col-start-2 col-span-10">
             <RecentTxContent />

@@ -15,6 +15,16 @@ import { Badge } from "@/components/ui/badge";
 import { useRecoilValue } from "recoil";
 import { userState } from "@/store/atoms";
 
+interface Transaction {
+  id: string;
+  date: Date;
+  from: number;
+  to: number;
+  type: "DEPOSIT" | "WITHDRAW" | "TRANSFER";
+  amount: number;
+  status: string;
+}
+
 async function getRecentTransactions() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
   try {
@@ -46,7 +56,6 @@ export default function RecentTxContent({ className }: { className?: string }) {
   } else if (isError) {
     return <div>Error fetching recent transactions</div>;
   }
-  console.log(data);
   return (
     <Table className={className}>
       <TableHeader>
@@ -58,7 +67,7 @@ export default function RecentTxContent({ className }: { className?: string }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.transactions.map((tx: any, index: number) => {
+        {data.transactions.map((tx: Transaction, index: number) => {
           return (
             <TableRow key={index}>
               <TableCell>{tx.from}</TableCell>

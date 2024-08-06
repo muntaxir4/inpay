@@ -25,7 +25,6 @@ export default function Authenticate({
   const { data, error, isLoading } = useQuery({
     queryKey: [1],
     queryFn: verifyUser,
-    retry: 1,
   });
   const setUser = useSetRecoilState(userState);
   if (isLoading) return <div>Loading...</div>;

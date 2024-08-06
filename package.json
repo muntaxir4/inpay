@@ -2,6 +2,7 @@
   "name": "inpay",
   "private": true,
   "scripts": {
+    "start": "turbo start",
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",

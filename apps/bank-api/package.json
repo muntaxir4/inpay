@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "start": "node dist/index.js",
     "dev": "tsc-watch --onSuccess \"node dist/index.js\"",
-    "build": "echo 'Add build script here'",
+    "build": "tsc -b",
     "test": "echo 'Add test script here'",
     "lint": "echo 'Add lint script here'"
   },

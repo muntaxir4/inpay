@@ -1,8 +1,8 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const banks = [
   {
@@ -19,7 +19,7 @@ const banks = [
   },
 ];
 
-export default function WithdrawBankOptions() {
+export default function DepositBankOptions() {
   const [option, setOption] = useState(0);
   return (
     <div className="rounded-lg border grid grid-cols-[25%_1fr] bg-background/20">
@@ -55,11 +55,13 @@ export default function WithdrawBankOptions() {
                 placeholder="Enter amount"
               />
               <Button size={"sm"} className="rounded-xl mx-auto">
-                Proceed to Verify
+                Proceed to Pay
               </Button>
 
               <p className="text-sm opacity-50">
-                {"Note: You will need to verify OTP on the next step."}
+                {
+                  "Note: This will open a new window. And you won't be able to change the amount later."
+                }
               </p>
             </div>
           );

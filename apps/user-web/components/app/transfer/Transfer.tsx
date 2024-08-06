@@ -12,7 +12,7 @@ import { BalanceComponent } from "../UserStates";
 
 function SendRecieveCard() {
   return (
-    <Card>
+    <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow">
       <CardHeader>
         <CardTitle>Send and Recieve</CardTitle>
         <CardDescription>

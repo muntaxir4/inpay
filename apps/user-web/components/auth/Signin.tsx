@@ -43,6 +43,7 @@ export default function Signin() {
                   type="email"
                   placeholder="m@example.com"
                   required
+                  autoComplete="email"
                 />
               </div>
               <div className="grid gap-2">

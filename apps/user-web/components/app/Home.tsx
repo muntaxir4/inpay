@@ -19,6 +19,7 @@ import {
 import { Badge } from "../ui/badge";
 import Link from "next/link";
 import { BalanceComponent } from "./UserStates";
+import RecentTxContent from "./RecentTxContent";
 
 function BalanceCard() {
   return (
@@ -72,50 +73,11 @@ function RecentTransactions() {
         <CardDescription>View your recent financial activity.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell>2023-04-15</TableCell>
-              <TableCell>Rent Payment</TableCell>
-              <TableCell>-$1,200.00</TableCell>
-              <TableCell>
-                <Badge variant="outline">Completed</Badge>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>2023-04-10</TableCell>
-              <TableCell>Grocery Shopping</TableCell>
-              <TableCell>-$125.37</TableCell>
-              <TableCell>
-                <Badge variant="outline">Completed</Badge>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>2023-04-05</TableCell>
-              <TableCell>Payroll Deposit</TableCell>
-              <TableCell>+$3,500.00</TableCell>
-              <TableCell>
-                <Badge variant="outline">Completed</Badge>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>2023-03-30</TableCell>
-              <TableCell>Utility Bill</TableCell>
-              <TableCell>-$75.00</TableCell>
-              <TableCell>
-                <Badge variant="outline">Completed</Badge>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+        <div className="grid sm:block grid-cols-12">
+          <div className="col-start-2 col-span-10">
+            <RecentTxContent />
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

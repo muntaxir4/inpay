@@ -1,5 +1,5 @@
 import Sidebar from "@/components/app/Sidebar";
-import Authenticate from "@/components/Authenticate";
+import Authenticate from "@/components/app/Authenticate";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (

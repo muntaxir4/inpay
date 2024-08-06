@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { QrCodeIcon, SendIcon } from "lucide-react";
+import { BalanceComponent } from "../UserStates";
 
 function SendRecieveCard() {
   return (
@@ -21,7 +22,9 @@ function SendRecieveCard() {
       <CardContent>
         <div className="grid gap-1">
           <label htmlFor="balance">Available Balance</label>
-          <div className="text-2xl font-semibold">$5,432.00</div>
+          <div className="text-2xl font-semibold">
+            $<BalanceComponent />
+          </div>
         </div>
       </CardContent>
       <CardFooter>

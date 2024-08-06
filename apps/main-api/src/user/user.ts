@@ -1,21 +1,30 @@
 import { Router, json } from "express";
 import { prisma } from "@repo/db";
+import cookieParser from "cookie-parser";
 
 import Authenticate from "../auth/Authenticate";
 const user = Router();
 
 user.use(json());
+user.use(cookieParser());
 
 user.get("/", Authenticate, async (req, res) => {
   try {
-    const userAcc = await prisma.userAccount.findFirst({
+    const user = await prisma.user.findFirst({
       where: {
         id: req.body.userId,
       },
+      select: {
+        firstName: true,
+        lastName: true,
+        userAccount: {
+          select: {
+            balance: true,
+          },
+        },
+      },
     });
-    res
-      .status(200)
-      .json({ message: "Request Successful", balance: userAcc?.balance });
+    res.status(200).json({ message: "Request Successful", balance: user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Request Failed" });

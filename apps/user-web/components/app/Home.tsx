@@ -1,4 +1,3 @@
-"use client";
 import { SendIcon, WalletIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -19,6 +18,7 @@ import {
 } from "../ui/table";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
+import { BalanceComponent } from "./UserStates";
 
 function BalanceCard() {
   return (
@@ -35,7 +35,9 @@ function BalanceCard() {
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-1">
               <label htmlFor="balance">Available Balance</label>
-              <div className="text-2xl font-semibold">$5,432.00</div>
+              <div className="text-2xl font-semibold">
+                $<BalanceComponent />
+              </div>
             </div>
             <div className="grid gap-1">
               <label htmlFor="available">Locked Balance</label>

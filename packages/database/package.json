@@ -9,14 +9,16 @@
     }
   },
   "scripts": {
-    "db:init": "prisma migrate dev && prisma generate",
+    "db:init": "npx dotenv -e ../../.env -- prisma migrate dev && prisma generate",
     "lint": "echo 'Add lint script here'",
-    "generate": "prisma generate"
+    "db:migrate": "npx dotenv -e ../../.env -- npx prisma migrate dev",
+    "db:generate": "npx dotenv -e ../../.env -- npx prisma generate"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@types/cors": "^2.8.17",
+    "dotenv-cli": "^7.4.2",
     "eslint": "^8",
     "eslint-config-next": "15.0.0-rc.0",
     "prisma": "^5.17.0",

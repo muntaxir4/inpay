@@ -19,6 +19,12 @@
     },
     "db:init": {
       "dependsOn": ["^db:init"]
+    },
+    "db:migrate": {
+      "dependsOn": ["^db:migrate"]
+    },
+    "db:generate": {
+      "dependsOn": ["^db:generate"]
     }
   }
 }

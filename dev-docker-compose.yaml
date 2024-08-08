@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres
-    container_name: inpay-db
+    container_name: inpay-db-dev
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: inpay123
@@ -20,13 +20,13 @@ services:
 
   redis:
     image: redis
-    container_name: inpay-webhook-redis
+    container_name: inpay-webhook-redis-dev
     ports:
       - "6379:6379"
     restart: unless-stopped
 
-  api:
-    container_name: inpay-api
+  app:
+    container_name: inpay-app-dev
     depends_on:
       db:
         condition: service_healthy
@@ -35,16 +35,20 @@ services:
         condition: service_started
     build:
       context: .
+      dockerfile: Dockerfile-dev
     networks:
       - default
     ports:
       - "3000:3000"
       - "3001:3001"
       - "3002:3002"
+      - "5173:5173"
+    volumes:
+      - ./apps:/usr/src/app/apps
     restart: unless-stopped
 
 volumes:
   db-data:
 networks:
   default:
-    name: inpay-network
+    name: inpay-network-dev

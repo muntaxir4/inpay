@@ -18,8 +18,15 @@ enum TransactionType {
 const bank = Router();
 bank.use(json());
 
-const redisClientPush = createClient();
-const redisClientPop = createClient();
+const REDIS_URL = process.env.REDIS_URL;
+console.log("REDIS_URL", REDIS_URL);
+
+const redisClientPush = createClient({
+  url: REDIS_URL,
+});
+const redisClientPop = createClient({
+  url: REDIS_URL,
+});
 redisClientPush.on("error", (err) => {
   console.error(err);
 });

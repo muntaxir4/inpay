@@ -2,10 +2,14 @@
   "name": "inpay",
   "private": true,
   "scripts": {
+    "start": "turbo start",
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "db:init": "turbo db:init",
+    "db:migrate": "turbo db:migrate",
+    "db:generate": "turbo db:generate"
   },
   "devDependencies": {
     "prettier": "^3.2.5",

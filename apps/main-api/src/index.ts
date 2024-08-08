@@ -9,7 +9,8 @@ app.use(
   "/api/v1",
   cors({
     credentials: true,
-    origin: "http://192.168.0.168:5173",
+    origin: process.env.WEB_URL,
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
   })
 );
 app.use("/api/v1/auth", AuthRouter);

@@ -8,6 +8,31 @@ const user = Router();
 user.use(json());
 user.use(cookieParser());
 
+async function addUsernamesToId(
+  userIdObjArray: { [key: string]: any }[],
+  idKey: string
+) {
+  const cache = {} as { [key: number]: string };
+
+  for (const userIdObj of userIdObjArray) {
+    if (!cache[userIdObj[idKey]]) {
+      const user = await prisma.user.findFirst({
+        where: {
+          id: userIdObj[idKey],
+        },
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      });
+      cache[userIdObj[idKey]] = `${user?.firstName} ${user?.lastName}`;
+    }
+    userIdObj["name"] = cache[userIdObj[idKey]];
+    userIdObj["id"] = userIdObj[idKey];
+    delete userIdObj[idKey];
+  }
+}
+
 user.get("/", Authenticate, async (req, res) => {
   try {
     const user = await prisma.user.findFirst({
@@ -50,7 +75,14 @@ user.get("/recent/users", Authenticate, async (req, res) => {
         lastName: true,
       },
     });
-    res.status(200).json({ message: "Request Successful", users });
+    const recentUsers = users.map((user) => {
+      return {
+        id: user.id,
+        firstName: user?.firstName || "",
+        lastName: user?.lastName || "",
+      };
+    });
+    res.status(200).json({ message: "Request Successful", recentUsers });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Request Failed" });
@@ -60,34 +92,59 @@ user.get("/recent/users", Authenticate, async (req, res) => {
 // Recently interacted users for a user
 user.get("/recent/interacted", Authenticate, async (req, res) => {
   try {
-    const userInteractions = await prisma.transactions.findMany({
-      where: {
-        from: req.body.userId,
-        to: {
-          not: null,
+    const recentInteractions = [] as {
+      id: number;
+      firstName: string;
+      lastName: string;
+    }[];
+    const len = 5;
+    const cache = {} as { [key: number]: boolean };
+    let skipTimes = 0;
+    while (recentInteractions.length < len) {
+      const interactions = await prisma.transactions.findMany({
+        where: {
+          from: req.body.userId,
+          to: {
+            not: null,
+          },
         },
-      },
-      take: 5,
-      orderBy: {
-        date: "desc",
-      },
-      select: {
-        to: true,
-      },
-    });
-    const users = await prisma.user.findMany({
-      where: {
-        id: {
-          in: userInteractions.map((interaction) => interaction.to) as number[],
+        skip: skipTimes++ * 10,
+        take: 10,
+        orderBy: {
+          date: "desc",
         },
-      },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-      },
-    });
-    res.status(200).json({ message: "Request Successful", users });
+        select: {
+          to: true,
+        },
+      });
+      if (interactions.length === 0) break;
+      for (
+        let i = 0;
+        recentInteractions.length < len && i < interactions.length;
+        i++
+      ) {
+        const userId = interactions[i]?.to as number;
+        if (!cache[userId]) {
+          const user = await prisma.user.findFirst({
+            where: {
+              id: userId,
+            },
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          });
+          cache[userId] = true;
+          recentInteractions.push({
+            id: userId,
+            firstName: user?.firstName || "",
+            lastName: user?.lastName || "",
+          });
+        }
+      }
+    }
+
+    res.status(200).json({ message: "Request Successful", recentInteractions });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Request Failed" });
@@ -102,6 +159,9 @@ user.get("/recent/transactions", Authenticate, async (req, res) => {
         OR: [{ from: req.body.userId }, { to: req.body.userId }],
       },
       take: 5,
+      orderBy: {
+        date: "desc",
+      },
     });
     res.status(200).json({ message: "Request Successful", transactions });
   } catch (error) {

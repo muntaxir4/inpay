@@ -1,5 +1,6 @@
 "use client";
-import { atom } from "recoil";
+import { atom, selectorFamily } from "recoil";
+import { genConfig } from "react-nice-avatar";
 
 interface User {
   firstName: string;
@@ -12,4 +13,10 @@ const userState = atom<null | User>({
   default: null,
 });
 
-export { userState };
+const userAvatarConfig = selectorFamily({
+  key: "userAvatarConfig",
+  get: (fullName: string) => () => {
+    return genConfig(fullName);
+  },
+});
+export { userState, userAvatarConfig };

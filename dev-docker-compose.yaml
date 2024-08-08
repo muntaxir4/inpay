@@ -44,11 +44,13 @@ services:
       - "3002:3002"
       - "5173:5173"
     volumes:
-      - ./apps:/usr/src/app/apps
+      - .:/usr/src/app
+      - app-data:/usr/src/app
     restart: unless-stopped
 
 volumes:
   db-data:
+  app-data:
 networks:
   default:
     name: inpay-network-dev

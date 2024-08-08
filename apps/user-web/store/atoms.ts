@@ -13,10 +13,4 @@ const userState = atom<null | User>({
   default: null,
 });
 
-const userAvatarConfig = selectorFamily({
-  key: "userAvatarConfig",
-  get: (fullName: string) => () => {
-    return genConfig(fullName);
-  },
-});
-export { userState, userAvatarConfig };
+export { userState };

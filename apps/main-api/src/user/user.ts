@@ -172,7 +172,8 @@ user.get("/recent/transactions", Authenticate, async (req, res) => {
 
 user.post("/send", Authenticate, async (req, res) => {
   try {
-    const { to, amount } = req.body;
+    const { to, amount: atmp } = req.body;
+    const amount = Number(atmp);
     const from = req.body.userId;
     if (from === to)
       return res.status(400).json({ message: "Cannot send to self" });
@@ -240,6 +241,42 @@ user.post("/send", Authenticate, async (req, res) => {
     } else {
       res.status(400).json({ message: "Insufficient Balance" });
     }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
+user.get("/bulk", Authenticate, async (req, res) => {
+  const { filter } = req.body;
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        OR: [
+          {
+            firstName: {
+              contains: filter ?? "",
+            },
+          },
+          {
+            lastName: {
+              contains: filter,
+            },
+          },
+        ],
+        NOT: {
+          id: req.body.userId,
+        },
+      },
+      take: 8,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+      },
+    });
+
+    return res.status(200).json({ message: "Request Successful", users });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Request Failed" });

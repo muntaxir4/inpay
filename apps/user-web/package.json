@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo --port 5173",
+    "dev": "npx dotenv -e ../../.env -- next dev --port 5173",
     "build": "next build",
-    "start": "next start --port 5173",
+    "start": "npx dotenv -e ../../.env -- next start --port 5173",
     "lint": "next lint"
   },
   "dependencies": {
@@ -34,6 +34,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.19",
+    "dotenv-cli": "^7.4.2",
     "eslint": "^8",
     "eslint-config-next": "^15.0.0-rc.0",
     "postcss": "^8.4.40",

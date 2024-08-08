@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from "express";
 import { JwtPayload, verify } from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET ?? "we nee more security";
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 function Authenticate(req: Request, res: Response, next: NextFunction) {
   const token = req.cookies.token;

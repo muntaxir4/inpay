@@ -6,6 +6,7 @@ import { useRecoilValue } from "recoil";
 import { userState } from "@/store/atoms";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Badge } from "./ui/badge";
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
@@ -15,7 +16,7 @@ export default function Navbar() {
   return pathname.startsWith("/bank") === false ? (
     <nav className="grid grid-cols-3 border-b bg-muted/40 p-2 items-center">
       <h2 className="col-start-2 text-2xl font-bold text-center">
-        <Link href={"/"}>inPay</Link>
+        <Link href={"/"}>inPay</Link> <Badge variant={"outline"}>beta</Badge>
       </h2>
       <div className="grid grid-cols-3 items-center">
         {user && (

@@ -10,7 +10,7 @@ app.use(
   cors({
     credentials: true,
     origin: process.env.WEB_URL,
-    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "OPTIONS"],
   })
 );
 app.use("/api/v1/auth", AuthRouter);

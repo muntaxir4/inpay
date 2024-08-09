@@ -3,6 +3,9 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import axios, { AxiosError } from "axios";
+import Loading from "@/components/Loading";
+import { useToast } from "@/components/ui/use-toast";
 
 const banks = [
   {
@@ -18,6 +21,67 @@ const banks = [
     url: "https://www.onlinesbi.com/",
   },
 ];
+
+function DepositForm() {
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    const amount = e.currentTarget.amount.value;
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    try {
+      const response = await axios.post(
+        API_URL + "/ramp/hdfc/onramp",
+        {
+          amount,
+        },
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        const WEB_URL = process.env.NEXT_PUBLIC_WEB_URL;
+        const token = response.data.token;
+        window.open(
+          WEB_URL + "/bank/hdfc" + `?token=${token}&amount=${amount}`,
+          "_blank"
+        );
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast({
+          title: "Error",
+          description: error?.response?.data.message,
+          variant: "destructive",
+        });
+      }
+    }
+    setLoading(false);
+  }
+
+  return (
+    <form
+      className="flex flex-col justify-between gap-4 mb-4"
+      onSubmit={handleSubmit}
+    >
+      <Input
+        type="number"
+        className="rounded-2xl h-8 text-center bg-card w-3/4 sm:w-2/5 mx-auto"
+        placeholder="Enter amount"
+        name="amount"
+        required
+      />
+      <Button
+        type="submit"
+        size={"sm"}
+        className="rounded-xl mx-auto flex gap-2"
+      >
+        <p>Proceed to Pay</p>
+        {loading && <Loading />}
+      </Button>
+    </form>
+  );
+}
 
 export default function DepositBankOptions() {
   const [option, setOption] = useState(0);
@@ -44,20 +108,9 @@ export default function DepositBankOptions() {
         .filter((bank) => bank.id == option)
         .map((bank) => {
           return (
-            <div
-              key={bank.id}
-              className="p-2 text-center flex flex-col justify-between gap-4"
-            >
-              <p className="text-sm opacity-50">{bank.description}</p>
-              <Input
-                type="number"
-                className="rounded-2xl h-8 text-center bg-card w-3/4 sm:w-2/5 mx-auto"
-                placeholder="Enter amount"
-              />
-              <Button size={"sm"} className="rounded-xl mx-auto">
-                Proceed to Pay
-              </Button>
-
+            <div key={bank.id} className="p-2 text-center ">
+              <p className="text-sm opacity-50 mb-4">{bank.description}</p>
+              <DepositForm />
               <p className="text-sm opacity-50">
                 {
                   "Note: This will open a new window. And you won't be able to change the amount later."

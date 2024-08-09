@@ -22,7 +22,10 @@
   },
   "dependencies": {
     "@repo/db": "*",
+    "@types/nodemailer": "^6.4.15",
     "axios": "^1.7.3",
-    "express": "^4.19.2"
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.14"
   }
 }

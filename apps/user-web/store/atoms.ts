@@ -13,4 +13,9 @@ const userState = atom<null | User>({
   default: null,
 });
 
-export { userState };
+const forcedTheme = atom<string>({
+  key: "forcedTheme",
+  default: "system",
+});
+
+export { userState, forcedTheme };

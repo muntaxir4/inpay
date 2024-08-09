@@ -38,6 +38,13 @@ model BankUser {
   balance Int    @default(0)
 }
 
+model UserOTP {
+  id     Int     @id @default(autoincrement())
+  email  String
+  otp    String
+  bank   BankType
+}
+
 enum TxType {
   DEPOSIT
   WITHDRAW
@@ -48,4 +55,9 @@ enum TxStatus {
   PENDING
   SUCCESS
   FAILED
+}
+
+enum BankType {
+  INPAY
+  HDFC
 }

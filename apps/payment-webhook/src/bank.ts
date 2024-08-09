@@ -46,7 +46,7 @@ async function startRedisPop() {
 async function workerInpay() {
   while (1) {
     console.log("Checking for deposits");
-    const frontTx = await redisClientPop.brPop("deposits", 0);
+    const frontTx = await redisClientPop.brPop("bankTx", 0);
     console.log("front redis", frontTx);
     const value: BankResponse = JSON.parse(frontTx?.element ?? "");
     if (!value) continue;
@@ -99,7 +99,7 @@ async function workerInpay() {
 bank.post("/deposit", async (req, res) => {
   const { txId, status } = req.body;
   await redisClientPush.lPush(
-    "deposits",
+    "bankTx",
     JSON.stringify({ txId, status, type: TransactionType.DEPOSIT })
   );
   res.status(200).json({ message: "User Deposit Request Received" });
@@ -108,7 +108,7 @@ bank.post("/deposit", async (req, res) => {
 bank.post("/withdraw", async (req, res) => {
   const { txId, status } = req.body;
   await redisClientPush.lPush(
-    "deposits",
+    "bankTx",
     JSON.stringify({ txId, status, type: TransactionType.WITHDRAW })
   );
   res.status(200).json({ message: "User Withdrawal Request Received" });

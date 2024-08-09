@@ -8,11 +8,13 @@ const user = Router();
 user.use(json());
 user.use(cookieParser());
 
-async function addUsernamesToId(
+async function addNamesToId(
   userIdObjArray: { [key: string]: any }[],
   idKey: string
 ) {
-  const cache = {} as { [key: number]: string };
+  const cache = {} as {
+    [key: number]: { firstName: string; lastName: string };
+  };
 
   for (const userIdObj of userIdObjArray) {
     if (!cache[userIdObj[idKey]]) {
@@ -25,11 +27,17 @@ async function addUsernamesToId(
           lastName: true,
         },
       });
-      cache[userIdObj[idKey]] = `${user?.firstName} ${user?.lastName}`;
+      cache[userIdObj[idKey]] = {
+        firstName: user?.firstName || "",
+        lastName: user?.lastName || "",
+      };
     }
-    userIdObj["name"] = cache[userIdObj[idKey]];
-    userIdObj["id"] = userIdObj[idKey];
-    delete userIdObj[idKey];
+    userIdObj["firstName"] = cache[userIdObj[idKey]]?.firstName;
+    userIdObj["lastName"] = cache[userIdObj[idKey]]?.lastName;
+    if (idKey != "id") {
+      userIdObj["id"] = userIdObj[idKey];
+      delete userIdObj[idKey];
+    }
   }
 }
 
@@ -162,6 +170,20 @@ user.get("/recent/transactions", Authenticate, async (req, res) => {
       orderBy: {
         date: "desc",
       },
+      select: {
+        type: true,
+        amount: true,
+        status: true,
+        from: true,
+      },
+    });
+    await addNamesToId(transactions, "from");
+    transactions.map((tx: any) => {
+      if (tx.id == req.body.userId) {
+        tx.firstName = "You";
+        tx.lastName = "";
+      }
+      return tx;
     });
     res.status(200).json({ message: "Request Successful", transactions });
   } catch (error) {

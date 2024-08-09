@@ -15,11 +15,11 @@ import { Badge } from "@/components/ui/badge";
 import { useRecoilValue } from "recoil";
 import { userState } from "@/store/atoms";
 
-interface Transaction {
+interface RecentTransaction {
   id: string;
   date: Date;
-  from: number;
-  to: number;
+  firstName: string;
+  lastName: string;
   type: "DEPOSIT" | "WITHDRAW" | "TRANSFER";
   amount: number;
   status: string;
@@ -67,10 +67,10 @@ export default function RecentTxContent({ className }: { className?: string }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.transactions.map((tx: Transaction, index: number) => {
+        {data.transactions.map((tx: RecentTransaction, index: number) => {
           return (
             <TableRow key={index}>
-              <TableCell>{tx.from}</TableCell>
+              <TableCell>{tx.firstName + " " + tx.lastName}</TableCell>
               <TableCell>{tx.type}</TableCell>
               <TableCell>{tx.amount}</TableCell>
               <TableCell>

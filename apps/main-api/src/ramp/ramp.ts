@@ -1,13 +1,17 @@
 import { Router, json } from "express";
 import axios from "axios";
 import { prisma } from "@repo/db";
+import cookieParser from "cookie-parser";
+import Authenticate from "../auth/Authenticate";
 
 const ramp = Router();
 ramp.use(json());
+ramp.use(cookieParser());
 
-ramp.post("/hdfc/onramp", async (req, res) => {
-  const { amount, userId } = req.body;
+ramp.post("/hdfc/onramp", Authenticate, async (req, res) => {
+  const { amount: amt, userId } = req.body;
   try {
+    const amount = Number(amt);
     const tx = await prisma.transactions.create({
       data: {
         from: userId,
@@ -46,9 +50,10 @@ ramp.post("/hdfc/onramp", async (req, res) => {
   }
 });
 
-ramp.post("/hdfc/offramp", async (req, res) => {
-  const { amount, userId } = req.body;
+ramp.post("/hdfc/offramp", Authenticate, async (req, res) => {
+  const { amount: amt, userId } = req.body;
   try {
+    const amount = Number(amt);
     const user = await prisma.user.findFirst({
       where: {
         id: userId,

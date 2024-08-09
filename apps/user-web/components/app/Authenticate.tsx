@@ -7,7 +7,7 @@ import { userState } from "@/store/atoms";
 import Loading from "../Loading";
 
 async function verifyUser() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
   try {
     const response = await axios.get(API_URL + "/user", {
       withCredentials: true,
@@ -33,9 +33,9 @@ export default function Authenticate({
     window.location.href = "/auth/signin";
   } else if (data) {
     setUser({
-      firstName: data.balance.firstName,
-      lastName: data.balance.lastName,
-      balance: data.balance.userAccount.balance,
+      firstName: data.user.firstName,
+      lastName: data.user.lastName,
+      balance: data.user.userAccount.balance,
     });
     return <>{children}</>;
   }

@@ -81,12 +81,12 @@ hdfc.post("/verify/email", async (req, res) => {
     });
     //send email
     try {
-      // await transporter.sendMail({
-      //   from: `"HDFC DEMO" <${fromEmail}>`, // sender address
-      //   to: email, // list of receivers
-      //   subject: "One Time Password, InPay", // Subject line
-      //   text: `Your 6 digit OTP for HDFC Demo withdrawal to Inpay: ${otp}`, // plain text body
-      // });
+      await transporter.sendMail({
+        from: `"HDFC DEMO" <${fromEmail}>`, // sender address
+        to: email, // list of receivers
+        subject: "One Time Password, InPay", // Subject line
+        text: `Your 6 digit OTP for HDFC Demo withdrawal to Inpay: ${otp}`, // plain text body
+      });
       res.status(200).json({ message: "Email Found" });
     } catch (error) {
       await prisma.userOTP.delete({

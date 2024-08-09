@@ -26,15 +26,25 @@ auth.post("/signup", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create new user
-    const newUser = await prisma.user.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-        userAccount: {},
-      },
-    });
+    const [newUser] = await prisma.$transaction([
+      prisma.user.create({
+        data: {
+          firstName,
+          lastName,
+          email,
+          password: hashedPassword,
+          userAccount: {
+            create: {},
+          },
+        },
+      }),
+      prisma.bankUser.create({
+        data: {
+          email,
+          balance: 8000,
+        },
+      }),
+    ]);
 
     // Generate JWT token
     const token = sign({ userId: newUser.id }, JWT_SECRET);

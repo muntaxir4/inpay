@@ -248,19 +248,23 @@ user.post("/send", Authenticate, async (req, res) => {
 });
 
 user.get("/bulk", Authenticate, async (req, res) => {
-  const { filter } = req.body;
+  const { filter: search } = req.query;
+  const [filter1, filter2] = String(search || "").split(" ");
+  // console.log(filter1, filter2);
   try {
     const users = await prisma.user.findMany({
       where: {
-        OR: [
+        AND: [
           {
             firstName: {
-              contains: filter ?? "",
+              contains: filter1 ?? "",
+              mode: "insensitive",
             },
           },
           {
             lastName: {
-              contains: filter,
+              contains: filter2 ?? "",
+              mode: "insensitive",
             },
           },
         ],

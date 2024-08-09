@@ -5,12 +5,14 @@ import { Moon, Sun } from "lucide-react";
 import { useRecoilValue } from "recoil";
 import { userState } from "@/store/atoms";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const user = useRecoilValue(userState);
+  const pathname = usePathname();
 
-  return (
+  return pathname.startsWith("/bank") === false ? (
     <nav className="grid grid-cols-3 border-b bg-muted/40 p-2 items-center">
       <h2 className="col-start-2 text-2xl font-bold text-center">
         <Link href={"/"}>inPay</Link>
@@ -34,5 +36,5 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
-  );
+  ) : null;
 }

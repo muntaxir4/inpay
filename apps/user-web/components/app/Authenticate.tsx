@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { userState } from "@/store/atoms";
 import Loading from "../Loading";
 
@@ -24,8 +24,9 @@ export default function Authenticate({
   children: React.ReactNode;
 }) {
   const { data, error, isLoading } = useQuery({
-    queryKey: [1],
+    queryKey: [],
     queryFn: verifyUser,
+    staleTime: 3000,
   });
   const setUser = useSetRecoilState(userState);
   if (isLoading) return <Loading />;

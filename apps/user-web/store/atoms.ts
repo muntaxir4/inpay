@@ -1,6 +1,5 @@
 "use client";
-import { atom, selectorFamily } from "recoil";
-import { genConfig } from "react-nice-avatar";
+import { atom } from "recoil";
 
 interface User {
   firstName: string;
@@ -13,9 +12,4 @@ const userState = atom<null | User>({
   default: null,
 });
 
-const forcedTheme = atom<string>({
-  key: "forcedTheme",
-  default: "system",
-});
-
-export { userState, forcedTheme };
+export { userState };

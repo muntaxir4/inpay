@@ -17,7 +17,7 @@ export function FeaturesSectionDemo() {
         "col-span-1 md:col-span-4 border-b md:border-r dark:border-neutral-800",
     },
     {
-      title: "Used by thousands",
+      title: "Trusted by thousands",
       description: "Highly scalable and available to everyone.",
       skeleton: <SkeletonFour />,
       className: "col-span-1 md:col-span-4 border-b md:border-none",
@@ -27,12 +27,15 @@ export function FeaturesSectionDemo() {
     <div className="relative z-20 py-10 max-w-7xl mx-auto">
       <div className="px-8">
         <h4 className="text-3xl md:text-5xl md:leading-tight max-w-5xl mx-auto text-center tracking-tight font-medium text-black dark:text-white">
-          Packed with uncountable features
+          Packed with numerous features
         </h4>
 
         <p className="text-sm md:text-base  max-w-2xl  my-4 mx-auto text-neutral-500 text-center font-normal dark:text-neutral-300">
           Manage your money effortlessly with InPay. Banking, investing, and
           chatting in one place.
+        </p>
+        <p className="text-sm md:text-base  max-w-2xl  my-4 mx-auto text-neutral-500 text-center font-normal dark:text-neutral-300">
+          And, yes all our code is open sourced.
         </p>
       </div>
 

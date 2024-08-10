@@ -82,7 +82,6 @@ export default function SearchUsers({
     queryKey: ["users", debouncedFilter],
     queryFn: () => fetchUsers(debouncedFilter),
   });
-  console.log(data?.users);
   return (
     <Dialog>
       <DialogTrigger>{children}</DialogTrigger>

@@ -11,14 +11,13 @@ import { QrCodeIcon, SendIcon } from "lucide-react";
 import { BalanceComponent } from "../UserStates";
 import RecentInteractionsContent from "./RecentInteractionsContent";
 import RecentUsersContent from "./RecentUsersContent";
-import SendTo from "./SendTo";
 import SearchUsers from "./SearchUsers";
 
-function SendRecieveCard() {
+function SendReceiveCard() {
   return (
     <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow">
       <CardHeader>
-        <CardTitle>Send and Recieve</CardTitle>
+        <CardTitle>Send and Receive</CardTitle>
         <CardDescription>
           Perform P2P money transactions with anybody
         </CardDescription>
@@ -86,7 +85,7 @@ function RecentUsersCard() {
 export default function Transfer() {
   return (
     <div className="p-4 grid gap-3 overflow-auto">
-      <SendRecieveCard />
+      <SendReceiveCard />
       <RecentInteractionsCard />
       <RecentUsersCard />
     </div>

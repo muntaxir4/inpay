@@ -47,8 +47,9 @@ function ShowStatusBadge({ status }: { status: string }) {
 export default function RecentTxContent({ className }: { className?: string }) {
   const user = useRecoilValue(userState);
   const { data, isLoading, isError } = useQuery({
-    queryKey: [user],
+    queryKey: [user, "recentTx"],
     queryFn: getRecentTransactions,
+    refetchOnMount: true,
   });
 
   if (isLoading) {
@@ -67,7 +68,7 @@ export default function RecentTxContent({ className }: { className?: string }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.transactions.map((tx: RecentTransaction, index: number) => {
+        {data.transactions?.map((tx: RecentTransaction, index: number) => {
           return (
             <TableRow key={index}>
               <TableCell>{tx.firstName + " " + tx.lastName}</TableCell>

@@ -1,5 +1,6 @@
 {
   "name": "inpay",
+  "version": "1.0-beta",
   "private": true,
   "scripts": {
     "start": "turbo start",

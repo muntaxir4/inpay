@@ -40,10 +40,9 @@ function DepositForm() {
         { withCredentials: true }
       );
       if (response.status === 200) {
-        const WEB_URL = process.env.NEXT_PUBLIC_WEB_URL;
         const token = response.data.token;
         window.open(
-          WEB_URL + "/bank/hdfc" + `?token=${token}&amount=${amount}`,
+          "/bank/hdfc" + `?token=${token}&amount=${amount}`,
           "_blank"
         );
       }

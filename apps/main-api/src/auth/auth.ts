@@ -4,7 +4,7 @@ import { prisma } from "@repo/db";
 import { sign } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-const JWT_SECRET = process.env.JWT_SECRET ?? "we nee more security";
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 const auth = Router();
 auth.use(json());

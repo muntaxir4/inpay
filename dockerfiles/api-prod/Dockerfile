@@ -1,4 +1,4 @@
-#Dockerize API only
+#Dockerize API, Redis, and Nginx
 
 FROM node:20-alpine AS base
 
@@ -10,7 +10,6 @@ WORKDIR /usr/src/app
 RUN npm install -g turbo
 COPY . .
 RUN turbo prune main-api bank-api payment-webhook --docker
-COPY .env out/full/.env
 
 # Add lockfile and package.json's of isolated subworkspace
 FROM base AS installer
@@ -27,6 +26,7 @@ RUN npm install
 # Build the project and its dependencies
 COPY --from=builder /usr/src/app/out/full/ .
 COPY turbo.json turbo.json
+COPY .env.production.local .env
 
 RUN npm run db:generate
 RUN npm run build
@@ -40,7 +40,12 @@ WORKDIR /usr/src/app
 # RUN adduser --system --uid 1001 expressjs
 # USER expressjs
 COPY --from=installer /usr/src/app .
+RUN apk add --no-cache nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+RUN apk add --no-cache redis
 
-EXPOSE 3000 3001 3002
+EXPOSE 80 3000 3001 3002 6379
 
-CMD ["npm","run","start"]
+CMD sh -c "redis-server & sleep 5 && npm run start & sleep 5 && nginx -g 'daemon off;'"
+
+# CMD ["sleep", "infinity"]

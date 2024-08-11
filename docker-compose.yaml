@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres
+    container_name: inpay-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: inpay123
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis
+    container_name: inpay-webhook-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  api:
+    container_name: inpay-api
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      redis:
+        condition: service_started
+    build:
+      context: .
+    networks:
+      - default
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+      - "3002:3002"
+    restart: unless-stopped
+
+volumes:
+  db-data:
+networks:
+  default:
+    name: inpay-network

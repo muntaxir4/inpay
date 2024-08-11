@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,27 +7,42 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id Int @id @default(autoincrement())
-  email String @unique
-  password String
+model User {
+  id          Int          @id @default(autoincrement())
+  email       String       @unique
+  password    String
+  firstName   String
+  lastName    String
   userAccount UserAccount?
 }
 
-model UserAccount{
-  id Int @id 
-  balance Int @default(0)
-  user User @relation(fields: [id], references: [id])
+model UserAccount {
+  id      Int  @id
+  balance Int  @default(0)
+  user    User @relation(fields: [id], references: [id])
 }
 
-model Transactions{
-  id  String @id @default(uuid())
+model Transactions {
+  id     String   @id @default(uuid())
   amount Int
-  type  TxType
-  from Int
-  to Int?
-  date DateTime @default(now())
-  status TxStatus
+  type   TxType
+  from   Int
+  to     Int?
+  date   DateTime @default(now())
+  status TxStatus @default(PENDING)
+}
+
+model BankUser {
+  id      Int    @id @default(autoincrement())
+  email   String @unique
+  balance Int    @default(0)
+}
+
+model UserOTP {
+  id     Int     @id @default(autoincrement())
+  email  String
+  otp    String
+  bank   BankType
 }
 
 enum TxType {
@@ -48,9 +57,7 @@ enum TxStatus {
   FAILED
 }
 
-//External Bank
-model BankUser{
-  id Int @id @default(autoincrement())
-  email String @unique
-  balance Int @default(0)
+enum BankType {
+  INPAY
+  HDFC
 }

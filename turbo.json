@@ -13,6 +13,21 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "start": {
+      "persistent": true
+    },
+    "db:init": {
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "dependsOn": ["^db:init"]
+    },
+    "db:migrate": {
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "dependsOn": ["^db:migrate"]
+    },
+    "db:generate": {
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "dependsOn": ["^db:generate"]
     }
   }
 }

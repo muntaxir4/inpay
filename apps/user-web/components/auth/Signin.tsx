@@ -16,7 +16,7 @@ export default function Signin() {
   const { toast } = useToast();
   const router = useRouter();
   return (
-    <div className="h-full mx-4 lg:grid lg:grid-cols-2 ">
+    <div className="h-full mx-4 lg:grid lg:grid-cols-2 w-full">
       <div className="hidden bg-muted lg:block">
         <Image
           src={image}

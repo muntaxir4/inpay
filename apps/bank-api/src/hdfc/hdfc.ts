@@ -87,6 +87,7 @@ hdfc.post("/verify/email", async (req, res) => {
         subject: "One Time Password, InPay", // Subject line
         text: `Your 6 digit OTP for HDFC Demo withdrawal to Inpay: ${otp}`, // plain text body
       });
+      // console.log(`Your 6 digit OTP for HDFC Demo withdrawal to Inpay: ${otp}`);
       res.status(200).json({ message: "Email Found" });
     } catch (error) {
       await prisma.userOTP.delete({

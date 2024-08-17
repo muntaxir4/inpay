@@ -17,7 +17,7 @@ export default function Signup() {
   const { toast } = useToast();
   const router = useRouter();
   return (
-    <div className="h-full lg:grid lg:grid-cols-2 mx-4">
+    <div className="h-full lg:grid lg:grid-cols-2 mx-4 w-full">
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid gap-6 text-sm">
           <div className="grid gap-2 text-center">

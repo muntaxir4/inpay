@@ -48,6 +48,7 @@ user.get("/", Authenticate, async (req, res) => {
         id: req.body.userId,
       },
       select: {
+        id: true,
         firstName: true,
         lastName: true,
         userAccount: {
@@ -100,57 +101,47 @@ user.get("/recent/users", Authenticate, async (req, res) => {
 // Recently interacted users for a user
 user.get("/recent/interacted", Authenticate, async (req, res) => {
   try {
-    const recentInteractions = [] as {
+    const interactions = await prisma.userInteractions.findMany({
+      where: {
+        OR: [{ userId_1: req.body.userId }, { userId_2: req.body.userId }],
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+      take: 5,
+      select: {
+        userId_1: true,
+        userId_2: true,
+      },
+    });
+    console.log("interacted", interactions);
+    const recentInteractions: {
       id: number;
-      firstName: string;
-      lastName: string;
-    }[];
-    const len = 5;
-    const cache = {} as { [key: number]: boolean };
-    let skipTimes = 0;
-    while (recentInteractions.length < len) {
-      const interactions = await prisma.transactions.findMany({
-        where: {
-          from: req.body.userId,
-          to: {
-            not: null,
+      firstName: string | undefined;
+      lastName: string | undefined;
+    }[] = await Promise.all(
+      interactions.map(async (interaction) => {
+        const id =
+          interaction.userId_1 === req.body.userId
+            ? interaction.userId_2
+            : interaction.userId_1;
+        const user = await prisma.user.findFirst({
+          where: {
+            id,
           },
-        },
-        skip: skipTimes++ * 10,
-        take: 10,
-        orderBy: {
-          date: "desc",
-        },
-        select: {
-          to: true,
-        },
-      });
-      if (interactions.length === 0) break;
-      for (
-        let i = 0;
-        recentInteractions.length < len && i < interactions.length;
-        i++
-      ) {
-        const userId = interactions[i]?.to as number;
-        if (!cache[userId]) {
-          const user = await prisma.user.findFirst({
-            where: {
-              id: userId,
-            },
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          });
-          cache[userId] = true;
-          recentInteractions.push({
-            id: userId,
-            firstName: user?.firstName || "",
-            lastName: user?.lastName || "",
-          });
-        }
-      }
-    }
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        });
+        return {
+          id,
+          firstName: user?.firstName,
+          lastName: user?.lastName,
+        };
+      })
+    );
+    console.log(recentInteractions);
 
     res.status(200).json({ message: "Request Successful", recentInteractions });
   } catch (error) {
@@ -194,9 +185,9 @@ user.get("/recent/transactions", Authenticate, async (req, res) => {
 
 user.post("/send", Authenticate, async (req, res) => {
   try {
-    const { to, amount: atmp } = req.body;
+    const { to, amount: atmp }: { to: number; amount: string } = req.body;
     const amount = Number(atmp);
-    const from = req.body.userId;
+    const from = req.body.userId as number;
     if (from === to)
       return res.status(400).json({ message: "Cannot send to self" });
     else if (amount <= 0)
@@ -256,6 +247,27 @@ user.post("/send", Authenticate, async (req, res) => {
           },
           data: {
             status: "SUCCESS",
+          },
+        });
+        //create user interaction if does not exist
+        const interaction = await prisma.userInteractions.findFirst({
+          where: {
+            OR: [
+              { userId_1: from, userId_2: to },
+              { userId_1: to, userId_2: from },
+            ],
+          },
+        });
+        await tx.userInteractions.upsert({
+          where: {
+            id: interaction?.id ?? -1,
+          },
+          update: {
+            updatedAt: new Date(),
+          },
+          create: {
+            userId_1: from,
+            userId_2: to,
           },
         });
       });

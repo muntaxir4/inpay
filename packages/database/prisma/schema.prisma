@@ -32,6 +32,23 @@ model Transactions {
   status TxStatus @default(PENDING)
 }
 
+model UserInteractions {
+  id          Int     @id @default(autoincrement())
+  userId_1    Int
+  userId_2    Int
+  updatedAt   DateTime @default(now())
+
+  @@unique([userId_1, userId_2])
+}
+
+model UserMessages {
+  id        Int     @id @default(autoincrement())
+  from      Int
+  to        Int
+  message   String
+  createdAt DateTime @default(now())
+}
+
 model BankUser {
   id      Int    @id @default(autoincrement())
   email   String @unique

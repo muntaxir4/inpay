@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 import { userState } from "@/store/atoms";
 import Loading from "../Loading";
 
@@ -33,11 +33,16 @@ export default function Authenticate({
   else if (error) {
     window.location.href = "/auth/signin";
   } else if (data) {
-    setUser({
-      firstName: data.user.firstName,
-      lastName: data.user.lastName,
-      balance: data.user.userAccount.balance,
-    });
+    console.log(data);
+    if (!data.user) {
+      setUser(null);
+      window.location.href = "/auth/signin";
+    } else
+      setUser({
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        balance: data.user.userAccount.balance,
+      });
     return <>{children}</>;
   }
 }

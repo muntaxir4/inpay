@@ -321,4 +321,48 @@ user.get("/bulk", Authenticate, async (req, res) => {
   }
 });
 
+user.get("/interactions", Authenticate, async (req, res) => {
+  try {
+    const interactionsTmp = await prisma.userInteractions.findMany({
+      where: {
+        OR: [{ userId_1: req.body.userId }, { userId_2: req.body.userId }],
+      },
+      select: {
+        userId_1: true,
+        userId_2: true,
+        updatedAt: true,
+      },
+    });
+
+    const interactions = await Promise.all(
+      interactionsTmp.map(async (interaction) => {
+        const id =
+          interaction.userId_1 === req.body.userId
+            ? interaction.userId_2
+            : interaction.userId_1;
+        const user = await prisma.user.findFirst({
+          where: {
+            id,
+          },
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        });
+        return {
+          id,
+          firstName: user?.firstName,
+          lastName: user?.lastName,
+          updatedAt: interaction.updatedAt,
+        };
+      })
+    );
+
+    res.status(200).json({ message: "Request Successful", interactions });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
 export default user;

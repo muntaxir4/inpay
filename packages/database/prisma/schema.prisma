@@ -17,9 +17,10 @@ model User {
 }
 
 model UserAccount {
-  id      Int  @id
-  balance Int  @default(0)
-  user    User @relation(fields: [id], references: [id])
+  id        Int  @id
+  balance   Int  @default(0)
+  lastSeen  DateTime @default("1970-01-01T00:00:00Z")
+  user      User @relation(fields: [id], references: [id])
 }
 
 model Transactions {

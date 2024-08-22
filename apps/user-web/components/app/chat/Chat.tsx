@@ -1,94 +1,33 @@
 "use client";
 
 import Loading from "@/components/Loading";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ChatMessage, chatState, userState } from "@/store/atoms";
+import {
+  ChatMessage,
+  newMessagesRetrievedState,
+  userState,
+} from "@/store/atoms";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
-import {
-  SetterOrUpdater,
-  useRecoilState,
-  useRecoilValue,
-  useSetRecoilState,
-} from "recoil";
-import { Socket } from "socket.io-client";
-import Avatar, { genConfig } from "react-nice-avatar";
+import { useEffect, useState } from "react";
+import { SetterOrUpdater, useRecoilState, useRecoilValue } from "recoil";
 import { useSocket } from "@/store/customHooks";
-import clsx from "clsx";
-
-interface ChatUser {
+import Users from "./Users";
+import MessengerCard from "./MessengerCard";
+export interface ChatUser {
   id: number;
   firstName: string | undefined;
   lastName: string | undefined;
 }
 
-interface MessagesSetters {
+export interface MessagesSetters {
   [key: number]: SetterOrUpdater<ChatMessage[]>;
 }
 
-function Message({ msg }: { msg: ChatMessage }) {
-  return (
-    <p
-      className={clsx(
-        "max-w-[80%] break-words p-2 px-3 rounded-lg bg-card m-2 shadow",
-        msg.type === "RECEIVED" ? "self-start" : "self-end"
-      )}
-    >
-      {msg.message}
-    </p>
-  );
-}
-
-function Messenger({
-  socket,
-  selectedUser,
-}: {
-  socket: Socket;
-  selectedUser: ChatUser;
-}) {
-  const [chatMessages, setChatMessages] = useRecoilState(
-    chatState(selectedUser.id)
-  );
-
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.scrollTop = ref.current.scrollHeight;
-    }
-  }, [chatMessages]);
-
-  function handleSend(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const message = e.currentTarget.msg.value;
-    if (message.length < 5) return;
-    socket.emit("message", {
-      message,
-      to: selectedUser.id,
-    });
-    setChatMessages((prev) => [...prev, { message, type: "SENT" }]);
-
-    e.currentTarget.msg.value = "";
-  }
-  return (
-    <div className="grid  grid-rows-[1fr_8fr_1fr] h-full overflow-hidden items-center px-1">
-      <h2 className="text-center text-2xl font-medium">
-        {selectedUser.firstName + " " + selectedUser.lastName}
-      </h2>
-
-      <div ref={ref} className="border flex flex-col h-full overflow-auto">
-        {chatMessages.map((msg, i) => (
-          <Message key={i} msg={msg} />
-        ))}
-      </div>
-
-      <form className="flex gap-2" onSubmit={handleSend}>
-        <Input type="text" name="msg" placeholder="Minimum 5 letters" />
-        <Button type="submit">Send</Button>
-      </form>
-    </div>
-  );
+export interface MessageServer {
+  from: number;
+  to: number;
+  message: string;
+  createdAt: Date;
 }
 
 async function fetchInteractions() {
@@ -99,27 +38,15 @@ async function fetchInteractions() {
   return response.data;
 }
 
-function UserAvatar({
-  user,
-  messagesSetters,
-}: {
-  user: ChatUser;
-  messagesSetters: MessagesSetters;
-}) {
-  messagesSetters[user.id] = useSetRecoilState(chatState(user.id));
-  return (
-    <Avatar
-      {...genConfig(user.firstName + " " + user.lastName)}
-      className="h-10 w-10 mx-auto  sm:h-14 sm:w-14"
-    />
-  );
-}
+const messagesSetters: MessagesSetters = {};
 
 export default function Chat() {
   const user = useRecoilValue(userState);
-  const socket = useSocket();
+  const socket = useSocket("Chat");
 
-  const messagesSetters: MessagesSetters = {};
+  const [newMessagesRetrieved, setNewMessagesRetrieved] = useRecoilState(
+    newMessagesRetrievedState
+  );
 
   const { data, error, isLoading } = useQuery({
     queryKey: [user, "interactions"],
@@ -131,61 +58,80 @@ export default function Chat() {
     firstName: undefined,
     lastName: undefined,
   });
-
   useEffect(() => {
-    if (socket) {
-      socket.on("message", (msgObj: { message: string; from: number }) => {
-        //@ts-ignore
-        messagesSetters[msgObj.from]((prev) => [
-          ...prev,
-          { message: msgObj.message, type: "RECEIVED" },
-        ]);
-      });
-      return () => {
-        socket.off("message");
-      };
+    if (socket && data && user) {
+      if (!newMessagesRetrieved) {
+        socket.on(
+          "message",
+          (msgObj: { message: string; from: number; createdAt: Date }) => {
+            //@ts-ignore
+            messagesSetters[msgObj.from]((prev) => [
+              ...prev,
+              {
+                message: msgObj.message,
+                type: "RECEIVED",
+                createdAt: new Date(msgObj.createdAt),
+              },
+            ]);
+          }
+        );
+        socket.emit("newMessages", user.lastSeen);
+        socket.on("newMessages", (messages: MessageServer[]) => {
+          const newMessages = {} as any;
+          messages.forEach((msgObj) => {
+            let roomId = msgObj.from;
+            if (msgObj.from === user?.id) roomId = msgObj.to;
+            if (!newMessages[roomId]) newMessages[roomId] = [];
+            newMessages[roomId].push({
+              message: msgObj.message,
+              type: msgObj.from === user?.id ? "SENT" : "RECEIVED",
+              createdAt: new Date(msgObj.createdAt),
+            });
+          });
+          Object.keys(newMessages).forEach((key) => {
+            messagesSetters[parseInt(key)]?.((prev) => [
+              ...newMessages[parseInt(key)],
+              ...prev,
+            ]);
+          });
+          socket.off("newMessages");
+          setNewMessagesRetrieved(true);
+        });
+      }
+
+      // return () => {
+      //   socket.off("message");
+      // };
     }
-  }, [socket, data]);
+  }, [socket, data, user]);
 
   if (!user || !socket || isLoading) return <Loading />;
   else if (error || !data.interactions)
     return <div>Error, try after some time.</div>;
 
-  function joinRoom(roomId: number) {
-    socket?.emit("joinRoom", roomId);
-  }
-
   return (
     <div className="p-4 grid gap-3 overflow-hidden h-full">
       <div className="grid grid-rows-[2rem_auto]  h-full overflow-hidden gap-2">
-        <p className="text-2xl font-semibold leading-none tracking-tight">
+        <p
+          className="text-2xl font-semibold leading-none tracking-tight"
+          onClick={() =>
+            setSelectedUser({
+              id: -1,
+              firstName: undefined,
+              lastName: undefined,
+            })
+          }
+        >
           Chat
         </p>
         <div className="grid grid-cols-[20%_1fr] gap-1 sm:gap-3 h-full overflow-hidden">
-          <div className="grid border content-start overflow-auto h-full">
-            {data.interactions.map((user: ChatUser) => (
-              <div
-                key={user.id}
-                className={clsx(
-                  "border p-1",
-                  selectedUser.id === user.id && "bg-muted"
-                )}
-                onClick={() => {
-                  joinRoom(user.id);
-                  setSelectedUser(user);
-                }}
-              >
-                <UserAvatar user={user} messagesSetters={messagesSetters} />
-              </div>
-            ))}
-          </div>
-          <div className="h-full overflow-hidden">
-            {selectedUser.id === -1 ? (
-              <div className="text-center">Select a user to chat</div>
-            ) : (
-              <Messenger socket={socket} selectedUser={selectedUser} />
-            )}
-          </div>
+          <Users
+            data={data}
+            selectedUser={selectedUser}
+            setSelectedUser={setSelectedUser}
+            messagesSetters={messagesSetters}
+          />
+          <MessengerCard selectedUser={selectedUser} />
         </div>
       </div>
     </div>

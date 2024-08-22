@@ -54,6 +54,7 @@ user.get("/", Authenticate, async (req, res) => {
         userAccount: {
           select: {
             balance: true,
+            lastSeen: true,
           },
         },
       },
@@ -114,7 +115,6 @@ user.get("/recent/interacted", Authenticate, async (req, res) => {
         userId_2: true,
       },
     });
-    console.log("interacted", interactions);
     const recentInteractions: {
       id: number;
       firstName: string | undefined;
@@ -141,8 +141,6 @@ user.get("/recent/interacted", Authenticate, async (req, res) => {
         };
       })
     );
-    console.log(recentInteractions);
-
     res.status(200).json({ message: "Request Successful", recentInteractions });
   } catch (error) {
     console.error(error);

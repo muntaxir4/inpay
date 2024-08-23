@@ -5,6 +5,7 @@ import axios from "axios";
 import { useSetRecoilState } from "recoil";
 import { userState } from "@/store/atoms";
 import Loading from "../Loading";
+import InitSocket from "./InitSocket";
 
 async function verifyUser() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -33,16 +34,23 @@ export default function Authenticate({
   else if (error) {
     window.location.href = "/auth/signin";
   } else if (data) {
-    console.log(data);
     if (!data.user) {
       setUser(null);
       window.location.href = "/auth/signin";
-    } else
+    } else {
       setUser({
+        id: data.user.id,
         firstName: data.user.firstName,
         lastName: data.user.lastName,
         balance: data.user.userAccount.balance,
+        lastSeen: data.user.userAccount.lastSeen,
       });
-    return <>{children}</>;
+      return (
+        <>
+          <InitSocket />
+          {children}
+        </>
+      );
+    }
   }
 }

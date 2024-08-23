@@ -1,5 +1,5 @@
 "use client";
-import { Home, Send, Wallet } from "lucide-react";
+import { Home, MessageSquare, Send, Wallet } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 
@@ -52,6 +52,20 @@ export default function Sidebar() {
           <div className="w-full flex justify-start gap-3 md:gap-6 items-center ">
             <Wallet />
             <p className="text-lg">Deposit</p>
+          </div>
+        </Button>
+      </Link>
+      <Link href="/app/chat" className="mx-4 my-1">
+        <Button
+          variant={"ghost"}
+          className={cn(
+            " rounded-2xl w-full",
+            pathname.endsWith("/chat") && "bg-muted-foreground/15"
+          )}
+        >
+          <div className="w-full flex justify-start gap-3 md:gap-6 items-center ">
+            <MessageSquare />
+            <p className="text-lg">Chat</p>
           </div>
         </Button>
       </Link>

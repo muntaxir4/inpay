@@ -3,6 +3,7 @@ import { prisma } from "@repo/db";
 import cookieParser from "cookie-parser";
 
 import Authenticate from "../auth/Authenticate";
+import axios from "axios";
 const user = Router();
 
 user.use(json());
@@ -54,6 +55,7 @@ user.get("/", Authenticate, async (req, res) => {
         userAccount: {
           select: {
             balance: true,
+            lastSeen: true,
           },
         },
       },
@@ -114,7 +116,6 @@ user.get("/recent/interacted", Authenticate, async (req, res) => {
         userId_2: true,
       },
     });
-    console.log("interacted", interactions);
     const recentInteractions: {
       id: number;
       firstName: string | undefined;
@@ -141,8 +142,6 @@ user.get("/recent/interacted", Authenticate, async (req, res) => {
         };
       })
     );
-    console.log(recentInteractions);
-
     res.status(200).json({ message: "Request Successful", recentInteractions });
   } catch (error) {
     console.error(error);
@@ -184,6 +183,26 @@ user.get("/recent/transactions", Authenticate, async (req, res) => {
 });
 
 user.post("/send", Authenticate, async (req, res) => {
+  async function informWebsocket(from: number, to: number, amount: number) {
+    const WEBSOCKET_URL = process.env.WEBSOCKET_URL as string;
+    try {
+      await axios.post(`${WEBSOCKET_URL}/transferDone`, { from, to, amount });
+    } catch (error) {
+      console.error("Error informing Websoket about transfer", error);
+      try {
+        await prisma.userMessages.create({
+          data: {
+            from: Number(from),
+            to: Number(to),
+            message: `$${amount}`,
+            isPayment: true,
+            createdAt: new Date(),
+          },
+        });
+      } catch {}
+    }
+  }
+
   try {
     const { to, amount: atmp }: { to: number; amount: string } = req.body;
     const amount = Number(atmp);
@@ -272,6 +291,7 @@ user.post("/send", Authenticate, async (req, res) => {
         });
       });
       res.status(200).json({ message: "Request Successful" });
+      informWebsocket(from, to, amount);
     } else {
       res.status(400).json({ message: "Insufficient Balance" });
     }
@@ -315,6 +335,50 @@ user.get("/bulk", Authenticate, async (req, res) => {
     });
 
     return res.status(200).json({ message: "Request Successful", users });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
+user.get("/interactions", Authenticate, async (req, res) => {
+  try {
+    const interactionsTmp = await prisma.userInteractions.findMany({
+      where: {
+        OR: [{ userId_1: req.body.userId }, { userId_2: req.body.userId }],
+      },
+      select: {
+        userId_1: true,
+        userId_2: true,
+        updatedAt: true,
+      },
+    });
+
+    const interactions = await Promise.all(
+      interactionsTmp.map(async (interaction) => {
+        const id =
+          interaction.userId_1 === req.body.userId
+            ? interaction.userId_2
+            : interaction.userId_1;
+        const user = await prisma.user.findFirst({
+          where: {
+            id,
+          },
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        });
+        return {
+          id,
+          firstName: user?.firstName,
+          lastName: user?.lastName,
+          updatedAt: interaction.updatedAt,
+        };
+      })
+    );
+
+    res.status(200).json({ message: "Request Successful", interactions });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Request Failed" });

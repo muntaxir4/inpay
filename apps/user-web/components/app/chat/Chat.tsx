@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { SetterOrUpdater, useRecoilState, useRecoilValue } from "recoil";
-import { useSocket } from "@/store/customHooks";
+import { useSocketInstance } from "@/store/customHooks";
 import Users from "./Users";
 import MessengerCard from "./MessengerCard";
 export interface ChatUser {
@@ -23,10 +23,15 @@ export interface MessagesSetters {
   [key: number]: SetterOrUpdater<ChatMessage[]>;
 }
 
+export interface OnlineSetters {
+  [key: number]: SetterOrUpdater<boolean>;
+}
+
 export interface MessageServer {
   from: number;
   to: number;
   message: string;
+  isPayment?: boolean;
   createdAt: Date;
 }
 
@@ -38,11 +43,12 @@ async function fetchInteractions() {
   return response.data;
 }
 
-const messagesSetters: MessagesSetters = {};
+export const messagesSetters: MessagesSetters = {};
+export const onlineSetters: OnlineSetters = {};
 
 export default function Chat() {
   const user = useRecoilValue(userState);
-  const socket = useSocket("Chat");
+  const socket = useSocketInstance("Chat");
 
   const [newMessagesRetrieved, setNewMessagesRetrieved] = useRecoilState(
     newMessagesRetrievedState
@@ -61,22 +67,21 @@ export default function Chat() {
   useEffect(() => {
     if (socket && data && user) {
       if (!newMessagesRetrieved) {
-        socket.on(
-          "message",
-          (msgObj: { message: string; from: number; createdAt: Date }) => {
-            //@ts-ignore
-            messagesSetters[msgObj.from]((prev) => [
-              ...prev,
-              {
-                message: msgObj.message,
-                type: "RECEIVED",
-                createdAt: new Date(msgObj.createdAt),
-              },
-            ]);
-          }
-        );
+        socket.on("message", (msgObj: MessageServer) => {
+          const withUserId = msgObj.isPayment ? msgObj.to : msgObj.from;
+          messagesSetters[Number(withUserId)]?.((prev: ChatMessage[]) => [
+            ...prev,
+            {
+              message: msgObj.message,
+              type: msgObj.from === user?.id ? "SENT" : "RECEIVED",
+              isPayment: msgObj.isPayment,
+              createdAt: new Date(msgObj.createdAt),
+            },
+          ]);
+        });
         socket.emit("newMessages", user.lastSeen);
         socket.on("newMessages", (messages: MessageServer[]) => {
+          console.log("newMessages");
           const newMessages = {} as any;
           messages.forEach((msgObj) => {
             let roomId = msgObj.from;
@@ -85,6 +90,7 @@ export default function Chat() {
             newMessages[roomId].push({
               message: msgObj.message,
               type: msgObj.from === user?.id ? "SENT" : "RECEIVED",
+              isPayment: msgObj.isPayment,
               createdAt: new Date(msgObj.createdAt),
             });
           });
@@ -97,13 +103,34 @@ export default function Chat() {
           socket.off("newMessages");
           setNewMessagesRetrieved(true);
         });
+        socket.on("oldMessages", (messages: MessageServer[], withUserId) => {
+          console.log("oldMessages");
+          messagesSetters[Number(withUserId)]?.((prev) => {
+            const oldMessages = messages.map((msgObj) => {
+              return {
+                message: msgObj.message,
+                type: msgObj.from === user.id ? "SENT" : "RECEIVED",
+                isPayment: msgObj.isPayment,
+                createdAt: new Date(msgObj.createdAt),
+              };
+            });
+            return [...oldMessages, ...prev];
+          });
+        });
       }
-
-      // return () => {
-      //   socket.off("message");
-      // };
     }
   }, [socket, data, user]);
+
+  useEffect(() => {
+    if (socket && user) {
+      socket.on("checkOnline", (withUserId: number, isOnline: boolean) => {
+        onlineSetters[withUserId]?.(isOnline);
+      });
+      return () => {
+        socket.off("checkOnline");
+      };
+    }
+  }, [socket, data]);
 
   if (!user || !socket || isLoading) return <Loading />;
   else if (error || !data.interactions)

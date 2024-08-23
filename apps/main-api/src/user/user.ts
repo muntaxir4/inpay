@@ -3,6 +3,7 @@ import { prisma } from "@repo/db";
 import cookieParser from "cookie-parser";
 
 import Authenticate from "../auth/Authenticate";
+import axios from "axios";
 const user = Router();
 
 user.use(json());
@@ -182,6 +183,26 @@ user.get("/recent/transactions", Authenticate, async (req, res) => {
 });
 
 user.post("/send", Authenticate, async (req, res) => {
+  async function informWebsocket(from: number, to: number, amount: number) {
+    const WEBSOCKET_URL = process.env.WEBSOCKET_URL as string;
+    try {
+      await axios.post(`${WEBSOCKET_URL}/transferDone`, { from, to, amount });
+    } catch (error) {
+      console.error("Error informing Websoket about transfer", error);
+      try {
+        await prisma.userMessages.create({
+          data: {
+            from: Number(from),
+            to: Number(to),
+            message: `$${amount}`,
+            isPayment: true,
+            createdAt: new Date(),
+          },
+        });
+      } catch {}
+    }
+  }
+
   try {
     const { to, amount: atmp }: { to: number; amount: string } = req.body;
     const amount = Number(atmp);
@@ -270,6 +291,7 @@ user.post("/send", Authenticate, async (req, res) => {
         });
       });
       res.status(200).json({ message: "Request Successful" });
+      informWebsocket(from, to, amount);
     } else {
       res.status(400).json({ message: "Insufficient Balance" });
     }

@@ -1,20 +1,29 @@
-import { useSocket } from "@/store/customHooks";
+import {
+  newMessagesRetrievedState,
+  socketConnectionState,
+  userState,
+} from "@/store/atoms";
+import { useSocketInstance } from "@/store/customHooks";
+import SocketIO from "@/store/Singleton";
 import { useEffect } from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 
 export default function InitSocket() {
-  let socket = useSocket("InitSocket");
-  console.log("InitSocket ", socket);
+  const socket = useSocketInstance("InitSocket");
+  const user = useRecoilValue(userState);
+  const setSocketConnected = useSetRecoilState(socketConnectionState);
+  const setNewMessagesRetrieved = useSetRecoilState(newMessagesRetrievedState);
+  setSocketConnected(true);
   useEffect(() => {
-    console.log("InitSocket useEffect ", socket);
-    return () => {
-      console.log("trying disconneect", socket);
-      if (socket) {
-        console.log("disconnecting from Socket.io server");
-        socket.off("message");
-        socket.disconnect();
-        socket = null;
-      }
-    };
-  }, [socket]);
+    if (socket) {
+      SocketIO.getInstance()?.getSocket()?.emit("setUserId", user?.id);
+      return () => {
+        SocketIO.disconnect();
+        setSocketConnected(false);
+        setNewMessagesRetrieved(false);
+      };
+    }
+  }, [socket]); // adding user causes disconnecting before init
+
   return <></>;
 }

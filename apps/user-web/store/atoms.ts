@@ -1,6 +1,5 @@
 "use client";
-import { atom, atomFamily, selector } from "recoil";
-import { io, Socket } from "socket.io-client";
+import { atom, atomFamily } from "recoil";
 interface User {
   id: number;
   firstName: string;
@@ -11,6 +10,7 @@ interface User {
 interface ChatMessage {
   message: string;
   type: "SENT" | "RECEIVED";
+  isPayment?: boolean;
   createdAt: Date;
 }
 
@@ -19,23 +19,9 @@ const userState = atom<null | User>({
   default: null,
 });
 
-const scoketState = atom<null | Socket>({
-  key: "socketState",
-  default: selector({
-    key: "socketState/default",
-    get: ({ get }) => {
-      const user = get(userState);
-      if (!user) return null;
-      const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL as string;
-      const sock = io(SOCKET_URL, {
-        query: { userId: user.id },
-      });
-      sock.on("connect", () => {
-        console.log("connected to Socket.io server");
-      });
-      return sock;
-    },
-  }),
+const socketConnectionState = atom({
+  key: "socketConnectionState",
+  default: false,
 });
 
 //stores chat messages for each user in a session
@@ -44,9 +30,19 @@ const chatState = atomFamily<ChatMessage[], number>({
   default: [],
 });
 
+const chatOnlineState = atomFamily<boolean, number>({
+  key: "chatOnlineState",
+  default: false,
+});
+
 const readMessagesState = atomFamily<number, number>({
   key: "readMessagesState",
   default: 0,
+});
+
+const oldMessagesRetrievedState = atomFamily<boolean, number>({
+  key: "oldMessagesRetrievedState",
+  default: false,
 });
 
 const newMessagesRetrievedState = atom({
@@ -56,9 +52,11 @@ const newMessagesRetrievedState = atom({
 
 export {
   userState,
-  scoketState,
+  socketConnectionState,
   chatState,
+  chatOnlineState,
   type ChatMessage,
   readMessagesState,
+  oldMessagesRetrievedState,
   newMessagesRetrievedState,
 };

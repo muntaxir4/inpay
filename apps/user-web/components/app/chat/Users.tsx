@@ -1,11 +1,11 @@
 "use client";
 import clsx from "clsx";
-import { ChatUser, MessagesSetters } from "./Chat";
-import { useSocket } from "@/store/customHooks";
+import { ChatUser, MessagesSetters, onlineSetters } from "./Chat";
+import { useSocketInstance } from "@/store/customHooks";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import Avatar, { genConfig } from "react-nice-avatar";
 import { useRecoilState } from "recoil";
-import { chatState, readMessagesState } from "@/store/atoms";
+import { chatOnlineState, chatState, readMessagesState } from "@/store/atoms";
 import { Badge } from "@/components/ui/badge";
 
 function UserAvatar({
@@ -19,9 +19,11 @@ function UserAvatar({
   selectedUserId: number;
   onClick: () => void;
 }) {
-  const socket = useSocket("UserAvatar");
+  const socket = useSocketInstance("UserAvatar");
   const [chatMessages, setChatMessages] = useRecoilState(chatState(user.id));
+  const [online, setOnline] = useRecoilState(chatOnlineState(user.id));
   messagesSetters[user.id] = setChatMessages;
+  onlineSetters[user.id] = setOnline;
   const [readMessages, setReadMessages] = useRecoilState(
     readMessagesState(user.id)
   );
@@ -29,7 +31,18 @@ function UserAvatar({
   const unread = chatMessages.length - readMessages;
   //join current user's chat room
   useEffect(() => {
-    socket?.emit("joinRoom", user.id);
+    if (socket) {
+      socket.emit("joinRoom", user.id);
+      socket.emit("checkOnline", user.id);
+      const checkOnline = setInterval(
+        () => socket.emit("checkOnline", user.id),
+        60000
+      );
+      return () => {
+        setOnline(false);
+        clearInterval(checkOnline);
+      };
+    }
   }, [user.id, socket]);
 
   useEffect(() => {
@@ -46,7 +59,7 @@ function UserAvatar({
       onClick={onClick}
     >
       {selectedUserId !== user.id && unread > 0 && (
-        <Badge className="absolute rounded-full bg-red-600 right-2 z-50">
+        <Badge className="absolute rounded-full bg-red-600 right-1 p-0.5 sm:px-2 z-50">
           {unread}
         </Badge>
       )}
@@ -54,6 +67,9 @@ function UserAvatar({
         {...genConfig(user.firstName + " " + user.lastName)}
         className="h-10 w-10 mx-auto  sm:h-14 sm:w-14"
       />
+      {online && (
+        <div className="absolute left-1 bottom-1 size-2 sm:size-3 rounded-full bg-green-600"></div>
+      )}
     </div>
   );
 }

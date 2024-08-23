@@ -106,7 +106,7 @@ export default function Chat() {
         socket.on("oldMessages", (messages: MessageServer[], withUserId) => {
           console.log("oldMessages");
           messagesSetters[Number(withUserId)]?.((prev) => {
-            const oldMessages = messages.map((msgObj) => {
+            const oldMessages: ChatMessage[] = messages.map((msgObj) => {
               return {
                 message: msgObj.message,
                 type: msgObj.from === user.id ? "SENT" : "RECEIVED",

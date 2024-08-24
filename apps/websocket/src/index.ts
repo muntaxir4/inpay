@@ -55,7 +55,7 @@ const httpServer = app
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://192.168.0.168:5173",
+    origin: process.env.WEB_URL,
   },
 });
 const users: { [key: string]: string } = {};

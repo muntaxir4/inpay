@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 import { useRouter } from "next/navigation";
 import { handleSignup } from "./handleSubmit";
+import GoogleSignin from "./GoogleSignin";
 
 export default function Signup() {
   const { toast } = useToast();
@@ -55,9 +56,11 @@ export default function Signup() {
               <Button type="submit" className="w-full">
                 Create your acccount
               </Button>
-              <Button variant="outline" className="w-full">
-                Signup with Google
-              </Button>
+              <GoogleSignin toast={toast} router={router}>
+                <Button type="button" variant="outline" className="w-full">
+                  Signup with Google
+                </Button>
+              </GoogleSignin>
             </div>
           </form>
           <div className="mt-4 text-center text-sm">

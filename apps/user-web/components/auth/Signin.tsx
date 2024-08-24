@@ -6,11 +6,11 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-// import { label } from "@/components/ui/label";
 import { handleSignin } from "./handleSubmit";
 import { useToast } from "@/components/ui/use-toast";
 
 import { useRouter } from "next/navigation";
+import GoogleSignin from "./GoogleSignin";
 
 export default function Signin() {
   const { toast } = useToast();
@@ -30,9 +30,9 @@ export default function Signin() {
         <div className="flex items-center justify-center py-12">
           <div className="mx-auto grid gap-6 text-sm">
             <div className="grid gap-2 text-center">
-              <h1 className="text-3xl font-bold">Login</h1>
+              <h1 className="text-3xl font-bold">Sign in</h1>
               <p className="text-balance text-muted-foreground">
-                Enter your email below to login to your account
+                Enter your email below to sign in to your account
               </p>
             </div>
             <div className="grid gap-4">
@@ -47,24 +47,17 @@ export default function Signin() {
                 />
               </div>
               <div className="grid gap-2">
-                <div className="flex items-center ">
-                  <label htmlFor="password">Password</label>
-                  <Link
-                    href="/forgot-password"
-                    className="ml-auto inline-block text-sm underline"
-                    tabIndex={-1}
-                  >
-                    Forgot your password?
-                  </Link>
-                </div>
+                <label htmlFor="password">Password</label>
                 <Input id="password" type="password" required />
               </div>
               <Button type="submit" className="w-full">
-                Login
+                Sign in
               </Button>
-              <Button variant="outline" className="w-full">
-                Login with Google
-              </Button>
+              <GoogleSignin toast={toast} router={router}>
+                <Button type="button" variant="outline" className="w-full">
+                  Sign in with Google
+                </Button>
+              </GoogleSignin>
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}

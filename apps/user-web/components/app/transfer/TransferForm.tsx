@@ -45,11 +45,7 @@ export default function TransferForm({
   const { toast } = useToast();
 
   return (
-    <form
-      action=""
-      className="grid gap-3"
-      onSubmit={(e) => handleTransfer(e, toast, id)}
-    >
+    <form className="grid gap-3" onSubmit={(e) => handleTransfer(e, toast, id)}>
       {children}
     </form>
   );

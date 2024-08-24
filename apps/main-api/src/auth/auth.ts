@@ -3,8 +3,16 @@ import cookieParser from "cookie-parser";
 import { prisma } from "@repo/db";
 import { sign } from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { OAuth2Client } from "google-auth-library";
+import axios from "axios";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
+
+const oAuth2Client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  "postmessage"
+);
 
 const auth = Router();
 auth.use(json());
@@ -70,11 +78,11 @@ auth.post("/signin", async (req, res) => {
   try {
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email, loginType: null },
     });
 
-    if (!existingUser) {
-      return res.status(400).json({ message: "Invalid email or password" });
+    if (!existingUser || !password || password?.length < 5) {
+      return res.status(400).json({ message: "User not found" });
     }
 
     // Check if password is correct
@@ -99,6 +107,86 @@ auth.post("/signin", async (req, res) => {
   } catch (error) {
     console.error("Error signing in user:", error);
     return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+auth.post("/signin/google", async (req, res) => {
+  const code = req.body.code;
+  if (!code) {
+    return res.status(400).json({ message: "Google Signin Failed" });
+  }
+  const {
+    tokens: { access_token },
+  } = await oAuth2Client.getToken(code);
+  if (!access_token) {
+    return res.status(400).json({ message: "Google Signin Failed" });
+  }
+  try {
+    const response = await axios.get(
+      `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${access_token}`,
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          Accept: "application/json",
+        },
+      }
+    );
+    const { email, name }: { email: string; name: string } = response.data;
+    const [firstName, lastName] = name.split(" ");
+    if (!email || !firstName || !lastName)
+      throw new Error("Invalid Google Signin Data");
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+    let userId = -1;
+    if (existingUser) {
+      userId = existingUser.id;
+      if (!existingUser.loginType) {
+        await prisma.user.update({
+          where: { email },
+          data: {
+            loginType: "GOOGLE",
+          },
+        });
+      }
+    } else {
+      const [newUser] = await prisma.$transaction([
+        prisma.user.create({
+          data: {
+            firstName,
+            lastName,
+            email,
+            password: "",
+            loginType: "GOOGLE",
+            userAccount: {
+              create: {},
+            },
+          },
+        }),
+        prisma.bankUser.create({
+          data: {
+            email,
+            balance: 8000,
+          },
+        }),
+      ]);
+      userId = newUser.id;
+    }
+
+    // Generate JWT token
+    const token = sign({ userId }, JWT_SECRET);
+
+    // Set token as a cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" && "none",
+    });
+    res.status(200).json({ message: "User signed in successfully" });
+  } catch (error) {
+    res.status(400).json({ message: "Google Signin Failed" });
   }
 });
 

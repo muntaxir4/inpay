@@ -13,12 +13,14 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { useSearchParams } from "next/navigation";
+import Loading from "@/components/Loading";
 
 function EmailForm({
   setEmail,
 }: {
   setEmail: Dispatch<SetStateAction<string>>;
 }) {
+  const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
   async function verifyEmail(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -52,7 +54,15 @@ function EmailForm({
         onSubmit={verifyEmail}
       >
         <Input type="email" placeholder="Email" name="email" />
-        <Button type="submit">Get OTP</Button>
+        {submitted ? (
+          <Button>
+            <Loading />
+          </Button>
+        ) : (
+          <Button type="submit" onClick={() => setSubmitted(true)}>
+            Get OTP
+          </Button>
+        )}
       </form>
     </>
   );

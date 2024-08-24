@@ -13,6 +13,7 @@ model User {
   password    String
   firstName   String
   lastName    String
+  loginType   LoginType?    
   userAccount UserAccount?
 
   @@unique([firstName, lastName])
@@ -64,6 +65,10 @@ model UserOTP {
   email  String
   otp    String
   bank   BankType
+}
+
+enum LoginType {
+  GOOGLE
 }
 
 enum TxType {

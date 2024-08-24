@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useSocketInstance } from "@/store/customHooks";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCcw } from "lucide-react";
+import { getFloatAmount } from "@/store/Singleton";
 
 function Message({
   msgObj,
@@ -57,7 +58,9 @@ function Message({
       >
         {msgObj.isPayment ? (
           <p className="text-2xl font-medium text-center p-4">
-            {msgObj.message}
+            {msgObj.message[0] +
+              "" +
+              getFloatAmount(Number(msgObj.message.substring(1)))}
           </p>
         ) : (
           <p className="mt-1 mx-3">{msgObj.message}</p>

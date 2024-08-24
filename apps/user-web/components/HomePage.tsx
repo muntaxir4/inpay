@@ -6,9 +6,8 @@ import React from "react";
 import { Button } from "./ui/button";
 import Link from "next/link";
 
-export default function FlipWordsDemo() {
+export default function HomePage() {
   const words = ["banking", "investing", "spending", "chatting"];
-
   return (
     <div>
       <div className=" my-16 flex justify-center items-center px-4">
@@ -24,20 +23,23 @@ export default function FlipWordsDemo() {
         </div>
       </div>
       <div className="gap-2 flex justify-center sm:gap-8 mb-4">
-        <Link href={"/auth/signup"}>
-          <Button className="rounded-2xl">Join Now</Button>
-        </Link>
+        {localStorage.getItem("inpay") === "true" ? (
+          <Link href={"/app"}>
+            <Button className="rounded-2xl">Go to App</Button>
+          </Link>
+        ) : (
+          <>
+            <Link href={"/auth/signup"}>
+              <Button className="rounded-2xl">Join Now</Button>
+            </Link>
 
-        <Link href={"/auth/signin"}>
-          <Button variant={"outline"} className="rounded-2xl">
-            Log In
-          </Button>
-        </Link>
-        <Link href={"/app"}>
-          <Button variant={"secondary"} className="rounded-2xl">
-            Go to App
-          </Button>
-        </Link>
+            <Link href={"/auth/signin"}>
+              <Button variant={"outline"} className="rounded-2xl">
+                Log In
+              </Button>
+            </Link>
+          </>
+        )}
       </div>
       <FeaturesSectionDemo />
       <div className="flex gap-3 justify-end pb-5 mx-8 text-muted-foreground">

@@ -130,6 +130,7 @@ export default function SendTo({
                         name="amount"
                         id="amount"
                         placeholder="100"
+                        step={0.01}
                         required
                       />
                     </div>

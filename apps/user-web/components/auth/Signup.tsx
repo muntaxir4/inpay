@@ -13,10 +13,18 @@ import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { handleSignup } from "./handleSubmit";
 import GoogleSignin from "./GoogleSignin";
+import { useEffect } from "react";
 
 export default function Signup() {
   const { toast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    if (localStorage.getItem("inpay") === "true") {
+      router.push("/");
+    }
+  }, []);
+
   return (
     <div className="h-full lg:grid lg:grid-cols-2 mx-4 w-full">
       <div className="flex items-center justify-center py-12">

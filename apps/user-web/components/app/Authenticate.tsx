@@ -36,6 +36,7 @@ export default function Authenticate({
   } else if (data) {
     if (!data.user) {
       setUser(null);
+      localStorage.setItem("inpay", "false");
       window.location.href = "/auth/signin";
     } else {
       setUser({
@@ -45,6 +46,7 @@ export default function Authenticate({
         balance: data.user.userAccount.balance,
         lastSeen: data.user.userAccount.lastSeen,
       });
+      localStorage.setItem("inpay", "true");
       return (
         <>
           <InitSocket />

@@ -33,7 +33,7 @@ function BalanceCard() {
             </div>
             <div className="grid gap-1">
               <label htmlFor="available">Locked Balance</label>
-              <div className="text-2xl font-semibold">$0.00</div>
+              <div className="text-2xl font-semibold">$0</div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">

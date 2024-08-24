@@ -68,6 +68,7 @@ function DepositForm() {
         className="rounded-2xl h-8 text-center bg-card w-3/4 sm:w-2/5 mx-auto"
         placeholder="Enter amount"
         name="amount"
+        step={0.01}
         required
       />
       <Button
@@ -98,7 +99,7 @@ export default function DepositBankOptions() {
         </div>
         <div
           className={cn("border-b p-1", option == 1 && "bg-muted")}
-          onClick={() => setOption(1)}
+          // onClick={() => setOption(1)}
         >
           SBI
         </div>

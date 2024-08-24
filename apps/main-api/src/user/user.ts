@@ -42,6 +42,14 @@ async function addNamesToId(
   }
 }
 
+export function convertFloatStringToInteger(num: string): number {
+  let [integerPartString, fractionalPartString] = num.toString().split(".");
+  fractionalPartString = fractionalPartString?.substring(0, 2).padEnd(2, "0");
+  const integerPart = Number(integerPartString ?? 0);
+  const fractionalPart = Number(fractionalPartString ?? 0);
+  return integerPart * 100 + fractionalPart;
+}
+
 user.get("/", Authenticate, async (req, res) => {
   try {
     const user = await prisma.user.findFirst({
@@ -205,8 +213,9 @@ user.post("/send", Authenticate, async (req, res) => {
 
   try {
     const { to, amount: atmp }: { to: number; amount: string } = req.body;
-    const amount = Number(atmp);
+    const amount = convertFloatStringToInteger(atmp);
     const from = req.body.userId as number;
+    console.log(atmp, typeof atmp, amount, typeof amount);
     if (from === to)
       return res.status(400).json({ message: "Cannot send to self" });
     else if (amount <= 0)
@@ -346,6 +355,9 @@ user.get("/interactions", Authenticate, async (req, res) => {
     const interactionsTmp = await prisma.userInteractions.findMany({
       where: {
         OR: [{ userId_1: req.body.userId }, { userId_2: req.body.userId }],
+      },
+      orderBy: {
+        updatedAt: "desc",
       },
       select: {
         userId_1: true,

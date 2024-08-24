@@ -12,9 +12,17 @@ export default function LoggedinUserCard() {
   const fullName = user?.firstName + " " + user?.lastName;
   async function handleLogout() {
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    await axios.post(API_URL + "/auth/signout", {}, { withCredentials: true });
-    // window.location.href = "/";
-    router.push("/");
+    try {
+      await axios.post(
+        API_URL + "/auth/signout",
+        {},
+        { withCredentials: true }
+      );
+      localStorage.setItem("inpay", "false");
+      router.push("/");
+    } catch (error) {
+      console.error(error);
+    }
   }
   return (
     <div className=" border border-foreground rounded-3xl p-2 flex justify-between items-center gap-2">
@@ -23,7 +31,6 @@ export default function LoggedinUserCard() {
       <Badge variant="secondary" onClick={handleLogout}>
         Logout
       </Badge>
-      {/* <Ellipsis className="w-8 ml-2" /> */}
     </div>
   );
 }

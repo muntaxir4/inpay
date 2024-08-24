@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useRecoilValue } from "recoil";
 import { userState } from "@/store/atoms";
+import { getFloatAmount } from "@/store/Singleton";
 
 interface RecentTransaction {
   id: string;
@@ -73,7 +74,7 @@ export default function RecentTxContent({ className }: { className?: string }) {
             <TableRow key={index}>
               <TableCell>{tx.firstName + " " + tx.lastName}</TableCell>
               <TableCell>{tx.type}</TableCell>
-              <TableCell>{tx.amount}</TableCell>
+              <TableCell>{getFloatAmount(tx.amount)}</TableCell>
               <TableCell>
                 <ShowStatusBadge status={tx.status} />
               </TableCell>

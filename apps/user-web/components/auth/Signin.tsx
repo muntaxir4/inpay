@@ -11,10 +11,18 @@ import { useToast } from "@/components/ui/use-toast";
 
 import { useRouter } from "next/navigation";
 import GoogleSignin from "./GoogleSignin";
+import { useEffect } from "react";
 
 export default function Signin() {
   const { toast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    if (localStorage.getItem("inpay") === "true") {
+      router.push("/");
+    }
+  }, []);
+
   return (
     <div className="h-full mx-4 lg:grid lg:grid-cols-2 w-full">
       <div className="hidden bg-muted lg:block">

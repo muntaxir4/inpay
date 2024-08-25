@@ -6,37 +6,55 @@ import Authenticate from "../auth/Authenticate";
 import axios from "axios";
 const user = Router();
 
+interface UserFullName {
+  firstName: string;
+  lastName: string;
+}
+
 user.use(json());
 user.use(cookieParser());
 
+// Cache for user full name cause it is required at many places
+const userFullNameCache = {} as {
+  [key: number]: { firstName: string; lastName: string };
+};
+
+//clear cache after 1 day
+setInterval(
+  () => {
+    Object.keys(userFullNameCache).forEach((key) => {
+      delete userFullNameCache[Number(key)];
+    });
+  },
+  24 * 60 * 60 * 1000
+);
+
+//converts user id to user full name, and deletes the id key if it is not "id"
 async function addNamesToId(
   userIdObjArray: { [key: string]: any }[],
   idKey: string
 ) {
-  const cache = {} as {
-    [key: number]: { firstName: string; lastName: string };
-  };
-
   for (const userIdObj of userIdObjArray) {
-    if (!cache[userIdObj[idKey]]) {
+    const id = userIdObj[idKey];
+    if (!userFullNameCache[id]) {
       const user = await prisma.user.findFirst({
         where: {
-          id: userIdObj[idKey],
+          id: id,
         },
         select: {
           firstName: true,
           lastName: true,
         },
       });
-      cache[userIdObj[idKey]] = {
+      userFullNameCache[id] = {
         firstName: user?.firstName || "",
         lastName: user?.lastName || "",
       };
     }
-    userIdObj["firstName"] = cache[userIdObj[idKey]]?.firstName;
-    userIdObj["lastName"] = cache[userIdObj[idKey]]?.lastName;
+    userIdObj["firstName"] = userFullNameCache[id]?.firstName;
+    userIdObj["lastName"] = userFullNameCache[id]?.lastName;
     if (idKey != "id") {
-      userIdObj["id"] = userIdObj[idKey];
+      userIdObj["id"] = id;
       delete userIdObj[idKey];
     }
   }
@@ -134,15 +152,19 @@ user.get("/recent/interacted", Authenticate, async (req, res) => {
           interaction.userId_1 === req.body.userId
             ? interaction.userId_2
             : interaction.userId_1;
-        const user = await prisma.user.findFirst({
-          where: {
-            id,
-          },
-          select: {
-            firstName: true,
-            lastName: true,
-          },
-        });
+
+        userFullNameCache[id] =
+          userFullNameCache[id] ??
+          ((await prisma.user.findFirst({
+            where: {
+              id,
+            },
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          })) as UserFullName);
+        const user = userFullNameCache[id];
         return {
           id,
           firstName: user?.firstName,
@@ -194,7 +216,7 @@ user.post("/send", Authenticate, async (req, res) => {
   async function informWebsocket(from: number, to: number, amount: number) {
     const WEBSOCKET_URL = process.env.WEBSOCKET_URL as string;
     try {
-      await axios.post(`${WEBSOCKET_URL}/transferDone`, { from, to, amount });
+      await axios.post(WEBSOCKET_URL + "/transferDone", { from, to, amount });
     } catch (error) {
       console.error("Error informing Websoket about transfer", error);
       try {
@@ -309,6 +331,7 @@ user.post("/send", Authenticate, async (req, res) => {
   }
 });
 
+//searches users based on filter
 user.get("/bulk", Authenticate, async (req, res) => {
   const { filter: search } = req.query;
   const [filter1, filter2] = String(search || "").split(" ");
@@ -349,6 +372,7 @@ user.get("/bulk", Authenticate, async (req, res) => {
   }
 });
 
+//gets all user interactions for chat
 user.get("/interactions", Authenticate, async (req, res) => {
   try {
     const interactionsTmp = await prisma.userInteractions.findMany({
@@ -371,15 +395,19 @@ user.get("/interactions", Authenticate, async (req, res) => {
           interaction.userId_1 === req.body.userId
             ? interaction.userId_2
             : interaction.userId_1;
-        const user = await prisma.user.findFirst({
-          where: {
-            id,
-          },
-          select: {
-            firstName: true,
-            lastName: true,
-          },
-        });
+
+        userFullNameCache[id] =
+          userFullNameCache[id] ??
+          ((await prisma.user.findFirst({
+            where: {
+              id,
+            },
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          })) as UserFullName);
+        const user = userFullNameCache[id];
         return {
           id,
           firstName: user?.firstName,

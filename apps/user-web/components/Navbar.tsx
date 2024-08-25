@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Badge } from "./ui/badge";
 import { SidebarMobile } from "./app/Sidebar";
 import { usePathname } from "next/navigation";
+import Notification from "./Notification";
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
@@ -22,6 +23,9 @@ export default function Navbar() {
         <Link href={"/"}>inPay</Link> <Badge variant={"outline"}>beta</Badge>
       </h2>
       <div className="grid grid-cols-3 items-center">
+        <div className="col-span-2 flex justify-end h-full items-center">
+          <Notification />
+        </div>
         <div className="col-start-3 text-end">
           {theme === "light" ? (
             <Button

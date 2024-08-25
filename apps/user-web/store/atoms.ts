@@ -1,5 +1,6 @@
 "use client";
 import { atom, atomFamily } from "recoil";
+
 interface User {
   id: number;
   firstName: string;
@@ -7,6 +8,17 @@ interface User {
   balance: number;
   lastSeen: Date;
 }
+
+interface Notification {
+  message: string;
+  createdAt: Date;
+}
+
+export interface NotificationServer {
+  amount: number;
+  message: string;
+}
+
 interface ChatMessage {
   message: string;
   type: "SENT" | "RECEIVED";
@@ -19,6 +31,12 @@ const userState = atom<null | User>({
   default: null,
 });
 
+const notificationState = atom<Notification[]>({
+  key: "notificationState",
+  default: [],
+});
+
+//stores the connection state of the socket
 const socketConnectionState = atom({
   key: "socketConnectionState",
   default: false,
@@ -52,6 +70,7 @@ const newMessagesRetrievedState = atom({
 
 export {
   userState,
+  notificationState,
   socketConnectionState,
   chatState,
   chatOnlineState,

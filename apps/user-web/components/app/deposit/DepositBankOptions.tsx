@@ -30,6 +30,7 @@ function DepositForm() {
     e.preventDefault();
     setLoading(true);
     const amount = e.currentTarget.amount.value;
+    e.currentTarget.reset();
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
     try {
       const response = await axios.post(

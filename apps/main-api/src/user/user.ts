@@ -215,7 +215,6 @@ user.post("/send", Authenticate, async (req, res) => {
     const { to, amount: atmp }: { to: number; amount: string } = req.body;
     const amount = convertFloatStringToInteger(atmp);
     const from = req.body.userId as number;
-    console.log(atmp, typeof atmp, amount, typeof amount);
     if (from === to)
       return res.status(400).json({ message: "Cannot send to self" });
     else if (amount <= 0)

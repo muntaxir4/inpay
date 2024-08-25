@@ -8,6 +8,11 @@ interface SocketMessage {
   createdAt: Date;
 }
 
+interface Notification {
+  amount: number;
+  message: string;
+}
+
 interface ChatMessage {
   from: number;
   to: number;
@@ -17,8 +22,28 @@ interface ChatMessage {
 
 const app = express();
 app.use(express.json());
+
+app.post("/api/v1/notify", async (req) => {
+  const {
+    from,
+    amount,
+    type,
+    status,
+  }: { from: number; amount: number; type: 0 | 1; status: 0 | 1 } = req.body;
+  console.log({
+    from,
+    amount,
+    type,
+    status,
+  });
+  const message =
+    type === 1 ? "Successfully Withdrawn" : "Successfully Deposited";
+  if (users[from]) io.to(users[from]).emit("notify", { amount, message });
+});
+
 app.post("/api/v1/transferDone", async (req, res) => {
   const { from, to, amount } = req.body;
+  //@bug hardcoded currency
   try {
     const message = await prisma.userMessages.create({
       data: {
@@ -39,6 +64,16 @@ app.post("/api/v1/transferDone", async (req, res) => {
     res.status(200).end();
     const room = "chat:" + getRoomString(from.toString(), to.toString());
     io.to(room).emit("message", message);
+    if (users[from])
+      io.to(users[from]).emit("notify", {
+        amount,
+        message: `Sent successfully`,
+      });
+    if (users[to])
+      io.to(users[to]).emit("notify", {
+        amount,
+        message: `Received successfully`,
+      });
   } catch (error) {
     console.error("Error sending payment message", error);
     res.status(500).end();

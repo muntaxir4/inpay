@@ -35,7 +35,6 @@ class SocketIO {
 }
 
 export function getFloatAmount(amount: number) {
-  console.log(amount, amount / 100, (amount % 100) / 100);
   return Math.floor(amount / 100) + (amount % 100) / 100;
 }
 

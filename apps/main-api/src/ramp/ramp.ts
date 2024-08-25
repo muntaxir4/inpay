@@ -78,13 +78,18 @@ ramp.get("/hdfc/offramp/get-otp", Authenticate, async (req, res) => {
       },
     });
     try {
-      const fromEmail = process.env.SMTP_USER;
-      await transporter.sendMail({
-        from: `"inPay" <hq-${fromEmail}>`, // sender address
-        to: user.email, // list of receivers
-        subject: "One Time Password, InPay", // Subject line
-        text: `Your 6 digit OTP for inPay withdrawal to HDFC Demo: ${otp}`, // plain text body
-      });
+      if (process.env.NODE_ENV === "production") {
+        const fromEmail = process.env.SMTP_USER;
+        await transporter.sendMail({
+          from: `"inPay" <hq-${fromEmail}>`, // sender address
+          to: user.email, // list of receivers
+          subject: "One Time Password, InPay", // Subject line
+          text: `Your 6 digit OTP for inPay withdrawal to HDFC Demo: ${otp}`, // plain text body
+        });
+      } else
+        console.log(
+          `Your 6 digit OTP for inPay withdrawal to HDFC Demo: ${otp}`
+        );
       res.status(200).json({ message: "OTP Sent" });
     } catch (error) {
       console.error(error);

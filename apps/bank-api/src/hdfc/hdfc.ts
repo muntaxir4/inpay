@@ -81,14 +81,19 @@ hdfc.post("/verify/email", async (req, res) => {
     });
     //send email
     try {
-      await transporter.sendMail({
-        from: `"HDFC DEMO" <${fromEmail}>`, // sender address
-        to: email, // list of receivers
-        subject: "One Time Password, InPay", // Subject line
-        text: `Your 6 digit OTP for HDFC Demo withdrawal to Inpay: ${otp}`, // plain text body
-      });
-      // console.log(`Your 6 digit OTP for HDFC Demo withdrawal to Inpay: ${otp}`);
-      res.status(200).json({ message: "Email Found" });
+      if (process.env.NODE_ENV === "production") {
+        await transporter.sendMail({
+          from: `"HDFC DEMO" <${fromEmail}>`, // sender address
+          to: email, // list of receivers
+          subject: "One Time Password, InPay", // Subject line
+          text: `Your 6 digit OTP for HDFC Demo withdrawal to Inpay: ${otp}`, // plain text body
+        });
+      } else {
+        console.log(
+          `Your 6 digit OTP for HDFC Demo withdrawal to Inpay: ${otp}`
+        );
+      }
+      res.status(200).json({ message: "Email Found", balance: user.balance });
     } catch (error) {
       await prisma.userOTP.delete({
         where: {
@@ -109,7 +114,7 @@ hdfc.post("/verify/otp", async (req, res) => {
   //withdraw logic
   async function withdraw(tokenEncoded: string, fromAcc: string) {
     const token = decodeURIComponent(tokenEncoded);
-    console.log(token);
+    // console.log(token);
     const decryptedData = decrypt(token, key);
     const { txId, webhookUrl, toAcc, amount } = JSON.parse(decryptedData);
 
@@ -188,7 +193,7 @@ hdfc.post("/withdraw/token", async (req, res) => {
 
 async function informWebhook(webhookUrl: string, txId: string, status: string) {
   const response = await axios.post(webhookUrl, { txId, status });
-  console.log(response.data);
+  // console.log(response.data);
 }
 
 //depricated in future

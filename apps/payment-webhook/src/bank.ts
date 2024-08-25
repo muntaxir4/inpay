@@ -19,6 +19,7 @@ const bank = Router();
 bank.use(json());
 
 const REDIS_URL = process.env.REDIS_URL;
+const WEBSOCKET_URL = process.env.WEBSOCKET_URL;
 console.log("REDIS_URL", REDIS_URL);
 
 const redisClientPush = createClient({
@@ -45,9 +46,7 @@ async function startRedisPop() {
 }
 async function workerInpay() {
   while (1) {
-    console.log("Checking for deposits");
     const frontTx = await redisClientPop.brPop("bankTx", 0);
-    console.log("front redis", frontTx);
     const value: BankResponse = JSON.parse(frontTx?.element ?? "");
     if (!value) continue;
     try {
@@ -76,6 +75,18 @@ async function workerInpay() {
               },
             },
           });
+          fetch(WEBSOCKET_URL + "/notify", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: tx.from,
+              amount: tx.amount,
+              type: 0,
+              status: 1,
+            }),
+          });
         } else {
           // Withdraw from inpay
           await prisma.userAccount.update({
@@ -88,7 +99,32 @@ async function workerInpay() {
               },
             },
           });
+          fetch(WEBSOCKET_URL + "/notify", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: tx.from,
+              amount: tx.amount,
+              type: 1,
+              status: 1,
+            }),
+          });
         }
+      } else {
+        fetch(WEBSOCKET_URL + "/notify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: tx.from,
+            amount: tx.amount,
+            type: value.type,
+            status: 0,
+          }),
+        });
       }
     } catch (error) {
       console.error(error);

@@ -60,6 +60,25 @@ async function addNamesToId(
   }
 }
 
+async function getFullName(id: number) {
+  if (!userFullNameCache[id]) {
+    const user = await prisma.user.findFirst({
+      where: {
+        id,
+      },
+      select: {
+        firstName: true,
+        lastName: true,
+      },
+    });
+    userFullNameCache[id] = {
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
+    };
+  }
+  return userFullNameCache[id];
+}
+
 export function convertFloatStringToInteger(num: string): number {
   let [integerPartString, fractionalPartString] = num.toString().split(".");
   fractionalPartString = fractionalPartString?.substring(0, 2).padEnd(2, "0");
@@ -153,18 +172,7 @@ user.get("/recent/interacted", Authenticate, async (req, res) => {
             ? interaction.userId_2
             : interaction.userId_1;
 
-        userFullNameCache[id] =
-          userFullNameCache[id] ??
-          ((await prisma.user.findFirst({
-            where: {
-              id,
-            },
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          })) as UserFullName);
-        const user = userFullNameCache[id];
+        const user = await getFullName(id);
         return {
           id,
           firstName: user?.firstName,
@@ -396,18 +404,7 @@ user.get("/interactions", Authenticate, async (req, res) => {
             ? interaction.userId_2
             : interaction.userId_1;
 
-        userFullNameCache[id] =
-          userFullNameCache[id] ??
-          ((await prisma.user.findFirst({
-            where: {
-              id,
-            },
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          })) as UserFullName);
-        const user = userFullNameCache[id];
+        const user = await getFullName(id);
         return {
           id,
           firstName: user?.firstName,
@@ -420,6 +417,85 @@ user.get("/interactions", Authenticate, async (req, res) => {
     res.status(200).json({ message: "Request Successful", interactions });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
+//gets total pages for transactions
+user.get("/transactions/pages", Authenticate, async (req, res) => {
+  const { type } = req.query;
+  const typeFilter =
+    typeof type === "string" ? [type] : Array.isArray(type) ? type : [];
+
+  try {
+    const totalTransactions = await prisma.transactions.count({
+      where: {
+        OR: [{ from: req.body.userId }, { to: req.body.userId }],
+        // @ts-ignore
+        type:
+          typeFilter.length === 0
+            ? {}
+            : {
+                in: typeFilter,
+              },
+      },
+    });
+    res.status(200).json({
+      message: "Request Successful",
+      pages: Math.ceil(totalTransactions / 10),
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
+//gets paginated transactions
+user.get("/transactions", Authenticate, async (req, res) => {
+  //page index starts from 1
+  const { page = 1, type } = req.query;
+  const typeFilter =
+    typeof type === "string" ? [type] : Array.isArray(type) ? type : [];
+
+  try {
+    const allTransactions = await prisma.transactions.findMany({
+      where: {
+        OR: [{ from: req.body.userId }, { to: req.body.userId }],
+        // @ts-ignore
+        type:
+          typeFilter.length === 0
+            ? {}
+            : {
+                in: typeFilter,
+              },
+      },
+      skip: (Number(page) - 1) * 10,
+      take: 10,
+      orderBy: {
+        date: "desc",
+      },
+    });
+    //changes from and to numbers to fullname strings
+    const transactions = await Promise.all(
+      allTransactions.map(async (tx) => {
+        const newTx = { ...tx } as any;
+        if (newTx.from !== req.body.userId) {
+          const user = await getFullName(newTx.from);
+          newTx.from = user.firstName + " " + user.lastName;
+        } else {
+          newTx.from = "You";
+        }
+
+        if (newTx.to !== req.body.userId && newTx.to) {
+          const user = await getFullName(newTx.to);
+          newTx.to = user.firstName + " " + user.lastName;
+        } else {
+          newTx.to = "You";
+        }
+        return newTx;
+      })
+    );
+    res.status(200).json({ message: "Request Successful", transactions });
+  } catch (error) {
     res.status(500).json({ message: "Request Failed" });
   }
 });

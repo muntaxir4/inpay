@@ -10,7 +10,7 @@ import WithdrawCard from "./WithdrawCard";
 
 function DepositCard() {
   return (
-    <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow">
+    <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow animate-slide-up">
       <CardHeader>
         <CardTitle>Deposit</CardTitle>
         <CardDescription>Deposit money into your inPay account</CardDescription>

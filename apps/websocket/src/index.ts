@@ -1,6 +1,8 @@
 import express from "express";
 import { Server } from "socket.io";
 import { prisma } from "@repo/db";
+import cookie from "cookie";
+import jwt from "jsonwebtoken";
 
 interface SocketMessage {
   message: string;
@@ -19,7 +21,7 @@ interface ChatMessage {
   message: string;
   createdAt: Date;
 }
-
+const JWT_SECRET = process.env.JWT_SECRET as string;
 const app = express();
 app.use(express.json());
 
@@ -91,6 +93,7 @@ const httpServer = app
 const io = new Server(httpServer, {
   cors: {
     origin: process.env.WEB_URL,
+    credentials: true,
   },
 });
 const users: { [key: string]: string } = {};
@@ -119,9 +122,32 @@ function getRoomString(user1: string, user2: string) {
   return user1 < user2 ? user1 + "-" + user2 : user2 + "-" + user1;
 }
 
+// Middleware to extract and verify token from cookies
+io.use((socket, next) => {
+  const cookies = socket.handshake.headers.cookie;
+  if (!cookies) {
+    console.error("No cookies found");
+    return next(new Error("Authentication error"));
+  }
+
+  const token = cookie.parse(cookies)?.token;
+  if (!token) {
+    console.error("No auth token found");
+    return next(new Error("Authentication error"));
+  }
+
+  jwt.verify(token, JWT_SECRET, (err) => {
+    if (err) {
+      console.error("Token verification failed", err);
+      return next(new Error("Authentication error"));
+    }
+    next();
+  });
+});
+
 io.on("connection", (socket) => {
   let userId: string;
-  console.log("connected", socket.id);
+  console.log("connected", socket.id, socket.handshake.headers.cookie);
   // console.log(
   //   "All connected clients:",
   //   Array.from(io.sockets.sockets.values()).map((s) => s.id)

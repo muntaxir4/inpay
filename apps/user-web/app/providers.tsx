@@ -3,6 +3,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RecoilRoot } from "recoil";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,7 +23,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           defer
           src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/spiral.js"
         ></script>
-        {children}
+        <TooltipProvider>{children}</TooltipProvider>
         <Toaster />
       </QueryClientProvider>
     </RecoilRoot>

@@ -14,7 +14,7 @@ import RecentTxContent from "./RecentTxContent";
 
 function BalanceCard() {
   return (
-    <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow">
+    <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow animate-slide-up">
       <CardHeader>
         <CardTitle>Welcome to inPay</CardTitle>
         <CardDescription>
@@ -58,15 +58,15 @@ function BalanceCard() {
 
 function RecentTransactions() {
   return (
-    <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow">
+    <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow animate-slide-up">
       <CardHeader>
         <CardTitle>Recent Transactions</CardTitle>
         <CardDescription>View your recent financial activity.</CardDescription>
       </CardHeader>
       <CardContent>
         {/* Make it visible properly on mobile */}
-        <div className="grid sm:block grid-cols-12">
-          <div className="col-start-2 col-span-10">
+        <div className="grid grid-cols-12">
+          <div className="col-span-12">
             <RecentTxContent />
           </div>
         </div>

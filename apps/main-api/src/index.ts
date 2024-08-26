@@ -4,7 +4,7 @@ import AuthRouter from "./auth/auth";
 import UserRouter from "./user/user";
 import rampRouter from "./ramp/ramp";
 
-// console.log(process.env, process.env.REDIS_URL);
+// console.log("ENV", process.env);
 const app = express();
 app.use(
   "/api/v1",

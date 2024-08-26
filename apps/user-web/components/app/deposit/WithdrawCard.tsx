@@ -11,7 +11,7 @@ import WithdrawBankOptions from "./WithdrawBankOptions";
 
 export default function WithdrawCard() {
   return (
-    <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow">
+    <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow animate-slide-up">
       <CardHeader>
         <CardTitle>Withdraw</CardTitle>
         <CardDescription>

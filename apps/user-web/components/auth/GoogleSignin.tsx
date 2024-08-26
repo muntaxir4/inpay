@@ -55,7 +55,7 @@ function GoogleSigninHandler({
       });
     }
   }
-  return <div onClick={googleLogin}>{children}</div>;
+  return <div onClick={() => googleLogin()}>{children}</div>;
 }
 
 export default function GoogleSignin({

@@ -23,7 +23,7 @@ export default function HomePage() {
         </div>
       </div>
       <div className="gap-2 flex justify-center sm:gap-8 mb-4">
-        {localStorage.getItem("inpay") === "true" ? (
+        {localStorage?.getItem("inpay") === "true" ? (
           <Link href={"/app"}>
             <Button className="rounded-2xl">Go to App</Button>
           </Link>

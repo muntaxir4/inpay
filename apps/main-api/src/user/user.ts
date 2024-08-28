@@ -489,7 +489,8 @@ user.get("/transactions", Authenticate, async (req, res) => {
           const user = await getFullName(newTx.to);
           newTx.to = user.firstName + " " + user.lastName;
         } else {
-          newTx.to = "You";
+          if (newTx.type === "SPENT") newTx.to = "Merchant";
+          else newTx.to = "You";
         }
         return newTx;
       })
@@ -594,7 +595,7 @@ user.post("/spend", Authenticate, async (req, res) => {
         await tx.merchantTransactions.create({
           data: {
             amount,
-            countryCode: countryCode.toString().toLowerCase(),
+            countryCode: countryCode,
           },
         });
       });

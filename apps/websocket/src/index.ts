@@ -126,19 +126,19 @@ function getRoomString(user1: string, user2: string) {
 io.use((socket, next) => {
   const cookies = socket.handshake.headers.cookie;
   if (!cookies) {
-    console.error("No cookies found");
+    // console.error("No cookies found");
     return next(new Error("Authentication error"));
   }
 
   const token = cookie.parse(cookies)?.token;
   if (!token) {
-    console.error("No auth token found");
+    // console.error("No auth token found");
     return next(new Error("Authentication error"));
   }
 
   jwt.verify(token, JWT_SECRET, (err) => {
     if (err) {
-      console.error("Token verification failed", err);
+      // console.error("Token verification failed", err);
       return next(new Error("Authentication error"));
     }
     next();
@@ -147,7 +147,7 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
   let userId: string;
-  console.log("connected", socket.id, socket.handshake.headers.cookie);
+  console.log("connected", socket.id);
   // console.log(
   //   "All connected clients:",
   //   Array.from(io.sockets.sockets.values()).map((s) => s.id)

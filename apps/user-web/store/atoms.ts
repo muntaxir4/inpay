@@ -31,6 +31,11 @@ const userState = atom<null | User>({
   default: null,
 });
 
+const userRefetchState = atom({
+  key: "userRefetchState",
+  default: false,
+});
+
 const notificationState = atom<Notification[]>({
   key: "notificationState",
   default: [],
@@ -70,6 +75,7 @@ const newMessagesRetrievedState = atom({
 
 export {
   userState,
+  userRefetchState,
   notificationState,
   socketConnectionState,
   chatState,

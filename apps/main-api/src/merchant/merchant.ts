@@ -29,4 +29,18 @@ merchant.get("/", AuthenticateMerchant, async (req, res) => {
   }
 });
 
+merchant.get("/analytics", AuthenticateMerchant, async (req, res) => {
+  try {
+    const analytics = await prisma.merchantTransactions.groupBy({
+      by: ["countryCode"],
+      _count: {
+        countryCode: true,
+      },
+    });
+    res.status(200).json({ message: "Request Successfull", analytics });
+  } catch (error) {
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
 export default merchant;

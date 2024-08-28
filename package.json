@@ -3,8 +3,8 @@
   "version": "1.0-beta",
   "private": true,
   "scripts": {
-    "start": "turbo start",
-    "build": "turbo build",
+    "start": "turbo start --env-mode=loose",
+    "build": "turbo build --env-mode=loose",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",

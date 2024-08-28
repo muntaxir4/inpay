@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useRecoilValue } from "recoil";
 import { userState } from "@/store/atoms";
+import { getFloatAmount } from "@/store/Singleton";
 
 interface RecentTransaction {
   id: string;
@@ -38,7 +39,8 @@ async function getRecentTransactions() {
 }
 
 function ShowStatusBadge({ status }: { status: string }) {
-  if (status === "SUCCESS") return <Badge>Success</Badge>;
+  if (status === "SUCCESS")
+    return <Badge className="bg-green-200 text-black">Success</Badge>;
   else if (status === "PENDING")
     return <Badge variant="outline">Pending</Badge>;
   else return <Badge variant="destructive">Failed</Badge>;
@@ -70,10 +72,10 @@ export default function RecentTxContent({ className }: { className?: string }) {
       <TableBody>
         {data.transactions?.map((tx: RecentTransaction, index: number) => {
           return (
-            <TableRow key={index}>
+            <TableRow key={index} className="hover:bg-muted">
               <TableCell>{tx.firstName + " " + tx.lastName}</TableCell>
               <TableCell>{tx.type}</TableCell>
-              <TableCell>{tx.amount}</TableCell>
+              <TableCell>{getFloatAmount(tx.amount)}</TableCell>
               <TableCell>
                 <ShowStatusBadge status={tx.status} />
               </TableCell>

@@ -3,42 +3,88 @@ import { prisma } from "@repo/db";
 import cookieParser from "cookie-parser";
 
 import Authenticate from "../auth/Authenticate";
+import axios from "axios";
 const user = Router();
+
+interface UserFullName {
+  firstName: string;
+  lastName: string;
+}
 
 user.use(json());
 user.use(cookieParser());
 
+// Cache for user full name cause it is required at many places
+const userFullNameCache = {} as {
+  [key: number]: { firstName: string; lastName: string };
+};
+
+//clear cache after 1 day
+setInterval(
+  () => {
+    Object.keys(userFullNameCache).forEach((key) => {
+      delete userFullNameCache[Number(key)];
+    });
+  },
+  24 * 60 * 60 * 1000
+);
+
+//converts user id to user full name, and deletes the id key if it is not "id"
 async function addNamesToId(
   userIdObjArray: { [key: string]: any }[],
   idKey: string
 ) {
-  const cache = {} as {
-    [key: number]: { firstName: string; lastName: string };
-  };
-
   for (const userIdObj of userIdObjArray) {
-    if (!cache[userIdObj[idKey]]) {
+    const id = userIdObj[idKey];
+    if (!userFullNameCache[id]) {
       const user = await prisma.user.findFirst({
         where: {
-          id: userIdObj[idKey],
+          id: id,
         },
         select: {
           firstName: true,
           lastName: true,
         },
       });
-      cache[userIdObj[idKey]] = {
+      userFullNameCache[id] = {
         firstName: user?.firstName || "",
         lastName: user?.lastName || "",
       };
     }
-    userIdObj["firstName"] = cache[userIdObj[idKey]]?.firstName;
-    userIdObj["lastName"] = cache[userIdObj[idKey]]?.lastName;
+    userIdObj["firstName"] = userFullNameCache[id]?.firstName;
+    userIdObj["lastName"] = userFullNameCache[id]?.lastName;
     if (idKey != "id") {
-      userIdObj["id"] = userIdObj[idKey];
+      userIdObj["id"] = id;
       delete userIdObj[idKey];
     }
   }
+}
+
+async function getFullName(id: number) {
+  if (!userFullNameCache[id]) {
+    const user = await prisma.user.findFirst({
+      where: {
+        id,
+      },
+      select: {
+        firstName: true,
+        lastName: true,
+      },
+    });
+    userFullNameCache[id] = {
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
+    };
+  }
+  return userFullNameCache[id];
+}
+
+export function convertFloatStringToInteger(num: string): number {
+  let [integerPartString, fractionalPartString] = num.toString().split(".");
+  fractionalPartString = fractionalPartString?.substring(0, 2).padEnd(2, "0");
+  const integerPart = Number(integerPartString ?? 0);
+  const fractionalPart = Number(fractionalPartString ?? 0);
+  return integerPart * 100 + fractionalPart;
 }
 
 user.get("/", Authenticate, async (req, res) => {
@@ -48,11 +94,13 @@ user.get("/", Authenticate, async (req, res) => {
         id: req.body.userId,
       },
       select: {
+        id: true,
         firstName: true,
         lastName: true,
         userAccount: {
           select: {
             balance: true,
+            lastSeen: true,
           },
         },
       },
@@ -100,58 +148,38 @@ user.get("/recent/users", Authenticate, async (req, res) => {
 // Recently interacted users for a user
 user.get("/recent/interacted", Authenticate, async (req, res) => {
   try {
-    const recentInteractions = [] as {
+    const interactions = await prisma.userInteractions.findMany({
+      where: {
+        OR: [{ userId_1: req.body.userId }, { userId_2: req.body.userId }],
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+      take: 5,
+      select: {
+        userId_1: true,
+        userId_2: true,
+      },
+    });
+    const recentInteractions: {
       id: number;
-      firstName: string;
-      lastName: string;
-    }[];
-    const len = 5;
-    const cache = {} as { [key: number]: boolean };
-    let skipTimes = 0;
-    while (recentInteractions.length < len) {
-      const interactions = await prisma.transactions.findMany({
-        where: {
-          from: req.body.userId,
-          to: {
-            not: null,
-          },
-        },
-        skip: skipTimes++ * 10,
-        take: 10,
-        orderBy: {
-          date: "desc",
-        },
-        select: {
-          to: true,
-        },
-      });
-      if (interactions.length === 0) break;
-      for (
-        let i = 0;
-        recentInteractions.length < len && i < interactions.length;
-        i++
-      ) {
-        const userId = interactions[i]?.to as number;
-        if (!cache[userId]) {
-          const user = await prisma.user.findFirst({
-            where: {
-              id: userId,
-            },
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          });
-          cache[userId] = true;
-          recentInteractions.push({
-            id: userId,
-            firstName: user?.firstName || "",
-            lastName: user?.lastName || "",
-          });
-        }
-      }
-    }
+      firstName: string | undefined;
+      lastName: string | undefined;
+    }[] = await Promise.all(
+      interactions.map(async (interaction) => {
+        const id =
+          interaction.userId_1 === req.body.userId
+            ? interaction.userId_2
+            : interaction.userId_1;
 
+        const user = await getFullName(id);
+        return {
+          id,
+          firstName: user?.firstName,
+          lastName: user?.lastName,
+        };
+      })
+    );
     res.status(200).json({ message: "Request Successful", recentInteractions });
   } catch (error) {
     console.error(error);
@@ -193,10 +221,30 @@ user.get("/recent/transactions", Authenticate, async (req, res) => {
 });
 
 user.post("/send", Authenticate, async (req, res) => {
+  async function informWebsocket(from: number, to: number, amount: number) {
+    const WEBSOCKET_URL = process.env.WEBSOCKET_URL as string;
+    try {
+      await axios.post(WEBSOCKET_URL + "/transferDone", { from, to, amount });
+    } catch (error) {
+      console.error("Error informing Websoket about transfer", error);
+      try {
+        await prisma.userMessages.create({
+          data: {
+            from: Number(from),
+            to: Number(to),
+            message: `$${amount}`,
+            isPayment: true,
+            createdAt: new Date(),
+          },
+        });
+      } catch {}
+    }
+  }
+
   try {
-    const { to, amount: atmp } = req.body;
-    const amount = Number(atmp);
-    const from = req.body.userId;
+    const { to, amount: atmp }: { to: number; amount: string } = req.body;
+    const amount = convertFloatStringToInteger(atmp);
+    const from = req.body.userId as number;
     if (from === to)
       return res.status(400).json({ message: "Cannot send to self" });
     else if (amount <= 0)
@@ -219,7 +267,7 @@ user.post("/send", Authenticate, async (req, res) => {
         },
       });
       await prisma.$transaction(async (tx) => {
-        const sender = await prisma.userAccount.update({
+        const sender = await tx.userAccount.update({
           where: {
             id: from,
           },
@@ -230,7 +278,7 @@ user.post("/send", Authenticate, async (req, res) => {
           },
         });
         if (sender.balance < 0) {
-          await tx.transactions.update({
+          await prisma.transactions.update({
             where: {
               id: txId.id,
             },
@@ -240,7 +288,7 @@ user.post("/send", Authenticate, async (req, res) => {
           });
           throw new Error("Insufficient Balance");
         }
-        await prisma.userAccount.update({
+        await tx.userAccount.update({
           where: {
             id: to,
           },
@@ -258,8 +306,30 @@ user.post("/send", Authenticate, async (req, res) => {
             status: "SUCCESS",
           },
         });
+        //create user interaction if does not exist
+        const interaction = await prisma.userInteractions.findFirst({
+          where: {
+            OR: [
+              { userId_1: from, userId_2: to },
+              { userId_1: to, userId_2: from },
+            ],
+          },
+        });
+        await tx.userInteractions.upsert({
+          where: {
+            id: interaction?.id ?? -1,
+          },
+          update: {
+            updatedAt: new Date(),
+          },
+          create: {
+            userId_1: from,
+            userId_2: to,
+          },
+        });
       });
       res.status(200).json({ message: "Request Successful" });
+      informWebsocket(from, to, amount);
     } else {
       res.status(400).json({ message: "Insufficient Balance" });
     }
@@ -269,6 +339,7 @@ user.post("/send", Authenticate, async (req, res) => {
   }
 });
 
+//searches users based on filter
 user.get("/bulk", Authenticate, async (req, res) => {
   const { filter: search } = req.query;
   const [filter1, filter2] = String(search || "").split(" ");
@@ -305,6 +376,242 @@ user.get("/bulk", Authenticate, async (req, res) => {
     return res.status(200).json({ message: "Request Successful", users });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
+//gets all user interactions for chat
+user.get("/interactions", Authenticate, async (req, res) => {
+  try {
+    const interactionsTmp = await prisma.userInteractions.findMany({
+      where: {
+        OR: [{ userId_1: req.body.userId }, { userId_2: req.body.userId }],
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+      select: {
+        userId_1: true,
+        userId_2: true,
+        updatedAt: true,
+      },
+    });
+
+    const interactions = await Promise.all(
+      interactionsTmp.map(async (interaction) => {
+        const id =
+          interaction.userId_1 === req.body.userId
+            ? interaction.userId_2
+            : interaction.userId_1;
+
+        const user = await getFullName(id);
+        return {
+          id,
+          firstName: user?.firstName,
+          lastName: user?.lastName,
+          updatedAt: interaction.updatedAt,
+        };
+      })
+    );
+
+    res.status(200).json({ message: "Request Successful", interactions });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
+//gets total pages for transactions
+user.get("/transactions/pages", Authenticate, async (req, res) => {
+  const { type } = req.query;
+  const typeFilter =
+    typeof type === "string" ? [type] : Array.isArray(type) ? type : [];
+
+  try {
+    const totalTransactions = await prisma.transactions.count({
+      where: {
+        OR: [{ from: req.body.userId }, { to: req.body.userId }],
+        // @ts-ignore
+        type:
+          typeFilter.length === 0
+            ? {}
+            : {
+                in: typeFilter,
+              },
+      },
+    });
+    res.status(200).json({
+      message: "Request Successful",
+      pages: Math.ceil(totalTransactions / 10),
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
+//gets paginated transactions
+user.get("/transactions", Authenticate, async (req, res) => {
+  //page index starts from 1
+  const { page = 1, type } = req.query;
+  const typeFilter =
+    typeof type === "string" ? [type] : Array.isArray(type) ? type : [];
+
+  try {
+    const allTransactions = await prisma.transactions.findMany({
+      where: {
+        OR: [{ from: req.body.userId }, { to: req.body.userId }],
+        // @ts-ignore
+        type:
+          typeFilter.length === 0
+            ? {}
+            : {
+                in: typeFilter,
+              },
+      },
+      skip: (Number(page) - 1) * 10,
+      take: 10,
+      orderBy: {
+        date: "desc",
+      },
+    });
+    //changes from and to numbers to fullname strings
+    const transactions = await Promise.all(
+      allTransactions.map(async (tx) => {
+        const newTx = { ...tx } as any;
+        if (newTx.from !== req.body.userId) {
+          const user = await getFullName(newTx.from);
+          newTx.from = user.firstName + " " + user.lastName;
+        } else {
+          newTx.from = "You";
+        }
+
+        if (newTx.to !== req.body.userId && newTx.to) {
+          const user = await getFullName(newTx.to);
+          newTx.to = user.firstName + " " + user.lastName;
+        } else {
+          if (newTx.type === "SPENT") newTx.to = "Merchant";
+          else newTx.to = "You";
+        }
+        return newTx;
+      })
+    );
+    res.status(200).json({ message: "Request Successful", transactions });
+  } catch (error) {
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
+//pay merchant
+user.post("/spend", Authenticate, async (req, res) => {
+  const { toEmail, amount: atmp }: { toEmail: string; amount: string } =
+    req.body;
+  const amount = convertFloatStringToInteger(atmp);
+  try {
+    if (amount <= 0 || !toEmail)
+      return res.status(400).json({ message: "Invalid Data" });
+    const fromId = req.body.userId;
+    const userAcc = await prisma.userAccount.findFirst({
+      where: {
+        id: fromId,
+      },
+    });
+    if (userAcc?.balance && userAcc.balance < amount)
+      return res.status(400).json({ message: "Insufficient Balance" });
+    const to = await prisma.user.findFirst({
+      where: {
+        email: toEmail,
+      },
+      select: {
+        id: true,
+      },
+    });
+    // to.isMerchant = false
+    if (!to) return res.status(400).json({ message: "Invalid Merchant" });
+    const txId = await prisma.transactions.create({
+      data: {
+        type: "SPENT",
+        amount,
+        from: fromId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let countryCode = "IN";
+    try {
+      //get country code
+      const ipData = await axios.get(
+        `http://ip-api.com/json/${req.socket.remoteAddress}?fields=status,countryCode`
+      );
+      if (ipData.data.status === "fail") ipData.data.countryCode = "IN";
+      countryCode = ipData.data.countryCode;
+    } catch {
+      console.error("Error getting country code");
+    }
+
+    try {
+      await prisma.$transaction(async (tx) => {
+        const sender = await tx.userAccount.update({
+          where: {
+            id: fromId,
+          },
+          data: {
+            balance: {
+              decrement: amount,
+            },
+          },
+        });
+        if (sender.balance < 0) {
+          await prisma.transactions.update({
+            where: {
+              id: txId.id,
+            },
+            data: {
+              status: "FAILED",
+            },
+          });
+          throw new Error("Insufficient Balance");
+        }
+        await tx.userAccount.update({
+          where: {
+            id: to.id,
+          },
+          data: {
+            balanceM: {
+              increment: amount,
+            },
+          },
+        });
+        await tx.transactions.update({
+          where: {
+            id: txId.id,
+          },
+          data: {
+            status: "SUCCESS",
+          },
+        });
+
+        await tx.merchantTransactions.create({
+          data: {
+            amount,
+            countryCode: countryCode,
+          },
+        });
+      });
+      res.status(200).json({ message: "Request Successful" });
+    } catch (error) {
+      await prisma.transactions.update({
+        where: {
+          id: txId.id,
+        },
+        data: {
+          status: "FAILED",
+        },
+      });
+      return res.status(500).json({ message: "Request Failed" });
+    }
+  } catch (error) {
     res.status(500).json({ message: "Request Failed" });
   }
 });

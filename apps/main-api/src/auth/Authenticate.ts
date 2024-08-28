@@ -14,7 +14,7 @@ function Authenticate(req: Request, res: Response, next: NextFunction) {
     req.body.userId = payload.userId;
     next();
   } catch (error) {
-    console.error("Error verifying token:", error);
+    // console.error("Error verifying token:", error);
     return res.status(401).json({ message: "Unauthorized2" });
   }
 }

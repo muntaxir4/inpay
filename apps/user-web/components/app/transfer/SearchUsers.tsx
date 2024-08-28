@@ -51,22 +51,33 @@ async function fetchUsers(filter: string) {
 }
 
 function UserItem({ user }: { user: any }) {
+  const [open, setOpen] = useState(false);
+
   return (
     <CommandItem
       value={user.firstName + " " + user.lastName}
       key={user.id}
-      className="hover:bg-muted grid grid-cols-5 p-2 w-full"
+      className="p-0"
     >
-      <Avatar
-        {...genConfig(user.firstName + " " + user.lastName)}
-        className="h-8 w-8"
-      />
-      <p className="col-span-3 font-medium">
-        {user.firstName} {user.lastName}
-      </p>
-      <SendTo fullName={user.firstName + " " + user.lastName} id={user.id}>
+      <div
+        className=" hover:bg-muted grid grid-cols-5 w-full p-2 items-center"
+        onClick={() => setOpen(true)}
+      >
+        <Avatar
+          {...genConfig(user.firstName + " " + user.lastName)}
+          className="h-8 w-8"
+        />
+        <p className="col-span-3 font-medium">
+          {user.firstName} {user.lastName}
+        </p>
         <ArrowRight className="ml-3 hover:scale-110" />
-      </SendTo>
+      </div>
+      <SendTo
+        fullName={user.firstName + " " + user.lastName}
+        id={user.id}
+        open={open}
+        onOpenChange={setOpen}
+      ></SendTo>
     </CommandItem>
   );
 }

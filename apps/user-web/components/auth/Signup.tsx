@@ -12,12 +12,21 @@ import { useToast } from "@/components/ui/use-toast";
 
 import { useRouter } from "next/navigation";
 import { handleSignup } from "./handleSubmit";
+import GoogleSignin from "./GoogleSignin";
+import { useEffect } from "react";
 
 export default function Signup() {
   const { toast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    if (localStorage?.getItem("inpay") === "true") {
+      router.push("/");
+    }
+  }, []);
+
   return (
-    <div className="h-full lg:grid lg:grid-cols-2 mx-4">
+    <div className="h-full lg:grid lg:grid-cols-2 mx-4 w-full">
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid gap-6 text-sm">
           <div className="grid gap-2 text-center">
@@ -55,9 +64,11 @@ export default function Signup() {
               <Button type="submit" className="w-full">
                 Create your acccount
               </Button>
-              <Button variant="outline" className="w-full">
-                Signup with Google
-              </Button>
+              <GoogleSignin toast={toast} router={router}>
+                <Button type="button" variant="outline" className="w-full">
+                  Signup with Google
+                </Button>
+              </GoogleSignin>
             </div>
           </form>
           <div className="mt-4 text-center text-sm">

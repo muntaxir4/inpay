@@ -1,0 +1,31 @@
+{
+  "name": "websocket",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npx dotenv -e ../../.env -- node dist/index.js",
+    "dev": "npx dotenv -e ../../.env -- tsc-watch --onSuccess \"node dist/index.js\"",
+    "build": "tsc -b",
+    "test": "echo 'Add test script here'",
+    "lint": "echo 'Add lint script here'"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20",
+    "dotenv-cli": "^7.4.2",
+    "eslint": "^8",
+    "eslint-config-next": "15.0.0-rc.0",
+    "tsc-watch": "^6.2.0",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@repo/db": "*",
+    "cookie": "^0.6.0",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "socket.io": "^4.7.5"
+  }
+}

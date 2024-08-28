@@ -13,12 +13,17 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { useSearchParams } from "next/navigation";
+import Loading from "@/components/Loading";
+import { getFloatAmount } from "@/store/Singleton";
 
 function EmailForm({
   setEmail,
+  setBalance,
 }: {
   setEmail: Dispatch<SetStateAction<string>>;
+  setBalance: Dispatch<SetStateAction<number>>;
 }) {
+  const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
   async function verifyEmail(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -33,6 +38,7 @@ function EmailForm({
           title: "OTP sent",
         });
         setEmail(email);
+        setBalance(response.data.balance);
       }
     } catch (error) {
       if (error instanceof AxiosError)
@@ -52,7 +58,15 @@ function EmailForm({
         onSubmit={verifyEmail}
       >
         <Input type="email" placeholder="Email" name="email" />
-        <Button type="submit">Get OTP</Button>
+        {submitted ? (
+          <Button>
+            <Loading />
+          </Button>
+        ) : (
+          <Button type="submit" onClick={() => setSubmitted(true)}>
+            Get OTP
+          </Button>
+        )}
       </form>
     </>
   );
@@ -134,6 +148,7 @@ function WithdrawalComplete() {
 export default function HDFC() {
   //state for email verification
   const [email, setEmail] = useState("");
+  const [balance, setBalance] = useState(0);
   //state for transaction completion
   const [transactionComplete, setTransactionComplete] = useState(false);
   const params = useSearchParams()
@@ -151,10 +166,13 @@ export default function HDFC() {
           This is the withdrawal portal. You will need to verify OTP on your
           e-mail connected to HDFC.
         </p>
-        <h4 className="">
+        <h4>
           You are withdrawing ${params.amount} to InPay. Do not refresh this
           page.
         </h4>
+        {email !== "" && (
+          <p className="text-2xl">Balance: ${getFloatAmount(balance)}</p>
+        )}
       </div>
       <div className="flex flex-col justify-center items-center gap-3 row-span-2">
         {!transactionComplete ? (
@@ -165,7 +183,7 @@ export default function HDFC() {
               setTransactionComplete={setTransactionComplete}
             />
           ) : (
-            <EmailForm setEmail={setEmail} />
+            <EmailForm setEmail={setEmail} setBalance={setBalance} />
           )
         ) : (
           <WithdrawalComplete />

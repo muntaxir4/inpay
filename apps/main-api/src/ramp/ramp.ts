@@ -4,6 +4,7 @@ import { prisma } from "@repo/db";
 import cookieParser from "cookie-parser";
 import Authenticate from "../auth/Authenticate";
 import { generateOTP, transporter } from "../mailto";
+import { convertFloatStringToInteger } from "../user/user";
 
 const ramp = Router();
 ramp.use(json());
@@ -12,7 +13,7 @@ ramp.use(cookieParser());
 ramp.post("/hdfc/onramp", Authenticate, async (req, res) => {
   const { amount: amt, userId } = req.body;
   try {
-    const amount = Number(amt);
+    const amount = convertFloatStringToInteger(amt as string);
     if (amount <= 0) return res.status(400).json({ message: "Invalid amount" });
     const tx = await prisma.transactions.create({
       data: {
@@ -57,7 +58,7 @@ ramp.get("/hdfc/offramp/get-otp", Authenticate, async (req, res) => {
   try {
     const { userId } = req.body;
     const { amount: amt } = req.query;
-    const amount = Number(amt);
+    const amount = convertFloatStringToInteger(amt as string);
     if (amount <= 0) return res.status(400).json({ message: "Invalid amount" });
     const user = await prisma.user.findFirst({
       where: {
@@ -77,13 +78,18 @@ ramp.get("/hdfc/offramp/get-otp", Authenticate, async (req, res) => {
       },
     });
     try {
-      const fromEmail = process.env.SMTP_USER;
-      await transporter.sendMail({
-        from: `"inPay" <hq-${fromEmail}>`, // sender address
-        to: user.email, // list of receivers
-        subject: "One Time Password, InPay", // Subject line
-        text: `Your 6 digit OTP for inPay withdrawal to HDFC Demo: ${otp}`, // plain text body
-      });
+      if (process.env.NODE_ENV === "production") {
+        const fromEmail = process.env.SMTP_USER;
+        await transporter.sendMail({
+          from: `"inPay" <hq-${fromEmail}>`, // sender address
+          to: user.email, // list of receivers
+          subject: "One Time Password, InPay", // Subject line
+          text: `Your 6 digit OTP for inPay withdrawal to HDFC Demo: ${otp}`, // plain text body
+        });
+      } else
+        console.log(
+          `Your 6 digit OTP for inPay withdrawal to HDFC Demo: ${otp}`
+        );
       res.status(200).json({ message: "OTP Sent" });
     } catch (error) {
       console.error(error);
@@ -101,7 +107,7 @@ ramp.post("/hdfc/offramp/verify-otp", Authenticate, async (req, res) => {
   //off ramp function
   async function offRamp(email: string, balance: number = 0) {
     try {
-      const amount = Number(amt);
+      const amount = convertFloatStringToInteger(amt as string);
       if (amount <= 0) return;
       if (balance < amount) return;
       const tx = await prisma.transactions.create({

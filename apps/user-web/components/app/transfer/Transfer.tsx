@@ -12,10 +12,11 @@ import { BalanceComponent } from "../UserStates";
 import RecentInteractionsContent from "./RecentInteractionsContent";
 import RecentUsersContent from "./RecentUsersContent";
 import SearchUsers from "./SearchUsers";
+import ScanQR from "./ScanQR";
 
 function SendReceiveCard() {
   return (
-    <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow">
+    <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow animate-slide-up">
       <CardHeader>
         <CardTitle>Send and Receive</CardTitle>
         <CardDescription>
@@ -39,10 +40,7 @@ function SendReceiveCard() {
                 Send
               </Button>
             </SearchUsers>
-            <Button variant="outline" className="rounded-2xl">
-              <QrCodeIcon className="mr-2 h-4 w-4" />
-              Show QR
-            </Button>
+            <ScanQR />
           </div>
         </div>
       </CardFooter>
@@ -52,7 +50,7 @@ function SendReceiveCard() {
 
 function RecentInteractionsCard() {
   return (
-    <Card className="border-none shadow-none bg-background">
+    <Card className="border-none shadow-none bg-background animate-slide-up">
       <CardHeader>
         <CardTitle>Recent Interactions</CardTitle>
         <CardDescription>
@@ -68,7 +66,7 @@ function RecentInteractionsCard() {
 
 function RecentUsersCard() {
   return (
-    <Card className="border-none shadow-none bg-background">
+    <Card className="border-none shadow-none bg-background animate-slide-up">
       <CardHeader>
         <CardTitle>InPay Users</CardTitle>
         <CardDescription>

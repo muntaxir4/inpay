@@ -13,13 +13,19 @@ model User {
   password    String
   firstName   String
   lastName    String
+  loginType   LoginType?    
+  isMerchant  Boolean      @default(false)
   userAccount UserAccount?
+
+  @@unique([firstName, lastName])
 }
 
 model UserAccount {
-  id      Int  @id
-  balance Int  @default(0)
-  user    User @relation(fields: [id], references: [id])
+  id        Int  @id
+  balance   Int  @default(0)
+  balanceM  Int  @default(0)
+  lastSeen  DateTime @default("1970-01-01T00:00:00Z")
+  user      User @relation(fields: [id], references: [id])
 }
 
 model Transactions {
@@ -30,6 +36,24 @@ model Transactions {
   to     Int?
   date   DateTime @default(now())
   status TxStatus @default(PENDING)
+}
+
+model UserInteractions {
+  id          Int     @id @default(autoincrement())
+  userId_1    Int
+  userId_2    Int
+  updatedAt   DateTime @default(now())
+
+  @@unique([userId_1, userId_2])
+}
+
+model UserMessages {
+  id        Int     @id @default(autoincrement())
+  from      Int
+  to        Int
+  message   String
+  isPayment Boolean?
+  createdAt DateTime @default(now())
 }
 
 model BankUser {
@@ -45,10 +69,22 @@ model UserOTP {
   bank   BankType
 }
 
+model MerchantTransactions {
+  id          Int      @id @default(autoincrement())
+  amount      Int
+  countryCode String
+  date        DateTime @default(now())
+}
+
+enum LoginType {
+  GOOGLE
+}
+
 enum TxType {
   DEPOSIT
   WITHDRAW
   TRANSFER
+  SPENT
 }
 
 enum TxStatus {

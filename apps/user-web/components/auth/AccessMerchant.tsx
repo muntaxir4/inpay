@@ -1,22 +1,17 @@
 "use client";
 import {
+  googleLogout,
   GoogleOAuthProvider,
   useGoogleLogin,
-  googleLogout,
 } from "@react-oauth/google";
+import { Button } from "../ui/button";
+import { useToast } from "../ui/use-toast";
 import axios from "axios";
-import { toast as typeToast } from "@/components/ui/use-toast";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { useRouter } from "next/navigation";
 
-function GoogleSigninHandler({
-  children,
-  toast,
-  router,
-}: {
-  children: React.ReactNode;
-  toast: typeof typeToast;
-  router: AppRouterInstance;
-}) {
+function AccessHandler() {
+  const { toast } = useToast();
+  const router = useRouter();
   const googleLogin = useGoogleLogin({
     onSuccess: handleGoogleSignin,
     onError: (error) => {
@@ -32,7 +27,7 @@ function GoogleSigninHandler({
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
       await axios.post(
-        API_URL + "/auth/signin/google",
+        API_URL + "/auth/access/merchant",
         {
           code,
         },
@@ -45,7 +40,7 @@ function GoogleSigninHandler({
         title: "Logged in",
         duration: 2000,
       });
-      router.push("/app");
+      router.push("/merchant");
     } catch (error) {
       toast({
         title: "Error",
@@ -55,24 +50,20 @@ function GoogleSigninHandler({
       });
     }
   }
-  return <div onClick={() => googleLogin()}>{children}</div>;
+  return (
+    <div className="grid items-center">
+      <Button className="text-lg rounded-full" onClick={() => googleLogin()}>
+        Continue with Google
+      </Button>
+    </div>
+  );
 }
 
-export default function GoogleSignin({
-  children,
-  toast,
-  router,
-}: {
-  children: React.ReactNode;
-  toast: typeof typeToast;
-  router: AppRouterInstance;
-}) {
+export default function AccessMerchant() {
   const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string;
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <GoogleSigninHandler toast={toast} router={router}>
-        {children}
-      </GoogleSigninHandler>
+      <AccessHandler />
     </GoogleOAuthProvider>
   );
 }

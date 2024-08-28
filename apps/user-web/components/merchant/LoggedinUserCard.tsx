@@ -1,15 +1,14 @@
 "use client";
-import { userState } from "@/store/atoms";
-import Avatar, { genConfig } from "react-nice-avatar";
 import { useRecoilValue } from "recoil";
 import { Badge } from "../ui/badge";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { merchantState } from "@/store/atomsMerch";
 
 export default function LoggedinUserCard() {
-  const user = useRecoilValue(userState);
+  const merchant = useRecoilValue(merchantState);
   const router = useRouter();
-  const fullName = user?.firstName + " " + user?.lastName;
+  const fullName = merchant?.firstName + " " + merchant?.lastName;
   async function handleLogout() {
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
     try {
@@ -18,7 +17,7 @@ export default function LoggedinUserCard() {
         {},
         { withCredentials: true }
       );
-      localStorage?.setItem("inpay", "false");
+      localStorage?.setItem("inpayMerch", "false");
       router.push("/");
     } catch (error) {
       console.error(error);
@@ -26,8 +25,7 @@ export default function LoggedinUserCard() {
   }
   return (
     <div className=" border border-foreground rounded-3xl p-2 flex justify-between items-center gap-2">
-      <Avatar className="w-12 h-12" {...genConfig(fullName)} />
-      <h3>{fullName}</h3>
+      <h3 className="ml-2">{fullName}</h3>
       <Badge variant="secondary" onClick={handleLogout}>
         Logout
       </Badge>

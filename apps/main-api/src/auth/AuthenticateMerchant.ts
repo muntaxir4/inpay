@@ -2,9 +2,9 @@
 import { Request, Response, NextFunction } from "express";
 import { JwtPayload, verify } from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+const JWT_SECRET = (process.env.JWT_SECRET as string) + "__merchant__";
 
-function Authenticate(req: Request, res: Response, next: NextFunction) {
+function AuthenticateMerchant(req: Request, res: Response, next: NextFunction) {
   const token = req.cookies?.token;
   if (!token) {
     return res.status(401).json({ message: "Unauthorized1" });
@@ -19,4 +19,4 @@ function Authenticate(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export default Authenticate;
+export default AuthenticateMerchant;

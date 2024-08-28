@@ -20,7 +20,7 @@ export default function Signup() {
   const router = useRouter();
 
   useEffect(() => {
-    if (localStorage.getItem("inpay") === "true") {
+    if (localStorage?.getItem("inpay") === "true") {
       router.push("/");
     }
   }, []);

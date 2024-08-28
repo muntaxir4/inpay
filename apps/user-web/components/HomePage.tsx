@@ -2,12 +2,20 @@
 import { FeaturesSectionDemo } from "./ac/features-section";
 import { FlipWords } from "./ac/flipwords";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import Link from "next/link";
 
 export default function HomePage() {
   const words = ["banking", "investing", "spending", "chatting"];
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("inpay") === "true") {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
   return (
     <div>
       <div className=" my-16 flex justify-center items-center px-4">
@@ -23,7 +31,7 @@ export default function HomePage() {
         </div>
       </div>
       <div className="gap-2 flex justify-center sm:gap-8 mb-4">
-        {localStorage?.getItem("inpay") === "true" ? (
+        {isLoggedIn ? (
           <Link href={"/app"}>
             <Button className="rounded-2xl">Go to App</Button>
           </Link>
@@ -40,6 +48,13 @@ export default function HomePage() {
             </Link>
           </>
         )}
+      </div>
+      <div className="flex justify-center -mb-3">
+        <Link href={"/merchant"} className="mx-auto">
+          <Button variant={"link"} className="rounded-2xl">
+            Access Merchant
+          </Button>
+        </Link>
       </div>
       <FeaturesSectionDemo />
       <div className="flex gap-3 justify-end pb-5 mx-8 text-muted-foreground">

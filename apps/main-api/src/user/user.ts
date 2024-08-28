@@ -267,7 +267,7 @@ user.post("/send", Authenticate, async (req, res) => {
         },
       });
       await prisma.$transaction(async (tx) => {
-        const sender = await prisma.userAccount.update({
+        const sender = await tx.userAccount.update({
           where: {
             id: from,
           },
@@ -278,7 +278,7 @@ user.post("/send", Authenticate, async (req, res) => {
           },
         });
         if (sender.balance < 0) {
-          await tx.transactions.update({
+          await prisma.transactions.update({
             where: {
               id: txId.id,
             },
@@ -288,7 +288,7 @@ user.post("/send", Authenticate, async (req, res) => {
           });
           throw new Error("Insufficient Balance");
         }
-        await prisma.userAccount.update({
+        await tx.userAccount.update({
           where: {
             id: to,
           },
@@ -495,6 +495,121 @@ user.get("/transactions", Authenticate, async (req, res) => {
       })
     );
     res.status(200).json({ message: "Request Successful", transactions });
+  } catch (error) {
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
+//pay merchant
+user.post("/spend", Authenticate, async (req, res) => {
+  const { toEmail, amount: atmp }: { toEmail: string; amount: string } =
+    req.body;
+  const amount = convertFloatStringToInteger(atmp);
+  try {
+    if (amount <= 0 || !toEmail)
+      return res.status(400).json({ message: "Invalid Data" });
+    const fromId = req.body.userId;
+    const userAcc = await prisma.userAccount.findFirst({
+      where: {
+        id: fromId,
+      },
+    });
+    if (userAcc?.balance && userAcc.balance < amount)
+      return res.status(400).json({ message: "Insufficient Balance" });
+    const to = await prisma.user.findFirst({
+      where: {
+        email: toEmail,
+      },
+      select: {
+        id: true,
+      },
+    });
+    // to.isMerchant = false
+    if (!to) return res.status(400).json({ message: "Invalid Merchant" });
+    const txId = await prisma.transactions.create({
+      data: {
+        type: "SPENT",
+        amount,
+        from: fromId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let countryCode = "IN";
+    try {
+      //get country code
+      const ipData = await axios.get(
+        `http://ip-api.com/json/${req.socket.remoteAddress}?fields=status,countryCode`
+      );
+      if (ipData.data.status === "fail") ipData.data.countryCode = "IN";
+      countryCode = ipData.data.countryCode;
+    } catch {
+      console.error("Error getting country code");
+    }
+
+    try {
+      await prisma.$transaction(async (tx) => {
+        const sender = await tx.userAccount.update({
+          where: {
+            id: fromId,
+          },
+          data: {
+            balance: {
+              decrement: amount,
+            },
+          },
+        });
+        if (sender.balance < 0) {
+          await prisma.transactions.update({
+            where: {
+              id: txId.id,
+            },
+            data: {
+              status: "FAILED",
+            },
+          });
+          throw new Error("Insufficient Balance");
+        }
+        await tx.userAccount.update({
+          where: {
+            id: to.id,
+          },
+          data: {
+            balanceM: {
+              increment: amount,
+            },
+          },
+        });
+        await tx.transactions.update({
+          where: {
+            id: txId.id,
+          },
+          data: {
+            status: "SUCCESS",
+          },
+        });
+
+        await tx.merchantTransactions.create({
+          data: {
+            amount,
+            countryCode: countryCode.toString().toLowerCase(),
+          },
+        });
+      });
+      res.status(200).json({ message: "Request Successful" });
+    } catch (error) {
+      await prisma.transactions.update({
+        where: {
+          id: txId.id,
+        },
+        data: {
+          status: "FAILED",
+        },
+      });
+      return res.status(500).json({ message: "Request Failed" });
+    }
   } catch (error) {
     res.status(500).json({ message: "Request Failed" });
   }

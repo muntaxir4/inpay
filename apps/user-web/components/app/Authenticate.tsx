@@ -32,11 +32,12 @@ export default function Authenticate({
   const setUser = useSetRecoilState(userState);
   if (isLoading) return <Loading />;
   else if (error) {
+    localStorage?.setItem("inpay", "false");
     window.location.href = "/auth/signin";
   } else if (data) {
     if (!data.user) {
       setUser(null);
-      localStorage.setItem("inpay", "false");
+      localStorage?.setItem("inpay", "false");
       window.location.href = "/auth/signin";
     } else {
       setUser({
@@ -46,7 +47,7 @@ export default function Authenticate({
         balance: data.user.userAccount.balance,
         lastSeen: data.user.userAccount.lastSeen,
       });
-      localStorage.setItem("inpay", "true");
+      localStorage?.setItem("inpay", "true");
       return (
         <>
           <InitSocket />

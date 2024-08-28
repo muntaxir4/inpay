@@ -18,7 +18,7 @@ export default function Signin() {
   const router = useRouter();
 
   useEffect(() => {
-    if (localStorage.getItem("inpay") === "true") {
+    if (localStorage?.getItem("inpay") === "true") {
       router.push("/");
     }
   }, []);

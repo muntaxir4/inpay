@@ -6,10 +6,11 @@
     "start": "npx dotenv -e ../../.env -- node dist/index.js",
     "dev": "npx dotenv -e ../../.env -- tsc-watch --onSuccess \"node dist/index.js\"",
     "build": "tsc -b",
-    "test": "echo 'Add test script here'",
+    "test": "jest",
     "lint": "echo 'Add lint script here'"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@types/bcrypt": "^5.0.2",
@@ -17,9 +18,12 @@
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20",
+    "@types/supertest": "^6.0.2",
     "dotenv-cli": "^7.4.2",
     "eslint": "^8",
     "eslint-config-next": "15.0.0-rc.0",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
     "tsc-watch": "^6.2.0",
     "typescript": "^5"
   },

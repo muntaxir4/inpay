@@ -594,6 +594,7 @@ user.post("/spend", Authenticate, async (req, res) => {
 
         await tx.merchantTransactions.create({
           data: {
+            merchantId: to.id,
             amount,
             countryCode: countryCode,
           },
@@ -721,13 +722,11 @@ user.get("/balance-history", Authenticate, async (req, res) => {
       balanceHistory.fill(0, 0, l);
       balanceHistory.fill(currDayBalance, l, i + 1);
     }
-    res
-      .status(200)
-      .json({
-        message: "Request Successful",
-        balanceHistory,
-        transactionTypes,
-      });
+    res.status(200).json({
+      message: "Request Successful",
+      balanceHistory,
+      transactionTypes,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Request Failed" });

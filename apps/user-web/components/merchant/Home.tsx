@@ -1,19 +1,17 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { QrCodeIcon } from "lucide-react";
 import WorldMapAnalytics from "./WorldMapAnalytics";
 import ShowQR from "./ShowQR";
 import CustomizeQR from "./CustomizeQR";
 import { useRecoilValue } from "recoil";
 import { merchantState } from "@/store/atomsMerch";
+import PaymentHistory from "./PaymentHistory";
 
 function MerchantCard() {
   const merchant = useRecoilValue(merchantState);
@@ -26,21 +24,21 @@ function MerchantCard() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-1">
-          <label htmlFor="balance">Available Balance</label>
-          <div className="text-2xl font-semibold">
-            ${(merchant?.balanceM ?? 0) / 100}
+        <div className="grid grid-cols-2 items-center">
+          <div className="grid gap-1">
+            <label htmlFor="balance">Available Balance</label>
+            <div className="text-2xl font-semibold">
+              ${(merchant?.balanceM ?? 0) / 100}
+            </div>
+          </div>
+          <div className="flex justify-end w-full">
+            <div className="grid grid-cols-2 gap-4">
+              <CustomizeQR />
+              <ShowQR />
+            </div>
           </div>
         </div>
       </CardContent>
-      <CardFooter>
-        <div className="flex justify-end w-full">
-          <div className="grid grid-cols-2 gap-4">
-            <CustomizeQR />
-            <ShowQR />
-          </div>
-        </div>
-      </CardFooter>
     </Card>
   );
 }
@@ -50,6 +48,7 @@ export default function Home() {
     <div className="p-4 grid gap-3 overflow-auto min-h-full content-start">
       <MerchantCard />
       <WorldMapAnalytics />
+      <PaymentHistory />
     </div>
   );
 }

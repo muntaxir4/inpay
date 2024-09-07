@@ -71,6 +71,7 @@ model UserOTP {
 
 model MerchantTransactions {
   id          Int      @id @default(autoincrement())
+  merchantId  Int      @default(0)
   amount      Int
   countryCode String
   date        DateTime @default(now())

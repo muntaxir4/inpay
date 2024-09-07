@@ -32,20 +32,25 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+function formatDate(dateUTC: string): string {
+  const date = new Date(dateUTC);
+  return date.toLocaleString("en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 function formatBalanceHistoryData(
   balanceHistoryData: number[]
 ): BalanceHistory[] {
-  const formatDate = (dateNumber: number): string => {
-    const date = new Date(dateNumber);
-    return date.toLocaleString("en-IN", { day: "numeric", month: "long" });
-  };
   const dayNumber = 24 * 60 * 60 * 1000;
   let prev = Date.now() - 29 * dayNumber;
   const data = balanceHistoryData.map((entry) => {
-    const curr = formatDate(prev);
+    const curr = prev;
     prev = prev + dayNumber;
     return {
-      day: curr,
+      day: new Date(curr).toUTCString(),
       balance: getFloatAmount(entry),
     };
   });
@@ -62,7 +67,8 @@ export default function BalanceHistory({ data }: { data: number[] }) {
         <CardDescription className="flex justify-between text-sm">
           <p>Showing history for the last 30 days</p>
           <p className="text-end font-medium">
-            {chartData[0]?.day} - {chartData[29]?.day}
+            {formatDate(chartData[0]?.day ?? "")} -{" "}
+            {formatDate(chartData[29]?.day ?? "")}
           </p>
         </CardDescription>
       </CardHeader>
@@ -83,12 +89,29 @@ export default function BalanceHistory({ data }: { data: number[] }) {
               tickLine={true}
               axisLine={true}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 2)}
-              interval={2}
+              minTickGap={32}
+              tickFormatter={(value) => {
+                const date = new Date(value);
+                return date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                });
+              }}
             />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
+              content={
+                <ChartTooltipContent
+                  indicator="line"
+                  labelFormatter={(value) => {
+                    return new Date(value).toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    });
+                  }}
+                />
+              }
             />
             <Area
               dataKey="balance"

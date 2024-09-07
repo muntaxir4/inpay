@@ -1,140 +1,50 @@
 "use client";
 
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import Loading from "../Loading";
+import { useRecoilValue } from "recoil";
+import { userState } from "@/store/atoms";
+import BalancePieChart from "./BalancePieChart";
+import BalanceHistory from "./BalanceHistory";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+export interface BalanceHistoryData {
+  message: string;
+  balanceHistory: number[];
+  transactionTypes: {
+    DEPOSIT: number;
+    WITHDRAW: number;
+    RECEIVED: number;
+    SENT: number;
+    SPENT: number;
+  };
+}
+
+async function fetchBalanceHistory() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+  console.log("API_URL", API_URL);
+  const response = await axios.get(API_URL + "/user/balance-history", {
+    withCredentials: true,
+  });
+  return response.data;
+}
 
 export default function BalanceOverview() {
+  const user = useRecoilValue(userState);
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["balance-History", user],
+    queryFn: fetchBalanceHistory,
+  });
+
+  if (isLoading) return <Loading />;
+  else if (error) return <div>Error fetching Balance History</div>;
+  else if (!data || !data.balanceHistory || !data.transactionTypes)
+    return <div>Error fetching Balance History</div>;
+
   return (
-    <Card className="flex flex-col w-full hover:shadow-lg hover:shadow-primary/30 transition-shadow animate-slide-up">
-      <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2 [&>div]:flex-1">
-        <div>
-          <CardDescription>Resting HR</CardDescription>
-          <CardTitle className="flex items-baseline gap-1 text-4xl tabular-nums">
-            62
-            <span className="text-sm font-normal tracking-normal text-muted-foreground">
-              bpm
-            </span>
-          </CardTitle>
-        </div>
-        <div>
-          <CardDescription>Variability</CardDescription>
-          <CardTitle className="flex items-baseline gap-1 text-4xl tabular-nums">
-            35
-            <span className="text-sm font-normal tracking-normal text-muted-foreground">
-              ms
-            </span>
-          </CardTitle>
-        </div>
-      </CardHeader>
-      <CardContent className="flex flex-1 items-center">
-        <ChartContainer
-          config={{
-            resting: {
-              label: "Resting",
-              color: "hsl(var(--chart-1))",
-            },
-          }}
-          className="w-full"
-        >
-          <LineChart
-            accessibilityLayer
-            margin={{
-              left: 14,
-              right: 14,
-              top: 10,
-            }}
-            data={[
-              {
-                date: "2024-01-01",
-                resting: 62,
-              },
-              {
-                date: "2024-01-02",
-                resting: 72,
-              },
-              {
-                date: "2024-01-03",
-                resting: 35,
-              },
-              {
-                date: "2024-01-04",
-                resting: 62,
-              },
-              {
-                date: "2024-01-05",
-                resting: 52,
-              },
-              {
-                date: "2024-01-06",
-                resting: 62,
-              },
-              {
-                date: "2024-01-07",
-                resting: 70,
-              },
-            ]}
-          >
-            <CartesianGrid
-              strokeDasharray="4 4"
-              vertical={false}
-              stroke="hsl(var(--muted-foreground))"
-              strokeOpacity={0.5}
-            />
-            <YAxis hide domain={["dataMin - 10", "dataMax + 10"]} />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => {
-                return new Date(value).toLocaleDateString("en-US", {
-                  weekday: "short",
-                });
-              }}
-            />
-            <Line
-              dataKey="resting"
-              type="natural"
-              fill="var(--color-resting)"
-              stroke="var(--color-resting)"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{
-                fill: "var(--color-resting)",
-                stroke: "var(--color-resting)",
-                r: 4,
-              }}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  indicator="line"
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    });
-                  }}
-                />
-              }
-              cursor={false}
-            />
-          </LineChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+    <div className="grid md:grid-cols-[2fr_1fr] gap-3">
+      <BalanceHistory data={data.balanceHistory} />
+      <BalancePieChart data={data.transactionTypes} />
+    </div>
   );
 }

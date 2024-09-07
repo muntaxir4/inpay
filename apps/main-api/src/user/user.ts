@@ -3,7 +3,7 @@ import { prisma } from "@repo/db";
 import cookieParser from "cookie-parser";
 
 import Authenticate from "../auth/Authenticate";
-import axios from "axios";
+import axios, { get } from "axios";
 const user = Router();
 
 interface UserFullName {
@@ -612,6 +612,124 @@ user.post("/spend", Authenticate, async (req, res) => {
       return res.status(500).json({ message: "Request Failed" });
     }
   } catch (error) {
+    res.status(500).json({ message: "Request Failed" });
+  }
+});
+
+//get balance history
+user.get("/balance-history", Authenticate, async (req, res) => {
+  try {
+    const userAcc = await prisma.userAccount.findFirst({
+      where: {
+        id: req.body.userId,
+      },
+      select: {
+        id: true,
+        balance: true,
+      },
+    });
+
+    const nowDate = new Date();
+
+    const transactions = await prisma.transactions.findMany({
+      where: {
+        OR: [{ from: req.body.userId }, { to: req.body.userId }],
+        status: "SUCCESS",
+        date: {
+          gte: new Date(nowDate.getTime() - 29 * 24 * 60 * 60 * 1000),
+        },
+      },
+    });
+
+    const balanceHistory: number[] = [];
+    balanceHistory.length = 30;
+    const firstTransaction = await prisma.transactions.findFirst({
+      where: {
+        OR: [{ from: req.body.userId }, { to: req.body.userId }],
+        status: "SUCCESS",
+      },
+    });
+
+    const getIndexFromDate = (date: Date | undefined) => {
+      if (date === undefined) return 29;
+      else if (
+        nowDate.getUTCDate() === date.getUTCDate() &&
+        nowDate.getUTCMonth() === date.getUTCMonth()
+      )
+        return 29;
+      return (
+        29 -
+        Math.ceil((nowDate.getTime() - date.getTime()) / (24 * 60 * 60 * 1000))
+      );
+    };
+    const firstTxDay = getIndexFromDate(firstTransaction?.date);
+
+    //last transaction day from today
+    let k = getIndexFromDate(transactions[transactions.length - 1]?.date);
+    let i = k,
+      j = transactions.length - 1;
+    balanceHistory.fill(userAcc?.balance || 0, i, 30);
+    balanceHistory[i--] = userAcc?.balance || 0;
+
+    let prevDate = transactions[transactions.length - 1]?.date;
+    let currDayBalance = userAcc?.balance || 0;
+
+    const transactionTypes = {
+      DEPOSIT: 0,
+      WITHDRAW: 0,
+      RECEIVED: 0,
+      SENT: 0,
+      SPENT: 0,
+    };
+
+    for (; i >= 0 && j >= 0; j--) {
+      const txType = transactions[j]?.type ?? "TRANSFER";
+      if (txType === "DEPOSIT") {
+        currDayBalance -= transactions[j]?.amount || 0;
+        transactionTypes.DEPOSIT += 1;
+      } else if (txType === "WITHDRAW") {
+        currDayBalance += transactions[j]?.amount || 0;
+        transactionTypes.WITHDRAW += 1;
+      } else if (txType === "TRANSFER") {
+        if (transactions[j]?.from === req.body.userId) {
+          currDayBalance += transactions[j]?.amount || 0;
+          transactionTypes.SENT += 1;
+        } else {
+          currDayBalance -= transactions[j]?.amount || 0;
+          transactionTypes.RECEIVED += 1;
+        }
+      } else if (txType === "SPENT") {
+        currDayBalance += transactions[j]?.amount || 0;
+        transactionTypes.SPENT += 1;
+      }
+      if (
+        transactions[j]?.date.getUTCDate() != prevDate?.getUTCDate() ||
+        transactions[j]?.date.getUTCMonth() != prevDate?.getUTCMonth() ||
+        j == 0
+      ) {
+        let iNew = getIndexFromDate(transactions[j]?.date);
+        for (let iStart = iNew; iStart <= i; iStart++) {
+          balanceHistory[iStart] = currDayBalance;
+        }
+        i = iNew - 1;
+        prevDate = transactions[j]?.date;
+      }
+    }
+    let l = firstTxDay;
+    if (l <= 0) balanceHistory.fill(currDayBalance, 0, i);
+    else {
+      balanceHistory.fill(0, 0, l);
+      balanceHistory.fill(currDayBalance, l, i + 1);
+    }
+    res
+      .status(200)
+      .json({
+        message: "Request Successful",
+        balanceHistory,
+        transactionTypes,
+      });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Request Failed" });
   }
 });

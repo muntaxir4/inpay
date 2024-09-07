@@ -36,12 +36,12 @@ app.post("/api/v1/notify", async (req) => {
     type,
     status,
   }: { from: number; amount: number; type: 0 | 1; status: 0 | 1 } = req.body;
-  console.log({
-    from,
-    amount,
-    type,
-    status,
-  });
+  // console.log({
+  //   from,
+  //   amount,
+  //   type,
+  //   status,
+  // });
   const message =
     type === 1 ? "Successfully Withdrawn" : "Successfully Deposited";
   if (users[from]) io.to(users[from]).emit("notify", { amount, message });

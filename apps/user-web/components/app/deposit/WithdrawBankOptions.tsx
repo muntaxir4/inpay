@@ -114,7 +114,7 @@ function VerifyDialog({
           {page === 0 && <Button onClick={getOTP}>Receive OTP</Button>}
           {page === 3 && (
             <Button>
-              <Loading />
+              <Loading forcedOpposite={true} />
             </Button>
           )}
           {page === 1 && (
@@ -137,7 +137,7 @@ function VerifyDialog({
                     <InputOTPSlot index={5} />
                   </InputOTPGroup>
                 </InputOTP>
-                <Button type="submit">Submit</Button>
+                <Button type="button">Submit</Button>
               </form>
             </>
           )}

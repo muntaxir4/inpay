@@ -46,6 +46,7 @@ interface QueryParams {
   DEPOSIT: boolean;
   WITHDRAW: boolean;
   TRANSFER: boolean;
+  SPENT: boolean;
 }
 
 interface Transaction {
@@ -53,7 +54,7 @@ interface Transaction {
   date: string;
   from: string;
   to: string | null;
-  type: "DEPOSIT" | "WITHDRAW" | "TRANSFER";
+  type: "DEPOSIT" | "WITHDRAW" | "TRANSFER" | "SPENT";
   amount: number;
   status: string;
 }
@@ -260,6 +261,17 @@ function Filters({
           />
           <label>Transfer</label>
         </div>
+        <div className="flex gap-1">
+          <input
+            type="checkbox"
+            name="SPENT"
+            checked={filters.SPENT}
+            onClick={() =>
+              setFilters((prev) => ({ ...prev, SPENT: !prev.SPENT }))
+            }
+          />
+          <label>Spent</label>
+        </div>
       </div>
     </div>
   );
@@ -273,6 +285,7 @@ export default function TransactionsCard() {
     DEPOSIT: true,
     WITHDRAW: true,
     TRANSFER: true,
+    SPENT: true,
   });
   const [queryString, setQueryString] = useState<string>("");
 
@@ -280,7 +293,11 @@ export default function TransactionsCard() {
     const tmpObj = { ...filters };
     const tmpParams = new URLSearchParams();
     if (params.has("type"))
-      tmpObj["DEPOSIT"] = tmpObj["WITHDRAW"] = tmpObj["TRANSFER"] = false;
+      tmpObj["DEPOSIT"] =
+        tmpObj["WITHDRAW"] =
+        tmpObj["TRANSFER"] =
+        tmpObj["SPENT"] =
+          false;
     for (const [key, value] of params) {
       if (key === "page") tmpObj.page = parseInt(value);
       else if (key === "type") {
@@ -288,6 +305,7 @@ export default function TransactionsCard() {
         if (value === "DEPOSIT") tmpObj["DEPOSIT"] = true;
         else if (value === "WITHDRAW") tmpObj["WITHDRAW"] = true;
         else if (value === "TRANSFER") tmpObj["TRANSFER"] = true;
+        else if (value === "SPENT") tmpObj["SPENT"] = true;
       }
     }
     setFilters(tmpObj);

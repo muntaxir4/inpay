@@ -34,7 +34,10 @@ export default function RecentInteractionsContent() {
               fullName={user.firstName + " " + user.lastName}
               id={user.id}
             >
-              <div key={user.id} className="grid text-center gap-2">
+              <div
+                key={user.id}
+                className="grid text-center gap-2 justify-items-center"
+              >
                 <Avatar
                   {...genConfig(user.firstName + " " + user.lastName)}
                   className="h-20 w-20 hover:scale-110 transition-transform"

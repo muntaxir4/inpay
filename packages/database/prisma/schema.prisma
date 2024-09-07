@@ -77,6 +77,12 @@ model MerchantTransactions {
   date        DateTime @default(now())
 }
 
+model BankTokens{
+  id     Int    @id @default(autoincrement())
+  token  String
+  bank   BankType
+}
+
 enum LoginType {
   GOOGLE
 }

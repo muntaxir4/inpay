@@ -34,7 +34,7 @@ export default function RecentUsersContent() {
               fullName={user.firstName + " " + user.lastName}
               id={user.id}
             >
-              <div className="grid text-center gap-2">
+              <div className="grid text-center gap-2 justify-items-center">
                 <Avatar
                   {...genConfig(user.firstName + " " + user.lastName)}
                   className="h-20 w-20 hover:scale-110 transition-transform"

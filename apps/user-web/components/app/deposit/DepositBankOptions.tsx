@@ -78,7 +78,7 @@ function DepositForm() {
         className="rounded-xl mx-auto flex gap-2"
       >
         <p>Proceed to Pay</p>
-        {loading && <Loading />}
+        {loading && <Loading forcedOpposite />}
       </Button>
     </form>
   );

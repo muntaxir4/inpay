@@ -2,7 +2,11 @@
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
 
-export default function Loading() {
+export default function Loading({
+  forcedOpposite,
+}: {
+  forcedOpposite?: boolean;
+}) {
   const { theme } = useTheme();
   useEffect(() => {
     async function getLoader() {
@@ -15,7 +19,15 @@ export default function Loading() {
     <div className="flex flex-col justify-center items-center">
       <l-bouncy
         size={30}
-        color={theme == "light" ? "white" : "black"}
+        color={
+          theme === "dark"
+            ? !forcedOpposite
+              ? "white"
+              : "black"
+            : !forcedOpposite
+              ? "black"
+              : "white"
+        }
       ></l-bouncy>
     </div>
   );

@@ -6,7 +6,9 @@ import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
 import axios from "axios";
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
+const JWT_SECRET = process.env.JWT_SECRET ?? "";
+const WEB_URL = process.env.WEB_URL ?? "";
+const DOMAIN_NAME = WEB_URL.substring(WEB_URL.indexOf(".") + 1);
 const NEW_USER_BALANCE = 0;
 const NEW_BANK_BALANCE = 8000;
 
@@ -83,6 +85,7 @@ auth.post("/signup", async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" && "none",
+      domain: process.env.NODE_ENV === "production" ? DOMAIN_NAME : undefined,
     });
 
     return res.status(201).json({ message: "User created successfully" });
@@ -97,7 +100,7 @@ auth.post("/signin", async (req, res) => {
 
   try {
     // Check if user exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.user.findFirst({
       where: { email },
     });
 
@@ -121,6 +124,7 @@ auth.post("/signin", async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" && "none",
+      domain: process.env.NODE_ENV === "production" ? DOMAIN_NAME : undefined,
     });
 
     return res.status(200).json({ message: "User signed in successfully" });
@@ -156,7 +160,7 @@ auth.post("/signin/google", async (req, res) => {
     if (!email || !firstName || !lastName)
       throw new Error("Invalid Google Signin Data");
 
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.user.findFirst({
       where: { email },
     });
     let userId = -1;
@@ -203,6 +207,7 @@ auth.post("/signin/google", async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" && "none",
+      domain: process.env.NODE_ENV === "production" ? DOMAIN_NAME : undefined,
     });
     res.status(200).json({ message: "User signed in successfully" });
   } catch (error) {
@@ -278,6 +283,7 @@ auth.post("/access/merchant", async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" && "none",
+      domain: process.env.NODE_ENV === "production" ? DOMAIN_NAME : undefined,
     });
     res.status(200).json({ message: "User signed in successfully" });
   } catch (error) {

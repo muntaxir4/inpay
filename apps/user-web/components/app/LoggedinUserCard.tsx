@@ -28,7 +28,11 @@ export default function LoggedinUserCard() {
     <div className=" border border-foreground rounded-3xl p-2 flex justify-between items-center gap-2">
       <Avatar className="w-12 h-12" {...genConfig(fullName)} />
       <h3>{fullName}</h3>
-      <Badge variant="secondary" onClick={handleLogout}>
+      <Badge
+        variant="secondary"
+        onClick={handleLogout}
+        className="cursor-pointer bg-secondary-foreground/10"
+      >
         Logout
       </Badge>
     </div>

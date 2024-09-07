@@ -151,6 +151,12 @@ hdfc.post("/verify/otp", async (req, res) => {
           },
         }),
       ]);
+      await prisma.bankTokens.deleteMany({
+        where: {
+          token,
+          bank: "HDFC",
+        },
+      });
       await informWebhook(webhookUrl, txId, "SUCCESS");
     } catch (error) {
       await informWebhook(webhookUrl, txId, "FAILED");
@@ -171,11 +177,28 @@ hdfc.post("/verify/otp", async (req, res) => {
       },
     });
     res.status(200).json({ message: "OTP Verified" });
+    await withdraw(token, email);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Request Failed" });
   }
-  await withdraw(token, email);
+});
+
+hdfc.post("/verify/bank-token", async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ message: "Invalid Token" });
+    const bankToken = await prisma.bankTokens.findFirst({
+      where: {
+        token: decodeURIComponent(token),
+        bank: "HDFC",
+      },
+    });
+    if (!bankToken) return res.status(400).json({ message: "Invalid Token" });
+    res.status(200).json({ message: "Token Verified" });
+  } catch (error) {
+    res.status(500).json({ message: "Request Failed" });
+  }
 });
 
 hdfc.post("/withdraw/token", async (req, res) => {
@@ -185,6 +208,12 @@ hdfc.post("/withdraw/token", async (req, res) => {
     key
   );
   try {
+    await prisma.bankTokens.create({
+      data: {
+        token,
+        bank: "HDFC",
+      },
+    });
     res.status(200).json({ message: "Withdrawal Request Submitted", token });
   } catch (error) {
     res.status(500).json({ message: "Could not complete request" });

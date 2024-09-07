@@ -9,7 +9,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /usr/src/app
 RUN npm install -g turbo
 COPY . .
-RUN turbo prune main-api bank-api payment-webhook --docker
+RUN turbo prune websocket --docker
 
 # Add lockfile and package.json's of isolated subworkspace
 FROM base AS installer
@@ -41,12 +41,9 @@ WORKDIR /usr/src/app
 # RUN adduser --system --uid 1001 expressjs
 # USER expressjs
 COPY --from=installer /usr/src/app .
-RUN apk add --no-cache nginx
-COPY nginx.conf /etc/nginx/nginx.conf
-RUN apk add --no-cache redis
 
-EXPOSE 80 3000 3001 3002 6379
+EXPOSE 8080
 
-CMD sh -c "redis-server & sleep 5 && npm run start & sleep 5 && nginx -g 'daemon off;'"
+CMD ["npm", "run", "start"]
 
 # CMD ["sleep", "infinity"]

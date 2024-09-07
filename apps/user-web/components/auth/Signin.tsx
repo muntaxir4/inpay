@@ -34,8 +34,12 @@ export default function Signin() {
           className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>
-      <form method="post" onSubmit={(e) => handleSignin(e, toast, router)}>
-        <div className="flex items-center justify-center py-12">
+      <form
+        method="post"
+        onSubmit={(e) => handleSignin(e, toast, router)}
+        className="h-full"
+      >
+        <div className="flex items-center justify-center py-12 h-full">
           <div className="mx-auto grid gap-6 text-sm">
             <div className="grid gap-2 text-center">
               <h1 className="text-3xl font-bold">Sign in</h1>
@@ -62,8 +66,17 @@ export default function Signin() {
                 Sign in
               </Button>
               <GoogleSignin toast={toast} router={router}>
-                <Button type="button" variant="outline" className="w-full">
-                  Sign in with Google
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full rounded-full dark:bg-secondary/40 dark:border-slate-600"
+                >
+                  Sign in with
+                  <img
+                    src="https://www.vectorlogo.zone/logos/google/google-ar21.svg"
+                    alt="Google Logo"
+                    className="w-fit h-8 mx-2"
+                  />
                 </Button>
               </GoogleSignin>
             </div>

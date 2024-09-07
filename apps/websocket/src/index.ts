@@ -25,6 +25,10 @@ const JWT_SECRET = process.env.JWT_SECRET as string;
 const app = express();
 app.use(express.json());
 
+app.get("/api/v1/health", (_, res) => {
+  res.status(200).send("OK");
+});
+
 app.post("/api/v1/notify", async (req) => {
   const {
     from,
@@ -32,12 +36,12 @@ app.post("/api/v1/notify", async (req) => {
     type,
     status,
   }: { from: number; amount: number; type: 0 | 1; status: 0 | 1 } = req.body;
-  console.log({
-    from,
-    amount,
-    type,
-    status,
-  });
+  // console.log({
+  //   from,
+  //   amount,
+  //   type,
+  //   status,
+  // });
   const message =
     type === 1 ? "Successfully Withdrawn" : "Successfully Deposited";
   if (users[from]) io.to(users[from]).emit("notify", { amount, message });
@@ -126,23 +130,24 @@ function getRoomString(user1: string, user2: string) {
 io.use((socket, next) => {
   const cookies = socket.handshake.headers.cookie;
   if (!cookies) {
-    // console.error("No cookies found");
+    console.error("No cookies found");
     return next(new Error("Authentication error"));
   }
 
-  const token = cookie.parse(cookies)?.token;
+  const token = cookie.parse(cookies ?? "")?.token;
   if (!token) {
-    // console.error("No auth token found");
+    console.error("No auth token found");
     return next(new Error("Authentication error"));
   }
 
   jwt.verify(token, JWT_SECRET, (err) => {
     if (err) {
-      // console.error("Token verification failed", err);
+      console.error("Token verification failed", err);
       return next(new Error("Authentication error"));
     }
     next();
   });
+  // next();
 });
 
 io.on("connection", (socket) => {

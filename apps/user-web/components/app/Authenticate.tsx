@@ -11,6 +11,9 @@ import { useEffect } from "react";
 async function verifyUser() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   try {
+    //ping websocket server
+    const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
+    axios.get(SOCKET_URL + "/api/v1/health");
     const response = await axios.get(API_URL + "/user", {
       withCredentials: true,
     });

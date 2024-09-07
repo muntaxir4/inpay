@@ -22,7 +22,7 @@ function AccessHandler() {
   async function handleGoogleSignin({ code }: { code: string }) {
     toast({
       title: "Logging in",
-      duration: 3000,
+      duration: 15000,
     });
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
@@ -52,8 +52,16 @@ function AccessHandler() {
   }
   return (
     <div className="grid items-center">
-      <Button className="text-lg rounded-full" onClick={() => googleLogin()}>
-        Continue with Google
+      <Button
+        className="text-lg rounded-full p-6"
+        onClick={() => googleLogin()}
+      >
+        Continue with{" "}
+        <img
+          src="https://www.vectorlogo.zone/logos/google/google-ar21.svg"
+          alt="Google Logo"
+          className="w-fit h-10 mx-2"
+        />
       </Button>
     </div>
   );

@@ -15,6 +15,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import Loading from "@/components/Loading";
 import { getFloatAmount } from "@/store/Singleton";
+import { useQuery } from "@tanstack/react-query";
 
 function EmailForm({
   setEmail,
@@ -60,7 +61,7 @@ function EmailForm({
         <Input type="email" placeholder="Email" name="email" />
         {submitted ? (
           <Button>
-            <Loading />
+            <Loading forcedOpposite />
           </Button>
         ) : (
           <Button type="submit" onClick={() => setSubmitted(true)}>
@@ -158,6 +159,18 @@ export default function HDFC() {
       const [key, value] = curr.split("=") as [string, string];
       return { ...acc, [key]: value };
     }, {});
+
+  async function verifyToken() {
+    const HDFC_API_URL = process.env.NEXT_PUBLIC_HDFC_API_URL;
+    await axios.post(HDFC_API_URL + "/verify/bank-token", {
+      token: params.token,
+    });
+    return true;
+  }
+  const { data, isLoading, error } = useQuery({
+    queryKey: [],
+    queryFn: verifyToken,
+  });
   return (
     <div className="m-8 rounded-2xl border w-full p-4 grid grid-rows-3 bg-card">
       <div className="flex flex-col justify-center items-center gap-3">
@@ -175,7 +188,11 @@ export default function HDFC() {
         )}
       </div>
       <div className="flex flex-col justify-center items-center gap-3 row-span-2">
-        {!transactionComplete ? (
+        {isLoading && <Loading />}
+        {error && (
+          <p className="text-red-400">Error, This token has expired or fake.</p>
+        )}
+        {data && !transactionComplete ? (
           email !== "" ? (
             <OTPForm
               token={params.token ?? ""}

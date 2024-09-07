@@ -26,7 +26,11 @@ export default function LoggedinUserCard() {
   return (
     <div className=" border border-foreground rounded-3xl p-2 flex justify-between items-center gap-2">
       <h3 className="ml-2">{fullName}</h3>
-      <Badge variant="secondary" onClick={handleLogout}>
+      <Badge
+        variant="secondary"
+        onClick={handleLogout}
+        className="cursor-pointer bg-secondary-foreground/10"
+      >
         Logout
       </Badge>
     </div>

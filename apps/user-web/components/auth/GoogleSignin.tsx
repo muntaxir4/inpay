@@ -27,7 +27,7 @@ function GoogleSigninHandler({
   async function handleGoogleSignin({ code }: { code: string }) {
     toast({
       title: "Logging in",
-      duration: 3000,
+      duration: 15000,
     });
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL as string;

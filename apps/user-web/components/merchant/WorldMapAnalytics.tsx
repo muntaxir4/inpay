@@ -101,7 +101,9 @@ export default function WorldMapAnalytics() {
       <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow animate-slide-up">
         <CardHeader>
           <CardTitle>Analytics</CardTitle>
-          <CardDescription>Showing countries with transactions</CardDescription>
+          <CardDescription>
+            Showing countries from all transactions
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-md overflow-auto border h-fit">

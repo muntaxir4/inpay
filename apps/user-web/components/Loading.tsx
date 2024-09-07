@@ -15,7 +15,7 @@ export default function Loading() {
     <div className="flex flex-col justify-center items-center">
       <l-bouncy
         size={30}
-        color={theme == "light" ? "white" : "black"}
+        color={theme === "dark" ? "white" : "black"}
       ></l-bouncy>
     </div>
   );

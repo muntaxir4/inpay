@@ -191,10 +191,6 @@ export default function PaymentHistory() {
   else if (error) return <div>Error fetching Payment History</div>;
 
   const chartData = formatPaymentData(data.payHistory);
-  //   const total = {
-  //     desktop: chartData.reduce((acc, curr) => acc + curr.desktop, 0),
-  //     mobile: chartData.reduce((acc, curr) => acc + curr.mobile, 0),
-  //   };
   return (
     <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow animate-slide-up">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row ">
@@ -224,7 +220,7 @@ export default function PaymentHistory() {
       <CardContent className="px-2 sm:p-6">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
+          className="aspect-auto h-[250px] w-full "
         >
           <BarChart
             accessibilityLayer

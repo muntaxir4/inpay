@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { useRecoilValue } from "recoil";
 import { userState } from "@/store/atoms";
 import { getFloatAmount } from "@/store/Singleton";
+import Loading from "../Loading";
 
 interface RecentTransaction {
   id: string;
@@ -55,7 +56,7 @@ export default function RecentTxContent({ className }: { className?: string }) {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   } else if (isError) {
     return <div>Error fetching recent transactions</div>;
   }

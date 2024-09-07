@@ -5,7 +5,6 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-// import { label } from "@/components/ui/label";
 import Image from "next/image";
 
 import { useToast } from "@/components/ui/use-toast";
@@ -65,8 +64,17 @@ export default function Signup() {
                 Create your acccount
               </Button>
               <GoogleSignin toast={toast} router={router}>
-                <Button type="button" variant="outline" className="w-full">
-                  Signup with Google
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full rounded-full dark:bg-secondary/40 dark:border-slate-600"
+                >
+                  Sign up with
+                  <img
+                    src="https://www.vectorlogo.zone/logos/google/google-ar21.svg"
+                    alt="Google Logo"
+                    className="w-fit h-8 mx-2"
+                  />
                 </Button>
               </GoogleSignin>
             </div>

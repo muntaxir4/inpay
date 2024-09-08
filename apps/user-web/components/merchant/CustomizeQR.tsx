@@ -51,7 +51,12 @@ function ShowCustomQR({
           </DialogDescription>
         </DialogHeader>
         {page === 0 ? (
-          <form>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              amount && setPage(1);
+            }}
+          >
             <label htmlFor="amount" className="text-sm -mb-2">
               Amount
             </label>
@@ -61,9 +66,10 @@ function ShowCustomQR({
                 id="amount"
                 name="amount"
                 placeholder="Enter amount"
+                step={0.01}
                 onChange={(e) => setAmount(Number(e.currentTarget.value))}
               />
-              <Button onClick={(e) => setPage(1)}>Confirm</Button>
+              <Button>Confirm</Button>
             </div>
           </form>
         ) : (

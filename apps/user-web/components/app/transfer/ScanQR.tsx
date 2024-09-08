@@ -64,8 +64,10 @@ function SelectedPay({
     <div className="mx-auto text-center text-sm grid gap-2">
       <p>You are paying to: </p>
       <p> {data.email}</p>
-      <p className="text-lg font-medium">Amount: {data.amount}</p>
-      <Button onClick={() => handlePay()}>Pay</Button>
+      <p className="text-base font-medium">Amount: {data.amount}</p>
+      <Button onClick={() => handlePay()} className="tracking-wider text-xl">
+        Pay
+      </Button>
     </div>
   );
 }
@@ -119,8 +121,15 @@ function EnterAmountAndPay({
     <div className="mx-auto">
       <p className="my-3 text-sm">You are paying to {data.email}</p>
       <form className="grid gap-2" onSubmit={handleSubmit}>
-        <Input name="amount" placeholder="Enter amount" type="number" />
-        <Button type="submit">Pay</Button>
+        <Input
+          name="amount"
+          placeholder="Enter amount"
+          type="number"
+          step={0.01}
+        />
+        <Button type="submit" className="tracking-wider text-xl">
+          Pay
+        </Button>
       </form>
     </div>
   );

@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { QrCodeIcon, SendIcon } from "lucide-react";
+import { Search } from "lucide-react";
 import { BalanceComponent } from "../UserStates";
 import RecentInteractionsContent from "./RecentInteractionsContent";
 import RecentUsersContent from "./RecentUsersContent";
@@ -35,9 +35,9 @@ function SendReceiveCard() {
         <div className="flex justify-end w-full">
           <div className="grid grid-cols-2 gap-4">
             <SearchUsers>
-              <Button className="rounded-2xl w-full">
-                <SendIcon className="mr-2 h-4 w-4" />
-                Send
+              <Button className="rounded-2xl w-full flex gap-2 ">
+                <Search className="h-4 w-4" />
+                Search
               </Button>
             </SearchUsers>
             <ScanQR />

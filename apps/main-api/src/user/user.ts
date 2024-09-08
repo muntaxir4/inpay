@@ -704,8 +704,9 @@ user.get("/balance-history", Authenticate, async (req, res) => {
         transactionTypes.SPENT += 1;
       }
       if (
-        transactions[j]?.date.getUTCDate() != prevDate?.getUTCDate() ||
-        transactions[j]?.date.getUTCMonth() != prevDate?.getUTCMonth() ||
+        transactions[j]?.date.getUTCDate() !== prevDate?.getUTCDate() ||
+        transactions[j]?.date.getUTCMonth() !== prevDate?.getUTCMonth() ||
+        transactions[j]?.date.getUTCFullYear() !== prevDate?.getUTCFullYear() ||
         j == 0
       ) {
         let iNew = getIndexFromDate(transactions[j]?.date);

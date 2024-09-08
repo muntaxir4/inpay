@@ -37,7 +37,7 @@ function formatDate(dateUTC: string): string {
   return date.toLocaleString("en-US", {
     day: "numeric",
     month: "short",
-    year: "numeric",
+    year: "2-digit",
   });
 }
 
@@ -68,7 +68,7 @@ export default function BalanceHistory({ data }: { data: number[] }) {
           <p>Showing history for the last 30 days</p>
           <p className="text-end font-medium">
             {formatDate(chartData[0]?.day ?? "")} -{" "}
-            {formatDate(chartData[29]?.day ?? "")}
+            {formatDate(chartData[29]?.day ?? "") + " UTC"}
           </p>
         </CardDescription>
       </CardHeader>

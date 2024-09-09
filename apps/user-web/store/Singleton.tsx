@@ -1,6 +1,8 @@
 "use client";
 import { io, Socket } from "socket.io-client";
 
+export type Currency = "INR" | "USD" | "AED";
+
 class SocketIO {
   private static instance: SocketIO | null;
   private socket: Socket | null;
@@ -36,6 +38,18 @@ class SocketIO {
 
 export function getFloatAmount(amount: number) {
   return Math.floor(amount / 100) + (amount % 100) / 100;
+}
+
+export const currencies = {
+  INR: { id: 0, rate: 1, symbol: "₹" },
+  USD: { id: 1, rate: 0.011906216, symbol: "$" },
+  AED: { id: 2, rate: 0.04372558, symbol: "AED" },
+};
+
+export function getCurrencyFloatAmount(amount: number, rate: number = 1) {
+  const currencyAmount = amount * rate;
+  const actualAmount = parseFloat(currencyAmount.toFixed(2));
+  return actualAmount;
 }
 
 export default SocketIO;

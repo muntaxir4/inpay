@@ -29,6 +29,14 @@ setInterval(
   24 * 60 * 60 * 1000
 );
 
+export type Currency = "INR" | "USD" | "AED";
+
+export const currencies = {
+  INR: { id: 0, rate: 1, symbol: "₹" },
+  USD: { id: 1, rate: 0.011906216, symbol: "$" },
+  AED: { id: 2, rate: 0.04372558, symbol: "AED" },
+};
+
 //converts user id to user full name, and deletes the id key if it is not "id"
 async function addNamesToId(
   userIdObjArray: { [key: string]: any }[],
@@ -77,6 +85,15 @@ async function getFullName(id: number) {
     };
   }
   return userFullNameCache[id];
+}
+
+//INR float string
+export function getINRstring(amount: string, currency: Currency): string {
+  if (currency === "INR") return amount;
+  const rate = currencies[currency].rate;
+  const amountFloat = parseFloat(amount.toString());
+  const inrAmount = amountFloat / rate;
+  return inrAmount.toString();
 }
 
 export function convertFloatStringToInteger(num: string): number {
@@ -232,7 +249,7 @@ user.post("/send", Authenticate, async (req, res) => {
           data: {
             from: Number(from),
             to: Number(to),
-            message: `$${amount}`,
+            message: `${amount}`,
             isPayment: true,
             createdAt: new Date(),
           },
@@ -242,8 +259,14 @@ user.post("/send", Authenticate, async (req, res) => {
   }
 
   try {
-    const { to, amount: atmp }: { to: number; amount: string } = req.body;
-    const amount = convertFloatStringToInteger(atmp);
+    const {
+      to,
+      amount: atmp,
+      currency,
+    }: { to: number; amount: string; currency: Currency } = req.body;
+    if (!currency || !currencies[currency])
+      return res.status(400).json({ message: "Invalid Currency" });
+    const amount = convertFloatStringToInteger(getINRstring(atmp, currency));
     const from = req.body.userId as number;
     if (from === to)
       return res.status(400).json({ message: "Cannot send to self" });
@@ -503,10 +526,15 @@ user.get("/transactions", Authenticate, async (req, res) => {
 
 //pay merchant
 user.post("/spend", Authenticate, async (req, res) => {
-  const { toEmail, amount: atmp }: { toEmail: string; amount: string } =
-    req.body;
-  const amount = convertFloatStringToInteger(atmp);
+  const {
+    toEmail,
+    amount: atmp,
+    currency,
+  }: { toEmail: string; amount: string; currency: Currency } = req.body;
   try {
+    if (!currency || !currencies[currency])
+      return res.status(400).json({ message: "Invalid Currency" });
+    const amount = convertFloatStringToInteger(getINRstring(atmp, currency));
     if (amount <= 0 || !toEmail)
       return res.status(400).json({ message: "Invalid Data" });
     const fromId = req.body.userId;

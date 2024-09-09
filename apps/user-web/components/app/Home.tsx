@@ -9,7 +9,7 @@ import {
 } from "../ui/card";
 import BalanceOverview from "./BalanceOverview";
 import Link from "next/link";
-import { BalanceComponent } from "./UserStates";
+import { BalanceComponent, LockedBalance } from "./UserStates";
 import RecentTxContent from "./RecentTxContent";
 
 function BalanceCard() {
@@ -28,12 +28,14 @@ function BalanceCard() {
             <div className="grid gap-1">
               <label htmlFor="balance">Available Balance</label>
               <div className="text-2xl font-semibold">
-                $<BalanceComponent />
+                <BalanceComponent />
               </div>
             </div>
             <div className="grid gap-1">
               <label htmlFor="available">Locked Balance</label>
-              <div className="text-2xl font-semibold">$0</div>
+              <div className="text-2xl font-semibold">
+                <LockedBalance />
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">

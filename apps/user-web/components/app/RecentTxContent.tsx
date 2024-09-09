@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useRecoilValue } from "recoil";
-import { userState } from "@/store/atoms";
-import { getFloatAmount } from "@/store/Singleton";
+import { currencyState, userState } from "@/store/atoms";
+import { getCurrencyFloatAmount } from "@/store/Singleton";
 import Loading from "../Loading";
 
 interface RecentTransaction {
@@ -49,6 +49,7 @@ function ShowStatusBadge({ status }: { status: string }) {
 
 export default function RecentTxContent({ className }: { className?: string }) {
   const user = useRecoilValue(userState);
+  const currency = useRecoilValue(currencyState);
   const { data, isLoading, isError } = useQuery({
     queryKey: [user, "recentTx"],
     queryFn: getRecentTransactions,
@@ -76,7 +77,10 @@ export default function RecentTxContent({ className }: { className?: string }) {
             <TableRow key={index} className="hover:bg-muted">
               <TableCell>{tx.firstName + " " + tx.lastName}</TableCell>
               <TableCell>{tx.type}</TableCell>
-              <TableCell>{getFloatAmount(tx.amount)}</TableCell>
+              <TableCell>
+                {currency.symbol +
+                  getCurrencyFloatAmount(tx.amount / 100, currency.rate)}
+              </TableCell>
               <TableCell>
                 <ShowStatusBadge status={tx.status} />
               </TableCell>

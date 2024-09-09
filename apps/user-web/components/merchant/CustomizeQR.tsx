@@ -14,6 +14,8 @@ import { Input } from "../ui/input";
 import { useRecoilValue } from "recoil";
 import { merchantState } from "@/store/atomsMerch";
 import qrcode from "qrcode-generator";
+import { currencyState } from "@/store/atoms";
+import { currencies } from "@/store/Singleton";
 
 function ShowCustomQR({
   page,
@@ -25,6 +27,11 @@ function ShowCustomQR({
   const [isOpen, setIsOpen] = useState(false);
   const [amount, setAmount] = useState(0);
   const merchant = useRecoilValue(merchantState);
+  const { id: currencyId, symbol } = useRecoilValue(currencyState);
+  const currencyName =
+    Object.entries(currencies).find(
+      ([curr, value]) => value.id === currencyId
+    )?.[0] ?? "INR";
 
   useEffect(() => {
     if (!isOpen) setPage(0), setAmount(0);
@@ -32,7 +39,13 @@ function ShowCustomQR({
 
   function generateQRUrl() {
     const qr = qrcode(0, "H");
-    qr.addData(JSON.stringify({ email: merchant?.email, amount: amount }));
+    qr.addData(
+      JSON.stringify({
+        email: merchant?.email,
+        amount: amount,
+        currency: currencyName,
+      })
+    );
     qr.make();
     return qr.createDataURL();
   }
@@ -69,12 +82,14 @@ function ShowCustomQR({
                 step={0.01}
                 onChange={(e) => setAmount(Number(e.currentTarget.value))}
               />
-              <Button>Confirm</Button>
+              <Button>Generate</Button>
             </div>
           </form>
         ) : (
           <div className="mx-auto">
-            <p className="font-semibold text-center">Payable, {amount}</p>
+            <p className="font-semibold text-center">
+              Payable, {symbol + amount}
+            </p>
             <img
               src={generateQRUrl()}
               alt="qr"

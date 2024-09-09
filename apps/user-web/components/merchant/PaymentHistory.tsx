@@ -29,6 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { currencyState } from "@/store/atoms";
+import { getCurrencyFloatAmount } from "@/store/Singleton";
 
 export const description = "An interactive bar chart";
 
@@ -67,7 +69,7 @@ function formatDate(dateUTC: string): string {
   });
 }
 
-function formatPaymentData(data: number[]) {
+function formatPaymentData(data: number[], rate: number) {
   const dayMilliSeconds = 24 * 60 * 60 * 1000;
   let prevDateMilliSeconds =
     new Date().getTime() - data.length * dayMilliSeconds;
@@ -76,7 +78,7 @@ function formatPaymentData(data: number[]) {
     prevDateMilliSeconds = currDateMilliSeconds;
     return {
       date: new Date(currDateMilliSeconds).toUTCString(),
-      amount: item / 100,
+      amount: getCurrencyFloatAmount(item / 100, rate),
     };
   });
   return res;
@@ -96,6 +98,7 @@ async function fetchPayHistory(range: string) {
 export default function PaymentHistory() {
   const [timeRange, setTimeRange] = React.useState("30");
   const merchant = useRecoilValue(merchantState);
+  const currency = useRecoilValue(currencyState);
   const { data, isLoading, error } = useQuery({
     queryKey: ["payHistory", merchant, timeRange],
     queryFn: () => fetchPayHistory(timeRange),
@@ -104,7 +107,7 @@ export default function PaymentHistory() {
   if (isLoading) return <Loading />;
   else if (error) return <div>Error fetching Payment History</div>;
 
-  const chartData = formatPaymentData(data.payHistory);
+  const chartData = formatPaymentData(data.payHistory, currency.rate);
   return (
     <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow animate-slide-up">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row ">
@@ -188,7 +191,10 @@ export default function PaymentHistory() {
           </p>
           <p>
             Total Amount:{" "}
-            {chartData.reduce((acc, curr) => acc + curr.amount, 0)}
+            {currency.symbol +
+              parseFloat(
+                chartData.reduce((acc, curr) => acc + curr.amount, 0).toString()
+              ).toFixed(2)}
           </p>
         </div>
       </CardFooter>

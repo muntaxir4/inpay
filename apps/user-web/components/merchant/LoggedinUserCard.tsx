@@ -4,6 +4,7 @@ import { Badge } from "../ui/badge";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { merchantState } from "@/store/atomsMerch";
+import CurrencySelect from "../CurrencySelect";
 
 export default function LoggedinUserCard() {
   const merchant = useRecoilValue(merchantState);
@@ -24,15 +25,18 @@ export default function LoggedinUserCard() {
     }
   }
   return (
-    <div className=" border border-foreground rounded-3xl p-2 flex justify-between items-center gap-2">
-      <h3 className="ml-2">{fullName}</h3>
-      <Badge
-        variant="secondary"
-        onClick={handleLogout}
-        className="cursor-pointer bg-secondary-foreground/10"
-      >
-        Logout
-      </Badge>
+    <div>
+      <CurrencySelect />
+      <div className=" border border-foreground rounded-3xl p-2 flex justify-between items-center gap-2">
+        <h3 className="ml-2 font-semibold tracking-wide">{fullName}</h3>
+        <Badge
+          variant="secondary"
+          onClick={handleLogout}
+          className="cursor-pointer bg-secondary-foreground/10"
+        >
+          Logout
+        </Badge>
+      </div>
     </div>
   );
 }

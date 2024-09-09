@@ -4,16 +4,28 @@ import { prisma } from "@repo/db";
 import cookieParser from "cookie-parser";
 import Authenticate from "../auth/Authenticate";
 import { generateOTP, transporter } from "../mailto";
-import { convertFloatStringToInteger } from "../user/user";
+import {
+  convertFloatStringToInteger,
+  currencies,
+  Currency,
+  getINRstring,
+} from "../user/user";
 
 const ramp = Router();
 ramp.use(json());
 ramp.use(cookieParser());
 
+//deposit to inpay
 ramp.post("/hdfc/onramp", Authenticate, async (req, res) => {
-  const { amount: amt, userId } = req.body;
+  const {
+    amount: amt,
+    userId,
+    currency,
+  }: { amount: string; userId: number; currency: Currency } = req.body;
   try {
-    const amount = convertFloatStringToInteger(amt as string);
+    if (!currency || !currencies[currency])
+      return res.status(400).json({ message: "Invalid currency" });
+    const amount = convertFloatStringToInteger(getINRstring(amt, currency));
     if (amount <= 0) return res.status(400).json({ message: "Invalid amount" });
     const tx = await prisma.transactions.create({
       data: {
@@ -102,12 +114,22 @@ ramp.get("/hdfc/offramp/get-otp", Authenticate, async (req, res) => {
 });
 
 ramp.post("/hdfc/offramp/verify-otp", Authenticate, async (req, res) => {
-  const { amount: amt, userId, otp } = req.body;
+  const {
+    amount: amt,
+    userId,
+    otp,
+    currency,
+  }: {
+    amount: string;
+    userId: number;
+    otp: string;
+    currency: Currency;
+  } = req.body;
 
   //off ramp function
   async function offRamp(email: string, balance: number = 0) {
     try {
-      const amount = convertFloatStringToInteger(amt as string);
+      const amount = convertFloatStringToInteger(getINRstring(amt, currency));
       if (amount <= 0) return;
       if (balance < amount) return;
       const tx = await prisma.transactions.create({
@@ -145,6 +167,8 @@ ramp.post("/hdfc/offramp/verify-otp", Authenticate, async (req, res) => {
   }
 
   try {
+    if (!currency || !currencies[currency])
+      return res.status(400).json({ message: "Invalid currency" });
     const user = await prisma.user.findFirst({
       where: {
         id: userId,
@@ -173,11 +197,7 @@ ramp.post("/hdfc/offramp/verify-otp", Authenticate, async (req, res) => {
       },
     });
     res.status(200).json({ message: "Withdrawal Processing" });
-    try {
-      offRamp(user.email, user.userAccount?.balance);
-    } catch (error) {
-      console.error(error);
-    }
+    offRamp(user.email, user.userAccount?.balance);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Request Failed" });

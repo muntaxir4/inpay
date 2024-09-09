@@ -27,7 +27,7 @@ function SendReceiveCard() {
         <div className="grid gap-1">
           <label htmlFor="balance">Available Balance</label>
           <div className="text-2xl font-semibold">
-            $<BalanceComponent />
+            <BalanceComponent />
           </div>
         </div>
       </CardContent>

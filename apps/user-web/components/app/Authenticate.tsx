@@ -13,7 +13,9 @@ async function verifyUser() {
   try {
     //ping websocket server
     const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
-    axios.get(SOCKET_URL + "/api/v1/health");
+    try {
+      axios.get(SOCKET_URL + "/api/v1/health");
+    } catch {}
     const response = await axios.get(API_URL + "/user", {
       withCredentials: true,
     });

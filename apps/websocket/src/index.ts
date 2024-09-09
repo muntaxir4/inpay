@@ -49,13 +49,12 @@ app.post("/api/v1/notify", async (req) => {
 
 app.post("/api/v1/transferDone", async (req, res) => {
   const { from, to, amount } = req.body;
-  //@bug hardcoded currency
   try {
     const message = await prisma.userMessages.create({
       data: {
         from: Number(from),
         to: Number(to),
-        message: `$${amount}`,
+        message: `${amount}`,
         isPayment: true,
         createdAt: new Date(),
       },

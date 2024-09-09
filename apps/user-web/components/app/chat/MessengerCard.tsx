@@ -5,6 +5,7 @@ import {
   ChatMessage,
   chatOnlineState,
   chatState,
+  currencyState,
   oldMessagesRetrievedState,
   userState,
 } from "@/store/atoms";
@@ -16,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useSocketInstance } from "@/store/customHooks";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCcw } from "lucide-react";
-import { getFloatAmount } from "@/store/Singleton";
+import { getCurrencyFloatAmount } from "@/store/Singleton";
 
 function Message({
   msgObj,
@@ -25,6 +26,7 @@ function Message({
   msgObj: ChatMessage;
   prevMsgDate: Date | undefined;
 }) {
+  const curreny = useRecoilValue(currencyState);
   function formatTime(date: Date): string {
     const hours = date.getHours().toString().padStart(2, "0");
     const minutes = date.getMinutes().toString().padStart(2, "0");
@@ -58,9 +60,8 @@ function Message({
       >
         {msgObj.isPayment ? (
           <p className="text-2xl font-medium text-center p-4">
-            {msgObj.message[0] +
-              "" +
-              getFloatAmount(Number(msgObj.message.substring(1)))}
+            {`${curreny.symbol}` +
+              getCurrencyFloatAmount(Number(msgObj.message), curreny.rate)}
           </p>
         ) : (
           <p className="mt-1 mx-3">{msgObj.message}</p>

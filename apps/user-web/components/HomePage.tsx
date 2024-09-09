@@ -57,13 +57,19 @@ export default function HomePage() {
         </Link>
       </div>
       <FeaturesSectionDemo />
-      <div className="flex gap-3 justify-end pb-5 mx-8 text-muted-foreground">
-        <a href="https://github.com/muntaxir4/inpay" target="_blank">
-          Source Code
-        </a>
-        <a href="https://mallik.tech" target="_blank">
-          <p>Muntasir Mallik</p>
-        </a>
+      <div className="flex flex-col sm:flex-row justify-around text-sm">
+        <div className="flex gap-5 pb-5 mx-8 text-muted-foreground">
+          <Link href="/terms-of-service">Terms of Service</Link>
+          <Link href="/privacy-policy">Privacy Policy</Link>
+        </div>
+        <div className="flex gap-5 justify-end pb-5 mx-8 text-muted-foreground">
+          <Link href="https://github.com/muntaxir4/inpay" target="_blank">
+            Source Code
+          </Link>
+          <Link href="https://mallik.tech" target="_blank">
+            <p>Muntasir Mallik</p>
+          </Link>
+        </div>
       </div>
     </div>
   );

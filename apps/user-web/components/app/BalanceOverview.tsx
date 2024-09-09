@@ -22,7 +22,6 @@ export interface BalanceHistoryData {
 
 async function fetchBalanceHistory() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
-  console.log("API_URL", API_URL);
   const response = await axios.get(API_URL + "/user/balance-history", {
     withCredentials: true,
   });

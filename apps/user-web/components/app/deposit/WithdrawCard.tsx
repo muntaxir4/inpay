@@ -16,7 +16,7 @@ export default function WithdrawCard() {
         <CardTitle>Withdraw</CardTitle>
         <CardDescription>
           {
-            "Withdraw from inPay to your bank. Currently, there's 1% fee on withdrawls."
+            "Withdraw from inPay to your bank. Currently, there's 0% fee on withdrawls."
           }
         </CardDescription>
       </CardHeader>

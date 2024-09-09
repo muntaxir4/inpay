@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -16,9 +15,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { getFloatAmount } from "@/store/Singleton";
+import { getCurrencyFloatAmount } from "@/store/Singleton";
 import { useRecoilValue } from "recoil";
-import { userState } from "@/store/atoms";
+import { currencyState } from "@/store/atoms";
 
 interface BalanceHistory {
   day: string;
@@ -42,7 +41,8 @@ function formatDate(dateUTC: string): string {
 }
 
 function formatBalanceHistoryData(
-  balanceHistoryData: number[]
+  balanceHistoryData: number[],
+  rate: number
 ): BalanceHistory[] {
   const dayNumber = 24 * 60 * 60 * 1000;
   let prev = Date.now() - 29 * dayNumber;
@@ -51,15 +51,15 @@ function formatBalanceHistoryData(
     prev = prev + dayNumber;
     return {
       day: new Date(curr).toUTCString(),
-      balance: getFloatAmount(entry),
+      balance: getCurrencyFloatAmount(entry / 100, rate),
     };
   });
   return data;
 }
 
 export default function BalanceHistory({ data }: { data: number[] }) {
-  const user = useRecoilValue(userState);
-  const chartData = formatBalanceHistoryData(data);
+  const currency = useRecoilValue(currencyState);
+  const chartData = formatBalanceHistoryData(data, currency.rate);
   return (
     <Card className="flex flex-col w-full hover:shadow-lg hover:shadow-primary/30 transition-shadow animate-slide-up">
       <CardHeader>

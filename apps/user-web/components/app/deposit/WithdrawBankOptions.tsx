@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios, { AxiosError } from "axios";
@@ -22,6 +22,10 @@ import {
 } from "@/components/ui/input-otp";
 
 import Loading from "@/components/Loading";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { currencyState, userRefetchState } from "@/store/atoms";
+import { currencies } from "@/store/Singleton";
+import { Badge } from "@/components/ui/badge";
 
 const banks = [
   {
@@ -40,15 +44,26 @@ const banks = [
 
 function VerifyDialog({
   amount,
+  open,
   setOpen,
 }: {
   amount: number;
+  open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   // page 0: Ask to receive OTP
   // page 1: Ask to verify OTP
   const [page, setPage] = useState(0);
   const { toast } = useToast();
+  const { id: currencyId } = useRecoilValue(currencyState);
+  const currency = Object.entries(currencies).find(
+    ([curr, value]) => value.id === currencyId
+  )?.[0];
+  const setIsRefetch = useSetRecoilState(userRefetchState);
+
+  useEffect(() => {
+    setPage(0);
+  }, [open]);
 
   async function getOTP() {
     try {
@@ -81,6 +96,7 @@ function VerifyDialog({
         {
           amount,
           otp,
+          currency,
         },
         { withCredentials: true }
       );
@@ -88,6 +104,7 @@ function VerifyDialog({
         toast({
           title: "Withdrawal Processing",
         });
+        setIsRefetch((prev) => !prev);
         setOpen(false);
       }
     } catch (error) {
@@ -124,7 +141,11 @@ function VerifyDialog({
                 className="flex flex-col w-full max-w-sm items-center gap-3 "
                 onSubmit={verifyOTP}
               >
-                <InputOTP maxLength={6} name="otp">
+                <InputOTP
+                  maxLength={6}
+                  name="otp"
+                  className="bg-accent-foreground bg-opacity-100"
+                >
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />
                     <InputOTPSlot index={1} />
@@ -137,7 +158,7 @@ function VerifyDialog({
                     <InputOTPSlot index={5} />
                   </InputOTPGroup>
                 </InputOTP>
-                <Button type="button">Submit</Button>
+                <Button>Submit</Button>
               </form>
             </>
           )}
@@ -157,6 +178,7 @@ function DepositForm() {
         className="flex flex-col justify-between gap-4 mb-4"
         onSubmit={(e) => {
           e.preventDefault();
+          if (e.currentTarget.amount.value <= 0) return;
           setAmount(Number(e.currentTarget.amount.value));
           e.currentTarget.reset();
           setOpen(true);
@@ -175,7 +197,7 @@ function DepositForm() {
         </Button>
       </form>
       <Dialog open={open} onOpenChange={setOpen}>
-        <VerifyDialog amount={amount} setOpen={setOpen} />
+        <VerifyDialog amount={amount} open={open} setOpen={setOpen} />
       </Dialog>
     </>
   );
@@ -184,22 +206,27 @@ function DepositForm() {
 export default function WithdrawBankOptions() {
   const [option, setOption] = useState(0);
   return (
-    <div className="rounded-lg border grid grid-cols-[25%_1fr] bg-background/20">
+    <div className="rounded-lg border grid grid-cols-[25%_1fr] bg-background/20 dark:bg-background/50">
       <div className="border-r text-center border-slate-400/15">
         <div
           className={cn(
             "border-b rounded-tl-lg p-1",
-            option == 0 && "bg-muted"
+            option == 0 &&
+              "bg-accent-foreground text-background font-semibold tracking-wide"
           )}
           onClick={() => setOption(0)}
         >
           HDFC
         </div>
         <div
-          className={cn("border-b p-1", option == 1 && "bg-muted")}
+          className={cn(
+            "border-b p-1",
+            option == 1 &&
+              "bg-accent-foreground text-background font-semibold tracking-wide"
+          )}
           // onClick={() => setOption(1)}
         >
-          SBI
+          SBI <Badge variant={"outline"}>soon</Badge>
         </div>
       </div>
       {banks

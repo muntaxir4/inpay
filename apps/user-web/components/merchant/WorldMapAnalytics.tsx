@@ -16,20 +16,20 @@ import {
 function AnalyticsTable({ data }: { data: any }) {
   if (!data) return null;
   return (
-    <table className="w-full rounded-lg border">
+    <table className="w-full border">
       <thead>
         <tr>
-          <th>Country</th>
-          <th>Transactions</th>
+          <th className="font-semibold">Country</th>
+          <th className="font-semibold">Transactions</th>
         </tr>
       </thead>
-      <tbody className="rounded-md border">
+      <tbody className="rounded-md border ">
         {data.map((item: any, index: number) => (
-          <tr key={index} className="hover:bg-foreground/25">
-            <td className="px-3 border border-foreground">
+          <tr key={index} className="hover:bg-foreground/25 ">
+            <td className="px-3 border border-foreground/60">
               {item.country.toUpperCase()}
             </td>
-            <td className="px-3 border text-end border-foreground">
+            <td className="px-3 border text-end border-foreground/60">
               {item.value}
             </td>
           </tr>

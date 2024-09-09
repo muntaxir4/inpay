@@ -1,0 +1,48 @@
+name: Deploy Backend to Azure Container Apps
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build and deploy APIs
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}
+          acrName: ${{ vars.ACR_NAME }}
+          containerAppName: ${{ vars.CONTAINER_API }}
+          resourceGroup: ${{ vars.RESOURCE_GROUP }}
+          dockerfilePath: dockerfiles/api-prod/Dockerfile
+          imageToDeploy: ${{ vars.API_IMAGE }}
+          buildArguments: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+
+      - name: Build and deploy Websocket
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}
+          acrName: ${{ vars.ACR_NAME }}
+          containerAppName: ${{ vars.CONTAINER_WEBSOCKET }}
+          resourceGroup: ${{ vars.RESOURCE_GROUP }}
+          dockerfilePath: dockerfiles/websocket-prod/Dockerfile
+          imageToDeploy: ${{ vars.WEBSOCKET_IMAGE }}
+          buildArguments: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}

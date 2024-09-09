@@ -26,10 +26,9 @@ RUN npm install
 # Build the project and its dependencies
 COPY --from=builder /usr/src/app/out/full/ .
 COPY turbo.json turbo.json
-COPY .env.production.local .env
+ARG DATABASE_URL
 
 RUN npm run db:generate
-RUN rm .env
 RUN npm run build
 
 FROM base AS runner

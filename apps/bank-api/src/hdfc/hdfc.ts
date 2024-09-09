@@ -221,7 +221,11 @@ hdfc.post("/withdraw/token", async (req, res) => {
 });
 
 async function informWebhook(webhookUrl: string, txId: string, status: string) {
-  const response = await axios.post(webhookUrl, { txId, status });
+  try {
+    const response = await axios.post(webhookUrl, { txId, status });
+  } catch (error) {
+    console.error("Inform webhook failed", error);
+  }
   // console.log(response.data);
 }
 

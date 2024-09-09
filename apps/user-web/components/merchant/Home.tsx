@@ -12,9 +12,12 @@ import CustomizeQR from "./CustomizeQR";
 import { useRecoilValue } from "recoil";
 import { merchantState } from "@/store/atomsMerch";
 import PaymentHistory from "./PaymentHistory";
+import { currencyState } from "@/store/atoms";
+import { getCurrencyFloatAmount } from "@/store/Singleton";
 
 function MerchantCard() {
   const merchant = useRecoilValue(merchantState);
+  const currency = useRecoilValue(currencyState);
   return (
     <Card className="hover:shadow-lg hover:shadow-primary/30 transition-shadow animate-slide-up">
       <CardHeader>
@@ -26,9 +29,15 @@ function MerchantCard() {
       <CardContent>
         <div className="grid grid-cols-2 items-center">
           <div className="grid gap-1">
-            <label htmlFor="balance">Available Balance</label>
+            <label htmlFor="balance" className="tracking-wide">
+              Available Balance
+            </label>
             <div className="text-2xl font-semibold">
-              ${(merchant?.balanceM ?? 0) / 100}
+              {currency.symbol +
+                getCurrencyFloatAmount(
+                  (merchant?.balanceM ?? 0) / 100,
+                  currency.rate
+                )}
             </div>
           </div>
           <div className="flex justify-end w-full">

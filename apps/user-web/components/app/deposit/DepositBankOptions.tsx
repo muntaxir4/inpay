@@ -6,6 +6,10 @@ import { Input } from "@/components/ui/input";
 import axios, { AxiosError } from "axios";
 import Loading from "@/components/Loading";
 import { useToast } from "@/components/ui/use-toast";
+import { useRecoilValue } from "recoil";
+import { currencyState } from "@/store/atoms";
+import { currencies, getCurrencyFloatAmount } from "@/store/Singleton";
+import { Badge } from "@/components/ui/badge";
 
 const banks = [
   {
@@ -24,6 +28,10 @@ const banks = [
 
 function DepositForm() {
   const [loading, setLoading] = useState(false);
+  const { id: currencyId, rate } = useRecoilValue(currencyState);
+  const currency = Object.entries(currencies).find(
+    ([curr, value]) => value.id === currencyId
+  )?.[0];
   const { toast } = useToast();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -37,13 +45,15 @@ function DepositForm() {
         API_URL + "/ramp/hdfc/onramp",
         {
           amount,
+          currency,
         },
         { withCredentials: true }
       );
       if (response.status === 200) {
         const token = response.data.token;
         window.open(
-          "/bank/hdfc" + `?token=${token}&amount=${amount}`,
+          "/bank/hdfc" +
+            `?token=${token}&amount=${getCurrencyFloatAmount(amount, 1 / rate)}`,
           "_blank"
         );
       }
@@ -87,22 +97,27 @@ function DepositForm() {
 export default function DepositBankOptions() {
   const [option, setOption] = useState(0);
   return (
-    <div className="rounded-lg border grid grid-cols-[25%_1fr] bg-background/20">
+    <div className="rounded-lg border grid grid-cols-[25%_1fr] bg-background/20 dark:bg-background/50">
       <div className="border-r text-center border-slate-400/15">
         <div
           className={cn(
             "border-b rounded-tl-lg p-1",
-            option == 0 && "bg-muted"
+            option == 0 &&
+              "bg-accent-foreground text-background font-semibold tracking-wide"
           )}
           onClick={() => setOption(0)}
         >
           HDFC
         </div>
         <div
-          className={cn("border-b p-1", option == 1 && "bg-muted")}
+          className={cn(
+            "border-b p-1",
+            option == 1 &&
+              "bg-accent-foreground text-background font-semibold tracking-wide"
+          )}
           // onClick={() => setOption(1)}
         >
-          SBI
+          SBI <Badge variant={"outline"}>soon</Badge>
         </div>
       </div>
       {banks

@@ -57,6 +57,9 @@ merchant.get("/pay-history", AuthenticateMerchant, async (req, res) => {
           gte: new Date(nowDate.getTime() - range * 24 * 60 * 60 * 1000),
         },
       },
+      orderBy: {
+        date: "asc",
+      },
     });
     const payHistory: number[] = [];
     payHistory.length = range;
@@ -74,15 +77,19 @@ merchant.get("/pay-history", AuthenticateMerchant, async (req, res) => {
     };
     let n = transactions.length;
     for (let j = 0; j < n; j++) {
-      if (transactions[j]?.date.getUTCDate() !== prevDate.getUTCDate()) {
+      if (
+        transactions[j]?.date.getUTCDate() !== prevDate.getUTCDate() ||
+        transactions[j]?.date.getUTCMonth() !== prevDate.getUTCMonth() ||
+        transactions[j]?.date.getUTCFullYear() !== prevDate.getUTCFullYear()
+      ) {
         payHistory[getDayIndex(prevDate)] = prevPayed;
-        prevPayed = 0;
+        prevPayed = transactions[j]?.amount ?? 0;
         prevDate = transactions[j]?.date ?? nowDate;
-      } else if (j === n - 1) {
-        prevPayed += transactions[j]?.amount ?? 0;
-        payHistory[getDayIndex(prevDate)] = prevPayed;
       } else {
         prevPayed += transactions[j]?.amount ?? 0;
+      }
+      if (j === n - 1) {
+        payHistory[getDayIndex(transactions[j]?.date ?? nowDate)] = prevPayed;
       }
     }
 

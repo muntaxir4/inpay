@@ -5,6 +5,7 @@ import { useRecoilValue } from "recoil";
 import { Badge } from "../ui/badge";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import CurrencySelect from "../CurrencySelect";
 
 export default function LoggedinUserCard() {
   const user = useRecoilValue(userState);
@@ -25,16 +26,22 @@ export default function LoggedinUserCard() {
     }
   }
   return (
-    <div className=" border border-foreground rounded-3xl p-2 flex justify-between items-center gap-2">
-      <Avatar className="w-12 h-12" {...genConfig(fullName)} />
-      <h3>{fullName}</h3>
-      <Badge
-        variant="secondary"
-        onClick={handleLogout}
-        className="cursor-pointer bg-secondary-foreground/10"
-      >
-        Logout
-      </Badge>
+    <div>
+      <CurrencySelect />
+      <div className=" border border-foreground rounded-3xl p-2 flex justify-between items-center gap-2">
+        <Avatar
+          className="w-12 h-12 sm:w-0 lg:w-12 lg:h-12"
+          {...genConfig(fullName)}
+        />
+        <h3 className="font-semibold">{fullName}</h3>
+        <Badge
+          variant="secondary"
+          onClick={handleLogout}
+          className="cursor-pointer bg-secondary-foreground/10"
+        >
+          Logout
+        </Badge>
+      </div>
     </div>
   );
 }

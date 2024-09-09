@@ -14,20 +14,37 @@ import QrScanner from "qr-scanner";
 import { Input } from "@/components/ui/input";
 import axios, { AxiosError } from "axios";
 import { useToast } from "@/components/ui/use-toast";
-import { useSetRecoilState } from "recoil";
-import { userRefetchState } from "@/store/atoms";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { currencyState, userRefetchState } from "@/store/atoms";
+import {
+  currencies,
+  Currency,
+  getCurrencyFloatAmount,
+} from "@/store/Singleton";
 
 function SelectedPay({
   data,
   setIsOpen,
 }: {
-  data: { email: string; amount: number };
+  data: { email: string; amount: number; currency?: Currency };
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const { toast } = useToast();
   const setIsRefetch = useSetRecoilState(userRefetchState);
+  const qrCurrency = data.currency;
+  const currency = useRecoilValue(currencyState);
+  const qrMyCurrencyAmount = getCurrencyFloatAmount(
+    data.amount / (qrCurrency ? (currencies[qrCurrency]?.rate ?? 1) : 1),
+    currency.rate
+  );
   useEffect(() => {
-    if (data.email === "" || !data.email || data.amount === undefined) {
+    if (
+      data.email === "" ||
+      !data.email ||
+      data.amount === undefined ||
+      data.currency === undefined ||
+      Object.keys(currencies).indexOf(data.currency) === -1
+    ) {
       setIsOpen(false);
     }
   }, []);
@@ -40,6 +57,7 @@ function SelectedPay({
         {
           toEmail: data.email,
           amount: data.amount ?? 0,
+          currency: qrCurrency,
         },
         { withCredentials: true }
       );
@@ -64,8 +82,12 @@ function SelectedPay({
     <div className="mx-auto text-center text-sm grid gap-2">
       <p>You are paying to: </p>
       <p> {data.email}</p>
-      <p className="text-lg font-medium">Amount: {data.amount}</p>
-      <Button onClick={() => handlePay()}>Pay</Button>
+      <p className="text-base font-medium">
+        Amount:{currency.symbol} {qrMyCurrencyAmount}
+      </p>
+      <Button onClick={() => handlePay()} className="tracking-wider text-xl">
+        Pay
+      </Button>
     </div>
   );
 }
@@ -78,6 +100,10 @@ function EnterAmountAndPay({
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const { toast } = useToast();
+  const { id: currencyId } = useRecoilValue(currencyState);
+  const currency = Object.entries(currencies).find(
+    ([curr, value]) => value.id === currencyId
+  )?.[0];
   const setIsRefetch = useSetRecoilState(userRefetchState);
   useEffect(() => {
     if (data.email === "" || !data.email || data.amount === undefined) {
@@ -95,6 +121,7 @@ function EnterAmountAndPay({
         {
           toEmail: data.email,
           amount,
+          currency,
         },
         { withCredentials: true }
       );
@@ -119,8 +146,15 @@ function EnterAmountAndPay({
     <div className="mx-auto">
       <p className="my-3 text-sm">You are paying to {data.email}</p>
       <form className="grid gap-2" onSubmit={handleSubmit}>
-        <Input name="amount" placeholder="Enter amount" type="number" />
-        <Button type="submit">Pay</Button>
+        <Input
+          name="amount"
+          placeholder="Enter amount"
+          type="number"
+          step={0.01}
+        />
+        <Button type="submit" className="tracking-wider text-xl">
+          Pay
+        </Button>
       </form>
     </div>
   );
@@ -169,9 +203,11 @@ function ScanCanvas({
 
 export default function ScanQR() {
   const [isOpen, setIsOpen] = useState(false);
-  const [data, setData] = useState<{ email: string; amount: number } | null>(
-    null
-  );
+  const [data, setData] = useState<{
+    email: string;
+    amount: number;
+    currency?: Currency;
+  } | null>(null);
 
   useEffect(() => {
     if (!isOpen) {

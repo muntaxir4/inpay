@@ -12,11 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { notificationState } from "@/store/atoms";
-import { useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { useEffect, useState } from "react";
 
 function NotificationDropdown() {
-  const notifications = useRecoilValue(notificationState);
+  const [notifications, setNotifications] = useRecoilState(notificationState);
   const [open, setOpen] = useState(false);
   const [newNotifs, setNewNotifs] = useState(false);
 
@@ -49,14 +49,22 @@ function NotificationDropdown() {
         <DropdownMenuLabel>Notifications</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {notifications.length > 0 ? (
-          notifications.map((notification) => (
-            <DropdownMenuItem className="grid gap-1 grid-cols-[3fr_1fr] sm:grid-cols-[4fr_1fr]">
-              <p>{notification.message}</p>
-              <p className="text-sm text-slate-300/70">
-                {whenReceived(notification.createdAt)}
-              </p>
+          <>
+            {notifications.map((notification) => (
+              <DropdownMenuItem className="grid gap-1 grid-cols-[3fr_1fr] sm:grid-cols-[4fr_1fr]">
+                <p>{notification.message}</p>
+                <p className="text-sm text-slate-300/70">
+                  {whenReceived(notification.createdAt)}
+                </p>
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuItem
+              className="flex justify-center"
+              onClick={() => setNotifications([])}
+            >
+              Clear all
             </DropdownMenuItem>
-          ))
+          </>
         ) : (
           <DropdownMenuItem>Nothing new here</DropdownMenuItem>
         )}

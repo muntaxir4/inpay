@@ -136,13 +136,13 @@ function OTPForm({
 
 function WithdrawalComplete() {
   return (
-    <>
+    <div className="text-center tracking-wider text-sm">
       <p>
         Your email and OTP verification was successful. You will be credited the
         required amount.
       </p>
       <p>You can close this window now.</p>
-    </>
+    </div>
   );
 }
 
@@ -179,12 +179,12 @@ export default function HDFC() {
           This is the withdrawal portal. You will need to verify OTP on your
           e-mail connected to HDFC.
         </p>
-        <h4>
-          You are withdrawing ${params.amount} to InPay. Do not refresh this
+        <h4 className="tracking-wide">
+          You are withdrawing ₹{params.amount} to InPay. Do not refresh this
           page.
         </h4>
         {email !== "" && (
-          <p className="text-2xl">Balance: ${getFloatAmount(balance)}</p>
+          <p className="text-2xl">Balance: ₹{getFloatAmount(balance)}</p>
         )}
       </div>
       <div className="flex flex-col justify-center items-center gap-3 row-span-2">
@@ -202,9 +202,9 @@ export default function HDFC() {
           ) : (
             <EmailForm setEmail={setEmail} setBalance={setBalance} />
           )
-        ) : (
+        ) : data ? (
           <WithdrawalComplete />
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -35,11 +35,11 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { useRecoilValue } from "recoil";
-import { userState } from "@/store/atoms";
-import { getFloatAmount } from "@/store/Singleton";
+import { currencyState, userState } from "@/store/atoms";
+import { getCurrencyFloatAmount } from "@/store/Singleton";
 import Loading from "@/components/Loading";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Dispatch, SetStateAction, use, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 interface QueryParams {
   page: number;
@@ -107,6 +107,7 @@ function Transactions({
   queryString: string;
 }) {
   const user = useRecoilValue(userState);
+  const currency = useRecoilValue(currencyState);
   const { data, isLoading, isError } = useQuery({
     queryKey: [user, "allTx", page, queryString],
     queryFn: () => getTransactions(page, queryString),
@@ -158,7 +159,10 @@ function Transactions({
               <TableCell>{tx.from}</TableCell>
               <TableCell>{tx.to}</TableCell>
               <TableCell>{tx.type}</TableCell>
-              <TableCell>{getFloatAmount(tx.amount)}</TableCell>
+              <TableCell>
+                {currency.symbol +
+                  getCurrencyFloatAmount(tx.amount, currency.rate)}
+              </TableCell>
               <TableCell>
                 <ShowStatusBadge status={tx.status} />
               </TableCell>
@@ -228,7 +232,7 @@ function Filters({
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-3 my-1 text-sm">
       <label>Filters:</label>
       <div className="flex gap-3">
-        <div className="flex gap-1">
+        <div className="flex gap-1 flex-wrap">
           <input
             type="checkbox"
             name="DEPOSIT"

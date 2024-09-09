@@ -134,20 +134,30 @@ async function workerInpay() {
 
 bank.post("/deposit", async (req, res) => {
   const { txId, status } = req.body;
-  await redisClientPush.lPush(
-    "bankTx",
-    JSON.stringify({ txId, status, type: TransactionType.DEPOSIT })
-  );
-  res.status(200).json({ message: "User Deposit Request Received" });
+  try {
+    await redisClientPush.lPush(
+      "bankTx",
+      JSON.stringify({ txId, status, type: TransactionType.DEPOSIT })
+    );
+    res.status(200).json({ message: "User Deposit Request Received" });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: "Failed to process deposit" });
+  }
 });
 
 bank.post("/withdraw", async (req, res) => {
   const { txId, status } = req.body;
-  await redisClientPush.lPush(
-    "bankTx",
-    JSON.stringify({ txId, status, type: TransactionType.WITHDRAW })
-  );
-  res.status(200).json({ message: "User Withdrawal Request Received" });
+  try {
+    await redisClientPush.lPush(
+      "bankTx",
+      JSON.stringify({ txId, status, type: TransactionType.WITHDRAW })
+    );
+    res.status(200).json({ message: "User Withdrawal Request Received" });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: "Failed to process withdrawal" });
+  }
 });
 
 export default bank;

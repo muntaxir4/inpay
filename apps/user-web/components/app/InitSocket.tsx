@@ -1,4 +1,5 @@
 import {
+  currencyState,
   newMessagesRetrievedState,
   NotificationServer,
   notificationState,
@@ -6,7 +7,10 @@ import {
   userState,
 } from "@/store/atoms";
 import { useSocketInstance } from "@/store/customHooks";
-import SocketIO, { getFloatAmount } from "@/store/Singleton";
+import SocketIO, {
+  getCurrencyFloatAmount,
+  getFloatAmount,
+} from "@/store/Singleton";
 import { useEffect } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 
@@ -16,20 +20,23 @@ export default function InitSocket() {
   const setSocketConnected = useSetRecoilState(socketConnectionState);
   const setNewMessagesRetrieved = useSetRecoilState(newMessagesRetrievedState);
   const setNotifications = useSetRecoilState(notificationState);
+  const curerncy = useRecoilValue(currencyState);
   setSocketConnected(true);
+
+  const notificationsReceived = (msgObj: NotificationServer) => {
+    setNotifications((notifications) => [
+      {
+        message: `${curerncy.symbol}${getCurrencyFloatAmount(msgObj.amount / 100, curerncy.rate)} ${msgObj.message}`,
+        createdAt: new Date(),
+      },
+      ...notifications,
+    ]);
+  };
+
   useEffect(() => {
     if (socket) {
       // SocketIO.getInstance()?.getSocket()?.emit("setUserId", user?.id);
       socket.emit("setUserId", user?.id);
-      socket.on("notify", (msgObj: NotificationServer) => {
-        setNotifications((notifications) => [
-          {
-            message: `$${getFloatAmount(msgObj.amount)} ${msgObj.message}`,
-            createdAt: new Date(),
-          },
-          ...notifications,
-        ]);
-      });
       return () => {
         SocketIO.disconnect();
         socket.off("notify");
@@ -38,6 +45,15 @@ export default function InitSocket() {
       };
     }
   }, [socket]); // adding user causes disconnecting before init
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("notify", notificationsReceived);
+      return () => {
+        socket.off("notify");
+      };
+    }
+  }, [curerncy, socket]);
 
   return <></>;
 }

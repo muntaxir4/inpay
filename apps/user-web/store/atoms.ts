@@ -1,5 +1,6 @@
 "use client";
 import { atom, atomFamily } from "recoil";
+import { currencies } from "./Singleton";
 
 interface User {
   id: number;
@@ -73,6 +74,11 @@ const newMessagesRetrievedState = atom({
   default: false,
 });
 
+const currencyState = atom({
+  key: "currenctState",
+  default: currencies["INR"],
+});
+
 export {
   userState,
   userRefetchState,
@@ -84,4 +90,5 @@ export {
   readMessagesState,
   oldMessagesRetrievedState,
   newMessagesRetrievedState,
+  currencyState,
 };

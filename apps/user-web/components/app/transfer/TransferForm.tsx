@@ -1,9 +1,10 @@
 "use client";
 
 import { useToast, toast as typeToast } from "@/components/ui/use-toast";
-import { userRefetchState } from "@/store/atoms";
+import { currencyState, userRefetchState } from "@/store/atoms";
+import { currencies } from "@/store/Singleton";
 import axios, { AxiosError } from "axios";
-import { useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 
 export default function TransferForm({
   children,
@@ -14,6 +15,10 @@ export default function TransferForm({
 }) {
   const { toast } = useToast();
   const setIsRefetch = useSetRecoilState(userRefetchState);
+  const currencyId = useRecoilValue(currencyState).id;
+  const currency = Object.entries(currencies).find(
+    ([curr, value]) => value.id === currencyId
+  )?.[0];
   async function handleTransfer(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -24,6 +29,7 @@ export default function TransferForm({
         {
           amount: form.amount.value,
           to: id,
+          currency: currency,
         },
         { withCredentials: true }
       );

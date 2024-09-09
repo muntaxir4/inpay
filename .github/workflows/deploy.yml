@@ -20,8 +20,8 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      -run: pwd
-      -run: ls -la
+      - run: pwd
+      - run: ls -la
 
       - name: Checkout repository
         uses: actions/checkout@v2

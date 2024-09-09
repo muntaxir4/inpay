@@ -17,6 +17,9 @@
     "start": {
       "persistent": true
     },
+    "test": {
+      "dependsOn": ["^test"]
+    },
     "db:init": {
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "dependsOn": ["^db:init"]

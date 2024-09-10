@@ -6,8 +6,9 @@
     "start": "npx dotenv -e ../../.env -- node dist/index.js",
     "dev": "npx dotenv -e ../../.env -- tsc-watch --onSuccess \"node dist/index.js\"",
     "build": "tsc -b",
-    "test": "jest",
-    "lint": "echo 'Add lint script here'"
+    "lint": "echo 'Add lint script here'",
+    "test:unit": "jest --config jest.config.unit.js",
+    "test:integration": "npx dotenv -e ../../.env.example -- jest --config jest.config.integration.js --detectOpenHandles"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",

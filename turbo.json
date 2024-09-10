@@ -17,9 +17,6 @@
     "start": {
       "persistent": true
     },
-    "test": {
-      "dependsOn": ["^test"]
-    },
     "db:init": {
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "dependsOn": ["^db:init"]
@@ -31,6 +28,18 @@
     "db:generate": {
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "dependsOn": ["^db:generate"]
+    },
+    "test:unit": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "dependsOn": ["^test:unit"]
+    },
+    "test:integration": {
+      "inputs": ["$TURBO_DEFAULT$", ".env.example"],
+      "dependsOn": ["^test:integration"]
+    },
+    "test:init": {
+      "inputs": ["$TURBO_DEFAULT$", ".env.example"],
+      "dependsOn": ["^test:init"]
     }
   }
 }

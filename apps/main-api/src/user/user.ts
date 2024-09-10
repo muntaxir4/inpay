@@ -3,7 +3,7 @@ import { prisma } from "@repo/db";
 import cookieParser from "cookie-parser";
 
 import Authenticate from "../auth/Authenticate";
-import axios, { get } from "axios";
+import axios from "axios";
 const user = Router();
 
 interface UserFullName {

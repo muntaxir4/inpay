@@ -1,4 +1,4 @@
-#Dockerize API, Redis, and Nginx
+#Dockerize Websocket
 
 FROM node:20-alpine AS base
 

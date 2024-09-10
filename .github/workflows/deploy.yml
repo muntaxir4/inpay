@@ -1,6 +1,6 @@
 name: Deploy Backend to Azure Container Apps
 on:
-  pull_request:
+  push:
     branches:
       - main
 
@@ -31,7 +31,7 @@ jobs:
           containerAppName: ${{ vars.CONTAINER_API }}
           resourceGroup: ${{ vars.RESOURCE_GROUP }}
           dockerfilePath: dockerfiles/api-prod/Dockerfile
-          imageToDeploy: ${{ vars.API_IMAGE }}
+          imageToBuild: ${{ vars.API_IMAGE }}
           buildArguments: |
             DATABASE_URL=${{ secrets.DATABASE_URL }}
 
@@ -43,6 +43,6 @@ jobs:
           containerAppName: ${{ vars.CONTAINER_WEBSOCKET }}
           resourceGroup: ${{ vars.RESOURCE_GROUP }}
           dockerfilePath: dockerfiles/websocket-prod/Dockerfile
-          imageToDeploy: ${{ vars.WEBSOCKET_IMAGE }}
+          imageToBuild: ${{ vars.WEBSOCKET_IMAGE }}
           buildArguments: |
             DATABASE_URL=${{ secrets.DATABASE_URL }}

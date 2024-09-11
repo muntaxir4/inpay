@@ -8,10 +8,14 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "test": "turbo test",
     "db:init": "turbo db:init",
     "db:migrate": "turbo db:migrate",
-    "db:generate": "turbo db:generate"
+    "db:generate": "turbo db:generate",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "turbo test:unit",
+    "test:integration": "npm run test:init && turbo test:integration && npm run test:teardown",
+    "test:init": "docker compose -f ./docker-compose/tests-docker-compose.yaml up -d && sleep 5 && turbo test:init --force",
+    "test:teardown": "docker compose -f ./docker-compose/tests-docker-compose.yaml down"
   },
   "devDependencies": {
     "prettier": "^3.2.5",

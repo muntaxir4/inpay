@@ -9,8 +9,8 @@ import axios from "axios";
 const JWT_SECRET = process.env.JWT_SECRET ?? "";
 const WEB_URL = process.env.WEB_URL ?? "";
 const DOMAIN_NAME = WEB_URL.substring(WEB_URL.indexOf(".") + 1);
-const NEW_USER_BALANCE = 0;
-const NEW_BANK_BALANCE = 8000;
+const NEW_USER_BALANCE = 80000;
+const NEW_BANK_BALANCE = 240000;
 
 const oAuth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -62,7 +62,9 @@ auth.post("/signup", async (req, res) => {
             email,
             password: hashedPassword,
             userAccount: {
-              create: {},
+              create: {
+                balance: NEW_USER_BALANCE,
+              },
             },
           },
         }),
@@ -184,7 +186,9 @@ auth.post("/signin/google", async (req, res) => {
             password: "",
             loginType: "GOOGLE",
             userAccount: {
-              create: {},
+              create: {
+                balance: NEW_USER_BALANCE,
+              },
             },
           },
         }),

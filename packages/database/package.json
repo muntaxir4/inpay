@@ -9,11 +9,15 @@
     },
     "./mocked": "./src/__mocks__/client.ts"
   },
+  "prisma": {
+    "seed": "node src/seed.js"
+  },
   "scripts": {
     "db:init": "npx dotenv -e ../../.env -- prisma migrate dev && prisma generate",
     "lint": "echo 'Add lint script here'",
     "db:migrate": "npx dotenv -e ../../.env -- npx prisma migrate dev",
-    "db:generate": "npx dotenv -e ../../.env -- npx prisma generate"
+    "db:generate": "npx dotenv -e ../../.env -- npx prisma generate",
+    "test:init": "npx dotenv -e ../../.env.example -- sh -c 'npx prisma migrate reset --force && npx prisma db seed'"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",

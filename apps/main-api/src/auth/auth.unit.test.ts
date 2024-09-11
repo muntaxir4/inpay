@@ -82,6 +82,19 @@ describe("Signup test", () => {
     });
     expect(response.status).toBe(201);
     expect(response.headers["set-cookie"]).toBeDefined();
+    expect(prisma.user.create).toHaveBeenCalledWith({
+      data: {
+        firstName: "John",
+        lastName: "Doe",
+        email: "johndoe@email.com",
+        password: "hashedPassword",
+        userAccount: {
+          create: {
+            balance: 80000,
+          },
+        },
+      },
+    });
   });
 
   it("should create a bank user if user already a merchant", async () => {
@@ -191,7 +204,9 @@ describe("Google Signin", () => {
         password: "",
         loginType: "GOOGLE",
         userAccount: {
-          create: {},
+          create: {
+            balance: 80000,
+          },
         },
       },
     });

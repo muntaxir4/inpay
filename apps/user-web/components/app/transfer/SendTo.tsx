@@ -22,6 +22,8 @@ import { Button } from "@/components/ui/button";
 
 import TransferForm from "./TransferForm";
 import { useDisplayType } from "@/store/customHooks";
+import SlideConfirm from "../SlideConfirm";
+import { useState } from "react";
 
 export default function SendTo({
   children,
@@ -37,11 +39,15 @@ export default function SendTo({
   onOpenChange?: (open: boolean) => void;
 }) {
   const displayType = useDisplayType();
+  const [openCurrent, setOpenCurrent] = useState(false);
   return (
     <>
       {displayType === "mobile" ? (
         <div className="grid sm:hidden">
-          <Drawer open={open} onOpenChange={onOpenChange}>
+          <Drawer
+            open={open ?? openCurrent}
+            onOpenChange={onOpenChange ?? setOpenCurrent}
+          >
             <DrawerTrigger>{children}</DrawerTrigger>
             <DrawerContent>
               <div className="text-center py-4 pb-8 w-[75%] mx-auto">
@@ -83,14 +89,10 @@ export default function SendTo({
                         required
                       />
                     </div>
-                    <DrawerClose>
-                      <Button type="submit" className="w-full">
-                        Confirm
-                      </Button>
-                    </DrawerClose>
+                    <SlideConfirm setOpen={setOpenCurrent} />
                   </TransferForm>
                   <DrawerClose>
-                    <Button variant={"outline"} className="w-full">
+                    <Button variant={"outline"} className="w-full rounded-full">
                       Cancel
                     </Button>
                   </DrawerClose>
@@ -101,7 +103,10 @@ export default function SendTo({
         </div>
       ) : (
         <div className="hidden sm:grid">
-          <Dialog open={open} onOpenChange={onOpenChange}>
+          <Dialog
+            open={open ?? openCurrent}
+            onOpenChange={onOpenChange ?? setOpenCurrent}
+          >
             <DialogTrigger>{children}</DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -135,11 +140,7 @@ export default function SendTo({
                         required
                       />
                     </div>
-                    <DialogClose>
-                      <Button type="submit" className="w-full">
-                        Confirm
-                      </Button>
-                    </DialogClose>
+                    <SlideConfirm setOpen={setOpenCurrent} />
                   </TransferForm>
                 </div>
               </div>

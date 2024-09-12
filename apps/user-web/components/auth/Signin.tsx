@@ -1,6 +1,6 @@
 "use client";
 
-import image from "@/public/next.svg";
+import image from "@/public/signin.png";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -24,16 +24,7 @@ export default function Signin() {
   }, []);
 
   return (
-    <div className="h-full mx-4 lg:grid lg:grid-cols-2 w-full">
-      <div className="hidden bg-muted lg:block">
-        <Image
-          src={image}
-          alt="Image"
-          width="1920"
-          height="1080"
-          className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        />
-      </div>
+    <div className="h-full mx-4 grid lg:grid-cols-2 w-full">
       <form
         method="post"
         onSubmit={(e) => handleSignin(e, toast, router)}
@@ -89,6 +80,15 @@ export default function Signin() {
           </div>
         </div>
       </form>
+      <div className="bg-muted p-4 sm:p-20">
+        <Image
+          src={image}
+          alt="Image"
+          width="1920"
+          height="1080"
+          className="h-full w-full object-cover"
+        />
+      </div>
     </div>
   );
 }

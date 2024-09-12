@@ -1,6 +1,6 @@
 "use client";
 
-import image from "@/public/next.svg";
+import image from "@/public/singup.png";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ export default function Signup() {
   }, []);
 
   return (
-    <div className="h-full lg:grid lg:grid-cols-2 mx-4 w-full">
+    <div className="h-full grid lg:grid-cols-2 mx-4 w-full">
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid gap-6 text-sm">
           <div className="grid gap-2 text-center">
@@ -87,13 +87,13 @@ export default function Signup() {
           </div>
         </div>
       </div>
-      <div className="hidden bg-muted lg:block">
+      <div className="bg-muted p-4 mb-8 sm:p-20">
         <Image
           src={image}
           alt="Image"
-          width="1920"
-          height="1080"
-          className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          width="600"
+          height="600"
+          className="h-full w-full object-cover"
         />
       </div>
     </div>

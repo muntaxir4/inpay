@@ -15,6 +15,8 @@ import {
 
 function AnalyticsTable({ data }: { data: any }) {
   if (!data) return null;
+  else if (data.length === 0)
+    return <div className="w-full text-center">No data</div>;
   return (
     <table className="w-full border">
       <thead>
@@ -114,7 +116,7 @@ export default function WorldMapAnalytics() {
               >
                 <WorldMap
                   color="#215bae"
-                  title="Top 10 Populous Countries"
+                  // title=""
                   value-suffix="people"
                   data={Array.isArray(mapData) ? mapData : []}
                   size={width || "responsive"}

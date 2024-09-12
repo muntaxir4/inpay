@@ -27,7 +27,7 @@ function MerchantCard() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 items-center">
+        <div className="grid grid-cols-2 items-center gap-2">
           <div className="grid gap-1">
             <label htmlFor="balance" className="tracking-wide">
               Available Balance
@@ -41,7 +41,7 @@ function MerchantCard() {
             </div>
           </div>
           <div className="flex justify-end w-full">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-4 w-full ">
               <CustomizeQR />
               <ShowQR />
             </div>

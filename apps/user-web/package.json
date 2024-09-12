@@ -24,7 +24,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "cobe": "^0.6.3",
-    "framer-motion": "^11.3.24",
+    "framer-motion": "^11.5.4",
     "input-otp": "^1.2.4",
     "ldrs": "^1.0.2",
     "lucide-react": "^0.424.0",
@@ -39,7 +39,7 @@
     "recharts": "^2.12.7",
     "recoil": "^0.7.7",
     "socket.io-client": "^4.7.5",
-    "tailwind-merge": "^2.4.0",
+    "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.1"
   },

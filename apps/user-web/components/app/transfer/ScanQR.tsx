@@ -21,6 +21,7 @@ import {
   Currency,
   getCurrencyFloatAmount,
 } from "@/store/Singleton";
+import SlideConfirm from "../SlideConfirm";
 
 function SelectedPay({
   data,
@@ -49,7 +50,8 @@ function SelectedPay({
     }
   }, []);
 
-  async function handlePay() {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL;
       await axios.post(
@@ -85,9 +87,12 @@ function SelectedPay({
       <p className="text-base font-medium">
         Amount:{currency.symbol} {qrMyCurrencyAmount}
       </p>
-      <Button onClick={() => handlePay()} className="tracking-wider text-xl">
+      {/* <Button onClick={() => handleSubmit()} className="tracking-wider text-xl">
         Pay
-      </Button>
+      </Button> */}
+      <form onClick={handleSubmit}>
+        <SlideConfirm setOpen={setIsOpen} />
+      </form>
     </div>
   );
 }
@@ -152,9 +157,10 @@ function EnterAmountAndPay({
           type="number"
           step={0.01}
         />
-        <Button type="submit" className="tracking-wider text-xl">
+        {/* <Button type="submit" className="tracking-wider text-xl">
           Pay
-        </Button>
+        </Button> */}
+        <SlideConfirm setOpen={setIsOpen} />
       </form>
     </div>
   );

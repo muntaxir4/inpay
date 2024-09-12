@@ -61,6 +61,7 @@ export default function Authenticate({
         lastSeen: data.user.userAccount.lastSeen,
       });
       localStorage?.setItem("inpay", "true");
+      localStorage?.setItem("inpayMerch", "false");
       return (
         <>
           <InitSocket />

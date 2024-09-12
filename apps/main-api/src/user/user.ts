@@ -96,6 +96,7 @@ export function getINRstring(amount: string, currency: Currency): string {
   return inrAmount.toString();
 }
 
+//remove decimal and convert to integer
 export function convertFloatStringToInteger(num: string): number {
   let [integerPartString, fractionalPartString] = num.toString().split(".");
   fractionalPartString = fractionalPartString?.substring(0, 2).padEnd(2, "0");

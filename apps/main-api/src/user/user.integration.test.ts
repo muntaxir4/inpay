@@ -1,6 +1,7 @@
 import { describe, it, jest, beforeAll, expect, afterAll } from "@jest/globals";
 import { prisma } from "@repo/db";
 import request from "supertest";
+import axios from "axios";
 
 let cookies: string = "";
 
@@ -8,7 +9,18 @@ let cookies: string = "";
 jest.useFakeTimers({ doNotFake: ["nextTick", "setImmediate"] });
 import app from "../app";
 import { convertFloatStringToInteger, getINRstring } from "./user";
+
+async function truncateTables() {
+  await prisma.userAccount.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.transactions.deleteMany();
+  await prisma.userMessages.deleteMany();
+  await prisma.userInteractions.deleteMany();
+  await prisma.bankUser.deleteMany();
+}
+
 beforeAll(async () => {
+  await truncateTables();
   const response = await request(app).post("/api/v1/auth/signup").send({
     firstName: "User",
     lastName: "1",
@@ -56,7 +68,7 @@ describe("Fetch User", () => {
 });
 
 describe("Recently onboarded users", () => {
-  it("should return 5 newly signed up users", async () => {
+  it("should return atmost 5 newly signed up users", async () => {
     const response = await request(app)
       .get("/api/v1/user/recent/users")
       .set("Cookie", cookies)
@@ -108,6 +120,7 @@ describe("Send Money", () => {
     const user1Before = await prisma.userAccount.findFirst({
       where: { id: 1 },
     });
+    jest.spyOn(axios, "post").mockResolvedValueOnce(true);
     const response = await request(app)
       .post("/api/v1/user/send")
       .set("Cookie", cookies)
@@ -116,7 +129,6 @@ describe("Send Money", () => {
         to: 2,
         currency: "INR",
       });
-    console.log(response.body);
     expect(response.status).toBe(200);
     const user1 = await prisma.userAccount.findFirst({ where: { id: 1 } });
     const user2 = await prisma.userAccount.findFirst({ where: { id: 2 } });
@@ -128,6 +140,7 @@ describe("Send Money", () => {
     const user1Before = await prisma.userAccount.findFirst({
       where: { id: 1 },
     });
+    jest.spyOn(axios, "post").mockResolvedValueOnce(true);
     const response = await request(app)
       .post("/api/v1/user/send")
       .set("Cookie", cookies)
@@ -228,7 +241,6 @@ describe("Spend (merchant)", () => {
         amount: "100",
         currency: "INR",
       });
-    console.log(response.body);
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Invalid Merchant");
   });

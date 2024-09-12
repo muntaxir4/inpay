@@ -1,11 +1,9 @@
-import React from "react";
+"use client";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import createGlobe from "cobe";
-import { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import { IconBrandYoutubeFilled } from "@tabler/icons-react";
-import Link from "next/link";
+import { useState, useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 
 export function FeaturesSectionDemo() {
   const features = [
@@ -30,9 +28,9 @@ export function FeaturesSectionDemo() {
           Packed with numerous features
         </h4>
 
-        <p className="text-sm md:text-base  max-w-2xl  my-4 mx-auto text-neutral-500 text-center font-normal dark:text-neutral-300">
-          Manage your money effortlessly with InPay. Banking, investing, and
-          chatting in one place.
+        <p className="text-sm md:text-base tracking-wider  my-4 mx-auto text-neutral-500 text-center font-normal dark:text-neutral-300">
+          Manage your money effortlessly with InPay. Banking, Paying merchants,
+          and interacting in one place.
         </p>
         <p className="text-sm md:text-base  max-w-2xl  my-4 mx-auto text-neutral-500 text-center font-normal dark:text-neutral-300">
           And, yes all our code is open sourced.
@@ -91,15 +89,31 @@ const FeatureDescription = ({ children }: { children?: React.ReactNode }) => {
 };
 
 export const SkeletonOne = () => {
+  const { theme } = useTheme();
+  if (!theme) return null;
+  const images = [
+    `ss1${theme === "dark" ? "_dark" : ""}.png`,
+    `ss2${theme === "dark" ? "_dark" : ""}.png`,
+    `ss3${theme === "dark" ? "_dark" : ""}.png`,
+  ];
+  const [imageIndex, setImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setImageIndex((prev) => (prev + 1) % 3);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="relative flex py-8 px-2 gap-10 h-full">
       <div className="w-full  p-5  mx-auto bg-white dark:bg-neutral-900 shadow-2xl group h-full">
         <div className="flex flex-1 w-full h-full flex-col space-y-2  ">
-          {/* TODO */}
           <img
-            src="/ss2.png"
-            alt="header"
-            className=" object-cover object-left-top rounded-sm"
+            src={images[imageIndex]}
+            alt="pics"
+            className=" object-cover object-left-top rounded-sm transition-transform"
           />
         </div>
       </div>
@@ -111,9 +125,16 @@ export const SkeletonOne = () => {
 };
 
 export const SkeletonFour = () => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoaded(true);
+    }, 100);
+  }, []);
+  if (!isLoaded) return <div>Loading</div>;
   return (
-    <div className="h-60 md:h-60  flex flex-col items-center relative bg-transparent dark:bg-transparent mt-10">
-      <Globe className="absolute -right-10 md:-right-10 -bottom-80 md:-bottom-72" />
+    <div className="h-60 flex flex-col items-center relative bg-transparent dark:bg-transparent mt-10 ">
+      <Globe className="absolute -right-10 md:-right-10 -bottom-80 md:-bottom-72 " />
     </div>
   );
 };

@@ -231,7 +231,7 @@ function Filters({
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-3 my-1 text-sm">
       <label>Filters:</label>
-      <div className="flex gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="flex gap-1 flex-wrap">
           <input
             type="checkbox"

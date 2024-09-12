@@ -1,61 +1,13 @@
-"use client";
 import { FeaturesSectionDemo } from "./ac/features-section";
-import { FlipWords } from "./ac/flipwords";
-
-import React, { useEffect, useState } from "react";
-import { Button } from "./ui/button";
 import Link from "next/link";
+import HomeTagLine from "./HomeTagLine";
+import HomeLinks from "./HomeLinks";
 
 export default function HomePage() {
-  const words = ["banking", "investing", "spending", "chatting"];
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    if (localStorage.getItem("inpay") === "true") {
-      setIsLoggedIn(true);
-    }
-  }, []);
-
   return (
     <div>
-      <div className=" my-16 flex justify-center items-center px-4">
-        <div className="sm:text-2xl mx-auto font-normal text-neutral-600 dark:text-neutral-400 text-center grid tracking-wider">
-          <h1 className="text-5xl font-bold italic">inPay</h1>
-          <br />
-          <p>Your all-in-one financial hub.</p>
-          <p>
-            This brings
-            <FlipWords words={words} duration={1000} />
-            in a single app
-          </p>
-        </div>
-      </div>
-      <div className="gap-2 flex justify-center sm:gap-8 mb-4">
-        {isLoggedIn ? (
-          <Link href={"/app"}>
-            <Button className="rounded-2xl">Go to App</Button>
-          </Link>
-        ) : (
-          <>
-            <Link href={"/auth/signup"}>
-              <Button className="rounded-2xl">Join Now</Button>
-            </Link>
-
-            <Link href={"/auth/signin"}>
-              <Button variant={"outline"} className="rounded-2xl">
-                Log In
-              </Button>
-            </Link>
-          </>
-        )}
-      </div>
-      <div className="flex justify-center -mb-3">
-        <Link href={"/merchant"} className="mx-auto">
-          <Button variant={"link"} className="rounded-2xl">
-            Access Merchant
-          </Button>
-        </Link>
-      </div>
+      <HomeTagLine />
+      <HomeLinks />
       <FeaturesSectionDemo />
       <div className="flex flex-col sm:flex-row justify-around text-sm">
         <div className="flex gap-5 pb-5 mx-8 text-muted-foreground">

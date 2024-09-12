@@ -1,4 +1,5 @@
 "use client";
+import image from "@/public/merchant.png";
 import {
   googleLogout,
   GoogleOAuthProvider,
@@ -8,6 +9,7 @@ import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 function AccessHandler() {
   const { toast } = useToast();
@@ -70,8 +72,13 @@ function AccessHandler() {
 export default function AccessMerchant() {
   const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string;
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <AccessHandler />
-    </GoogleOAuthProvider>
+    <div className="flex flex-col gap-8 p-4 justify-center items-center">
+      <div>
+        <Image src={image} alt="merchant" />
+      </div>
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <AccessHandler />
+      </GoogleOAuthProvider>
+    </div>
   );
 }

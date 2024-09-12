@@ -47,6 +47,7 @@ export default function AuthenticateMerchant({
         email: data.merchant.email,
       });
       localStorage?.setItem("inpayMerch", "true");
+      localStorage?.setItem("inpay", "false");
       return <>{children}</>;
     }
   }

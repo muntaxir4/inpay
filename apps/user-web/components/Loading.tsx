@@ -15,6 +15,7 @@ export default function Loading({
     }
     getLoader();
   }, []);
+  if (!theme) return null;
   return (
     <div className="flex flex-col justify-center items-center">
       <l-bouncy

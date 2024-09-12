@@ -299,7 +299,6 @@ auth.post("/signout", (req, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" && "none",
       domain: process.env.NODE_ENV === "production" ? DOMAIN_NAME : undefined,

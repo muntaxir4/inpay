@@ -10,10 +10,19 @@ import {
   Currency,
   getINRstring,
 } from "../user/user";
+import path from "path";
 
 const ramp = Router();
 ramp.use(json());
 ramp.use(cookieParser());
+
+ramp.get("/doc", async (_, res) => {
+  const openApiPath = path.join(
+    path.resolve("."),
+    "src/ramp/ramp.openapi.yaml"
+  );
+  res.sendFile(openApiPath);
+});
 
 //deposit to inpay
 ramp.post("/hdfc/onramp", Authenticate, async (req, res) => {

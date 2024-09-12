@@ -5,6 +5,7 @@ import { sign } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
 import axios from "axios";
+import path from "path";
 
 const JWT_SECRET = process.env.JWT_SECRET ?? "";
 const WEB_URL = process.env.WEB_URL ?? "";
@@ -21,6 +22,15 @@ const oAuth2Client = new OAuth2Client(
 const auth = Router();
 auth.use(json());
 auth.use(cookieParser());
+
+auth.get("/doc", async (_, res) => {
+  const openApiPath = path.join(
+    path.resolve("."),
+    "src/auth/auth.openapi.yaml"
+  );
+  res.sendFile(openApiPath);
+});
+
 auth.post("/signup", async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
 

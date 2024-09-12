@@ -40,8 +40,8 @@ function MerchantCard() {
                 )}
             </div>
           </div>
-          <div className="flex justify-end w-full">
-            <div className="grid sm:grid-cols-2 gap-4 w-full ">
+          <div className="flex justify-end">
+            <div className="grid sm:grid-cols-2 gap-4">
               <CustomizeQR />
               <ShowQR />
             </div>

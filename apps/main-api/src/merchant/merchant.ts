@@ -2,10 +2,19 @@ import { Router, json } from "express";
 import { prisma } from "@repo/db";
 import cookieParser from "cookie-parser";
 import AuthenticateMerchant from "../auth/AuthenticateMerchant";
+import path from "path";
 
 const merchant = Router();
 merchant.use(cookieParser());
 merchant.use(json());
+
+merchant.get("/doc", async (_, res) => {
+  const openApiPath = path.join(
+    path.resolve("."),
+    "src/merchant/merchant.openapi.yaml"
+  );
+  res.sendFile(openApiPath);
+});
 
 merchant.get("/", AuthenticateMerchant, async (req, res) => {
   try {

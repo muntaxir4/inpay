@@ -15,6 +15,7 @@ export default function HomePage() {
           <Link href="/privacy-policy">Privacy Policy</Link>
         </div>
         <div className="flex gap-5 justify-end pb-5 mx-8 text-muted-foreground">
+          <Link href="/docs">Docs</Link>
           <Link href="https://github.com/muntaxir4/inpay" target="_blank">
             Source Code
           </Link>

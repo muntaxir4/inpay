@@ -39,6 +39,7 @@
     "recharts": "^2.12.7",
     "recoil": "^0.7.7",
     "socket.io-client": "^4.7.5",
+    "swagger-ui-react": "^5.17.14",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.1"
@@ -49,6 +50,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/swagger-ui-react": "^4.18.3",
     "autoprefixer": "^10.4.19",
     "dotenv-cli": "^7.4.2",
     "eslint": "^8",

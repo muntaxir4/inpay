@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 
 import Authenticate from "../auth/Authenticate";
 import axios from "axios";
+import path from "path";
 const user = Router();
 
 interface UserFullName {
@@ -104,6 +105,14 @@ export function convertFloatStringToInteger(num: string): number {
   const fractionalPart = Number(fractionalPartString ?? 0);
   return integerPart * 100 + fractionalPart;
 }
+
+user.get("/doc", async (_, res) => {
+  const openApiPath = path.join(
+    path.resolve("."),
+    "src/user/user.openapi.yaml"
+  );
+  res.sendFile(openApiPath);
+});
 
 user.get("/", Authenticate, async (req, res) => {
   try {

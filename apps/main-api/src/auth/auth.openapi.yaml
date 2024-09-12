@@ -1,0 +1,189 @@
+openapi: 3.0.0
+info:
+  title: Main Api, Auth Route
+  description: Signup and Signin endpoints
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/api/v1/auth
+    description: Local Auth server
+
+paths:
+  /signin:
+    post:
+      summary: Signin using email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                  minimum: 5
+      responses:
+        "200":
+          description: User signed in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: User signed in Successfully
+          headers:
+            Set-Cookie:
+              description: Set the auth cookie for the user
+              schema:
+                $ref: "#/components/schemas/Set-Cookie"
+        "400":
+          description: Invalid request
+
+  /signup:
+    post:
+      summary: Signup using email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  format: name
+                lastName:
+                  type: string
+                  format: name
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                  minimum: 5
+      responses:
+        "200":
+          description: User signed up
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: User signed up Successfully
+          headers:
+            Set-Cookie:
+              description: Set the auth cookie for the user
+              schema:
+                type: string
+                example: token=valid_token
+        "400":
+          description: Invalid request
+
+  /signin/google:
+    post:
+      summary: Signin using google
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  format: token
+      responses:
+        "200":
+          description: User signed in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: User signed in Successfully
+          headers:
+            Set-Cookie:
+              description: Set the auth cookie for the user
+              schema:
+                $ref: "#/components/schemas/Set-Cookie"
+        "400":
+          description: Invalid request
+
+  /access/merchant:
+    post:
+      summary: Merchant Signup/Signin using google
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  format: token
+      responses:
+        "200":
+          description: User signed in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Merchant signed in Successfully
+          headers:
+            Set-Cookie:
+              description: Set the auth cookie for the merchant
+              schema:
+                $ref: "#/components/schemas/Set-Cookie"
+        "400":
+          description: Invalid request
+
+  /signout:
+    post:
+      summary: Signout
+      parameters:
+        - in: cookie
+          name: token
+          schema:
+            type: string
+            format: token
+          required: true
+      responses:
+        "200":
+          description: User signed out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: User signed out Successfully
+          headers:
+            Set-Cookie:
+              description: Set the auth cookie for the user
+              schema:
+                type: string
+                example: token=expired_token
+        "400":
+          description: Invalid request
+
+components:
+  schemas:
+    Set-Cookie:
+      type: string
+      example: token=valid_token

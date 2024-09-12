@@ -71,7 +71,8 @@ ramp.get("/hdfc/offramp/get-otp", Authenticate, async (req, res) => {
     const { userId } = req.body;
     const { amount: amt } = req.query;
     const amount = convertFloatStringToInteger(amt as string);
-    if (amount <= 0) return res.status(400).json({ message: "Invalid amount" });
+    if (!amount || amount <= 0)
+      return res.status(400).json({ message: "Invalid amount" });
     const user = await prisma.user.findFirst({
       where: {
         id: userId,

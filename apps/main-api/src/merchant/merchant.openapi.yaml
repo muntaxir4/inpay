@@ -1,0 +1,174 @@
+openapi: 3.0.0
+info:
+  title: Main API, Merchant route
+  version: 1.0.0
+  description: Merchant endpoints
+
+servers:
+  - url: http://localhost:3000/api/v1/merchant
+    description: Local merchant server
+
+paths:
+  /:
+    get:
+      summary: Get details of the merchant
+      description: Get details of the merchant
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success
+                    enum:
+                      - Request Successful
+                  merchant:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                        description: Merchant ID
+                      email:
+                        type: string
+                        format: email
+                        description: Merchant email
+                      firstName:
+                        type: string
+                        description: Merchant first name
+                      lastName:
+                        type: string
+                        description: Merchant last name
+                      userAccount:
+                        type: object
+                        properties:
+                          balanceM:
+                            type: number
+                            description: Merchant balance
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /analytics:
+    get:
+      summary: Get Payment analytics of the merchant
+      description: Get Payment analytics of the merchant
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success
+                    enum:
+                      - Request Successful
+                  analytics:
+                    type: array
+                    description: Count of payments from each country
+                    items:
+                      type: object
+                      properties:
+                        _count:
+                          type: object
+                          properties:
+                            countryCode:
+                              type: string
+                              example: "IN"
+                              description: Country code
+
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /pay-history:
+    get:
+      summary: Get Payment history of the merchant
+      description: Get Payment history of the merchant for each day
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+        - name: range
+          in: query
+          required: false
+          schema:
+            type: number
+            description: Range of days to get payment history
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Success
+                    enum:
+                      - Request Successful
+                  payHistory:
+                    type: array
+                    description: Payment history of the merchant
+                    items:
+                      type: number
+                      description: Received amount on that day
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+components:
+  parameters:
+    AuthCookie:
+      name: token
+      in: cookie
+      description: The token to authenticate the user
+      required: true
+      schema:
+        type: string
+        format: token
+  responses:
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Invalid request
+    UnAuthorizedError:
+      description: Unauthorized request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                enum:
+                  - Unauthorized
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                enum:
+                  - Request Failed

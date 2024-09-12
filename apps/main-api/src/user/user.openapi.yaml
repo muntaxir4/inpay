@@ -1,0 +1,526 @@
+openapi: 3.0.0
+info:
+  title: Main API, User Route
+  version: 1.0.0
+  description: User endpoints
+
+servers:
+  - url: http://localhost:3000/api/v1/user
+    description: Local User server
+
+paths:
+  /:
+    get:
+      summary: Get authenticated user's details
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+      responses:
+        "200":
+          description: All users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /recent/users:
+    get:
+      summary: Get newly signed up users
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+      responses:
+        "200":
+          description: Recently seen users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recentUsers:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MiniUser"
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /recent/interacted:
+    get:
+      summary: Get users the authenticated user has interacted with (at most 5)
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+      responses:
+        "200":
+          description: Users the authenticated user has interacted with
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recentInteractions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MiniUser"
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /recent/transactions:
+    get:
+      summary: Get the authenticated user's recent transactions
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+      responses:
+        "200":
+          description: The authenticated user's recent transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recentTransactions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                            - TRANSFER
+                            - DEPOSIT
+                            - WITHDRAWAL
+                            - SPENT
+                          description: The transaction's type
+                        amount:
+                          type: number
+                          format: number
+                          description: The transaction's amount
+                        status:
+                          type: string
+                          enum:
+                            - SUCCESS
+                            - PENDING
+                            - FAILED
+                          description: The transaction's status
+                        firstName:
+                          type: string
+                          format: name
+                          description: The user's first name
+                        lastName:
+                          type: string
+                          format: name
+                          description: The user's last name
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /send:
+    post:
+      summary: Send money to another user
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to:
+                  type: number
+                  format: number
+                  description: The recipient's id
+                amount:
+                  type: number
+                  format: number
+                  description: The amount to send
+                currency:
+                  type: string
+                  enum:
+                    - INR
+                    - USD
+                    - AED
+                  description: The currency to send the money in
+      responses:
+        "200":
+          description: Money sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    enum:
+                      - Request Successful
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /bulk:
+    get:
+      summary: Get all users
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+        - name: filter
+          in: query
+          description: The name filter
+          required: false
+          schema:
+            type: string
+            format: name
+      responses:
+        "200":
+          description: All users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MiniUser"
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /interactions:
+    get:
+      summary: Get all users the authenticated user has interacted with
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+      responses:
+        "200":
+          description: All users the authenticated user has interacted with
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  interactions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MiniUser"
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /transactions/pages:
+    get:
+      summary: Get total number of pages of user's transactions
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+        - name: type
+          in: query
+          description: The transaction type
+          required: false
+          schema:
+            type: string
+            enum:
+              - TRANSFER
+              - DEPOSIT
+              - WITHDRAWAL
+              - SPENT
+      responses:
+        "200":
+          description: Total number of pages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    enum:
+                      - Request Successful
+                  pages:
+                    type: number
+                    format: number
+                    description: The total number of pages
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /transactions:
+    get:
+      summary: Get the authenticated user's transactions
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+        - name: page
+          in: query
+          description: The page number
+          required: false
+          schema:
+            type: number
+            format: number
+        - name: type
+          in: query
+          description: The transaction type
+          required: false
+          schema:
+            type: string
+            enum:
+              - TRANSFER
+              - DEPOSIT
+              - WITHDRAWAL
+              - SPENT
+      responses:
+        "200":
+          description: The authenticated user's transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                            - TRANSFER
+                            - DEPOSIT
+                            - WITHDRAWAL
+                            - SPENT
+                          description: The transaction's type
+                        amount:
+                          type: number
+                          format: number
+                          description: The transaction's amount
+                        status:
+                          type: string
+                          enum:
+                            - SUCCESS
+                            - PENDING
+                            - FAILED
+                          description: The transaction's status
+                        from:
+                          type: string
+                          format: name
+                          description: The user who sent the money
+                        to:
+                          type: string
+                          format: name
+                          description: The user who received the money
+                        id:
+                          type: string
+                          format: uuid
+                          description: The transaction's id
+                        date:
+                          type: string
+                          format: date-time
+                          description: The transaction's date
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /spend:
+    post:
+      summary: Send money to a merchant
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                toEmail:
+                  type: string
+                  format: email
+                  description: The merchant's email
+                amount:
+                  type: number
+                  format: number
+                  description: The amount to send
+                currency:
+                  type: string
+                  enum:
+                    - INR
+                    - USD
+                    - AED
+                  description: The currency to send the money in
+      responses:
+        "200":
+          description: Money sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    enum:
+                      - Request Successful
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /balance-history:
+    get:
+      summary: Get the user's balance history for the last 30 days
+      parameters:
+        - $ref: "#/components/parameters/AuthCookie"
+      responses:
+        "200":
+          description: The user's balance history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balanceHistory:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                          enum:
+                            - Request Successful
+                        balanceHistory:
+                          type: array
+                          items:
+                            type: number
+                            format: number
+                          description: The user's balance history
+                        transactionTypes:
+                          type: object
+                          properties:
+                            DEPOSIT:
+                              type: number
+                              format: number
+                              description: The user's deposit count
+                            WITHDRAW:
+                              type: number
+                              format: number
+                              description: The user's withdrawal count
+                            RECEIVED:
+                              type: number
+                              format: number
+                              description: The user's received count
+                            SENT:
+                              type: number
+                              format: number
+                              description: The user's sent count
+                            SPENT:
+                              type: number
+                              format: number
+                              description: The user's spent count
+
+        "401":
+          $ref: "#/components/responses/UnAuthorizedError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+components:
+  parameters:
+    AuthCookie:
+      name: token
+      in: cookie
+      description: The token to authenticate the user
+      required: true
+      schema:
+        type: string
+        format: token
+
+  responses:
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Invalid request
+    UnAuthorizedError:
+      description: Unauthorized request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                enum:
+                  - Unauthorized
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                enum:
+                  - Request Failed
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: number
+          format: number
+          description: The user's id
+        firstName:
+          type: string
+          format: name
+          description: The user's first name
+        lastName:
+          type: string
+          format: name
+          description: The user's last name
+        userAccount:
+          type: object
+          properties:
+            balance:
+              type: number
+              format: number
+              description: The user's account balance
+            lastSeen:
+              type: string
+              format: date-time
+              description: The user's last seen date
+    MiniUser:
+      properties:
+        id:
+          type: number
+          format: number
+          description: The user's id
+        firstName:
+          type: string
+          format: name
+          description: The user's first name
+        lastName:
+          type: string
+          format: name
+          description: The user's last name

@@ -297,7 +297,13 @@ auth.post("/access/merchant", async (req, res) => {
 
 auth.post("/signout", (req, res) => {
   try {
-    res.clearCookie("token");
+    res.clearCookie("token", {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" && "none",
+      domain: process.env.NODE_ENV === "production" ? DOMAIN_NAME : undefined,
+    });
     res.status(200).json({ message: "User signed out successfully" });
   } catch (error) {
     console.error("Error signing out user:", error);

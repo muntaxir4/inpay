@@ -8,7 +8,7 @@
     "build": "tsc -b",
     "lint": "echo 'Add lint script here'",
     "test:unit": "jest --config jest.config.unit.js",
-    "test:integration": "npx dotenv -e ../../.env.example -- jest --config jest.config.integration.js --detectOpenHandles"
+    "test:integration": "npx dotenv -e ../../.env.example -- jest --config jest.config.integration.js --runInBand"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",

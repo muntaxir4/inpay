@@ -289,7 +289,7 @@ auth.post("/access/merchant", async (req, res) => {
       sameSite: process.env.NODE_ENV === "production" && "none",
       domain: process.env.NODE_ENV === "production" ? DOMAIN_NAME : undefined,
     });
-    res.status(200).json({ message: "User signed in successfully" });
+    res.status(200).json({ message: "Merchant signed in successfully" });
   } catch (error) {
     res.status(400).json({ message: "Google Signin Failed" });
   }

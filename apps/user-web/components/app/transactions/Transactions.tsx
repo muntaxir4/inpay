@@ -161,7 +161,7 @@ function Transactions({
               <TableCell>{tx.type}</TableCell>
               <TableCell>
                 {currency.symbol +
-                  getCurrencyFloatAmount(tx.amount, currency.rate)}
+                  getCurrencyFloatAmount(tx.amount / 100, currency.rate)}
               </TableCell>
               <TableCell>
                 <ShowStatusBadge status={tx.status} />

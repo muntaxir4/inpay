@@ -61,7 +61,10 @@ function Message({
         {msgObj.isPayment ? (
           <p className="text-2xl font-medium text-center p-4">
             {`${curreny.symbol}` +
-              getCurrencyFloatAmount(Number(msgObj.message), curreny.rate)}
+              getCurrencyFloatAmount(
+                Number(msgObj.message) / 100,
+                curreny.rate
+              )}
           </p>
         ) : (
           <p className="mt-1 mx-3">{msgObj.message}</p>

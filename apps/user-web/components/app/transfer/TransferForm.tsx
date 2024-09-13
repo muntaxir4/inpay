@@ -15,7 +15,7 @@ export default function TransferForm({
 }) {
   const { toast } = useToast();
   const setIsRefetch = useSetRecoilState(userRefetchState);
-  const currencyId = useRecoilValue(currencyState).id;
+  const { id: currencyId, symbol } = useRecoilValue(currencyState);
   const currency = Object.entries(currencies).find(
     ([curr, value]) => value.id === currencyId
   )?.[0];
@@ -34,7 +34,7 @@ export default function TransferForm({
         { withCredentials: true }
       );
       toast({
-        title: `Sent successfully $${form.amount.value}`,
+        title: `Sent successfully ${symbol}${form.amount.value}`,
         duration: 3000,
       });
       setIsRefetch((prev) => !prev);

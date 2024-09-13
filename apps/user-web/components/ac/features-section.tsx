@@ -8,7 +8,7 @@ import { useTheme } from "next-themes";
 export function FeaturesSectionDemo() {
   const features = [
     {
-      title: "Transfer page",
+      title: "User page",
       description: "Interact and pay with ease.",
       skeleton: <SkeletonOne />,
       className:
@@ -167,6 +167,7 @@ export const Globe = ({ className }: { className?: string }) => {
         { location: [20.5937, 78.9629], size: 0.15 },
         { location: [51.5074, -0.1278], size: 0.08 },
         { location: [35.6895, 139.6917], size: 0.06 },
+        { location: [25.2048, 55.2708], size: 0.1 },
       ],
       onRender: (state) => {
         // Called on every animation frame.

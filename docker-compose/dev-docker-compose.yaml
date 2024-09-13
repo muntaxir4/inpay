@@ -20,7 +20,7 @@ services:
 
   redis:
     image: redis
-    container_name: inpay-webhook-redis-dev
+    container_name: inpay-redis-dev
     ports:
       - "6379:6379"
     restart: unless-stopped
@@ -34,14 +34,15 @@ services:
       redis:
         condition: service_started
     build:
-      context: .
-      dockerfile: Dockerfile-dev
+      context: ..
+      dockerfile: ./dockerfiles/Dockerfile.dev
     networks:
       - default
     ports:
       - "3000:3000"
       - "3001:3001"
       - "3002:3002"
+      - "8080:8080"
       - "5173:5173"
     volumes:
       - ./apps:/usr/src/app/apps

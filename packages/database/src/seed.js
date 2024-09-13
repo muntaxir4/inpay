@@ -6,11 +6,11 @@ async function main() {
       email: "hdfc@inpay.mallik.tech",
     },
     update: {
-      balance: 1000,
+      balance: 100000,
     },
     create: {
       email: "hdfc@inpay.mallik.tech",
-      balance: 1000,
+      balance: 100000,
     },
   });
 }

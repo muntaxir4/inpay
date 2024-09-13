@@ -1,6 +1,6 @@
 import { Router, json } from "express";
 import cookieParser from "cookie-parser";
-import { prisma } from "@repo/db";
+import { Prisma, prisma } from "@repo/db";
 import { sign } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
@@ -67,8 +67,8 @@ auth.post("/signup", async (req, res) => {
       const [newUser] = await prisma.$transaction([
         prisma.user.create({
           data: {
-            firstName,
-            lastName,
+            firstName: String(firstName).trim(),
+            lastName: String(lastName).trim(),
             email,
             password: hashedPassword,
             userAccount: {
@@ -103,7 +103,17 @@ auth.post("/signup", async (req, res) => {
     return res.status(201).json({ message: "User created successfully" });
   } catch (error) {
     console.error("Error signing up user:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        res
+          .status(409)
+          .json({ message: "A user with this name already exists" });
+      } else {
+        res.status(500).json({ message: "Internal server error" });
+      }
+    } else {
+      res.status(500).json({ message: "Internal server error" });
+    }
   }
 });
 
@@ -225,7 +235,17 @@ auth.post("/signin/google", async (req, res) => {
     });
     res.status(200).json({ message: "User signed in successfully" });
   } catch (error) {
-    res.status(400).json({ message: "Google Signin Failed" });
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        res
+          .status(409)
+          .json({ message: "A user with this name already exists" });
+      } else {
+        res.status(400).json({ message: "Google Signin Failed" });
+      }
+    } else {
+      res.status(500).json({ message: "Internal server error" });
+    }
   }
 });
 
@@ -301,7 +321,17 @@ auth.post("/access/merchant", async (req, res) => {
     });
     res.status(200).json({ message: "Merchant signed in successfully" });
   } catch (error) {
-    res.status(400).json({ message: "Google Signin Failed" });
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        res
+          .status(409)
+          .json({ message: "A user with this name already exists" });
+      } else {
+        res.status(400).json({ message: "Google Signin Failed" });
+      }
+    } else {
+      res.status(500).json({ message: "Internal server error" });
+    }
   }
 });
 

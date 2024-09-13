@@ -81,7 +81,7 @@ auth.post("/signup", async (req, res) => {
         prisma.bankUser.create({
           data: {
             email,
-            balance: 8000,
+            balance: NEW_BANK_BALANCE,
           },
         }),
       ]);
@@ -218,7 +218,7 @@ auth.post("/signin/google", async (req, res) => {
         prisma.bankUser.create({
           data: {
             email,
-            balance: 8000,
+            balance: NEW_BANK_BALANCE,
           },
         }),
       ]);

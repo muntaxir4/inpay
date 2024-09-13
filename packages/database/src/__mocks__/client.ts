@@ -11,8 +11,16 @@ const prisma = {
   $transaction: jest.fn(),
 };
 
+class PrismaClientKnownRequestError extends Error {
+  code: string;
+  constructor(message: string, code: string) {
+    super(message);
+    this.code = code;
+  }
+}
+
 declare namespace Prisma {
-  export class PrismaClientKnownRequestError extends Error {}
+  export { PrismaClientKnownRequestError };
 }
 
 export { Prisma, prisma };

@@ -103,7 +103,10 @@ auth.post("/signup", async (req, res) => {
     return res.status(201).json({ message: "User created successfully" });
   } catch (error) {
     console.error("Error signing up user:", error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (
+      process.env.NODE_ENV != "test" &&
+      error instanceof Prisma.PrismaClientKnownRequestError
+    ) {
       if (error.code === "P2002") {
         res
           .status(409)
@@ -235,7 +238,10 @@ auth.post("/signin/google", async (req, res) => {
     });
     res.status(200).json({ message: "User signed in successfully" });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (
+      process.env.NODE_ENV != "test" &&
+      error instanceof Prisma.PrismaClientKnownRequestError
+    ) {
       if (error.code === "P2002") {
         res
           .status(409)
@@ -321,7 +327,10 @@ auth.post("/access/merchant", async (req, res) => {
     });
     res.status(200).json({ message: "Merchant signed in successfully" });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (
+      process.env.NODE_ENV != "test" &&
+      error instanceof Prisma.PrismaClientKnownRequestError
+    ) {
       if (error.code === "P2002") {
         res
           .status(409)

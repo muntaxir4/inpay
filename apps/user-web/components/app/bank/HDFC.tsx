@@ -28,6 +28,7 @@ function EmailForm({
   const { toast } = useToast();
   async function verifyEmail(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setSubmitted(true);
     const email = e.currentTarget.email.value;
     const HDFC_API_URL = process.env.NEXT_PUBLIC_HDFC_API_URL;
     try {
@@ -42,6 +43,7 @@ function EmailForm({
         setBalance(response.data.balance);
       }
     } catch (error) {
+      setSubmitted(false);
       if (error instanceof AxiosError)
         toast({
           title: "Error",
@@ -60,13 +62,9 @@ function EmailForm({
       >
         <Input type="email" placeholder="Email" name="email" />
         {submitted ? (
-          <Button>
-            <Loading forcedOpposite />
-          </Button>
+          <Button>Loading...</Button>
         ) : (
-          <Button type="submit" onClick={() => setSubmitted(true)}>
-            Get OTP
-          </Button>
+          <Button type="submit">Get OTP</Button>
         )}
       </form>
     </>

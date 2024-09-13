@@ -39,14 +39,6 @@ export default function SlideConfirm({
   };
 
   const handleDragEnd = () => {
-    console.log(
-      "End",
-      moveX,
-      (document.querySelector<HTMLDivElement>(".drag-container")?.offsetWidth ??
-        0) -
-        (document.querySelector<HTMLDivElement>(".drag-button")?.offsetWidth ??
-          0)
-    );
     if (
       moveX + 3 <
       (document.querySelector<HTMLDivElement>(".drag-container")?.offsetWidth ??
@@ -57,7 +49,6 @@ export default function SlideConfirm({
       setMoveX(0); // Reset if not dragged to the end
       setConfirmed(false);
     } else {
-      console.log("Submitted");
       document.querySelector<HTMLButtonElement>(".drag-submit")?.click();
       setOpen?.(false);
       //   setTimeout(() => {

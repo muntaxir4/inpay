@@ -7,7 +7,7 @@
     "dev": "npx dotenv -e ../../.env -- tsc-watch --onSuccess \"node dist/index.js\"",
     "build": "tsc -b",
     "lint": "echo 'Add lint script here'",
-    "test:unit": "jest --config jest.config.unit.js",
+    "test:unit": "NODE_ENV=test jest --config jest.config.unit.js",
     "test:integration": "npx dotenv -e ../../.env.example -- jest --config jest.config.integration.js --runInBand"
   },
   "devDependencies": {

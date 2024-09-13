@@ -40,7 +40,7 @@ export default function SlideConfirm({
 
   const handleDragEnd = () => {
     if (
-      moveX + 1 <
+      moveX + 1.5 <
       (document.querySelector<HTMLDivElement>(".drag-container")?.offsetWidth ??
         0) -
         (document.querySelector<HTMLDivElement>(".drag-button")?.offsetWidth ??

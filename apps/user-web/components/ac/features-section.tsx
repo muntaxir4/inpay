@@ -129,7 +129,7 @@ export const SkeletonFour = () => {
   useEffect(() => {
     setTimeout(() => {
       setIsLoaded(true);
-    }, 100);
+    }, 200);
   }, []);
   if (!isLoaded) return <div>Loading</div>;
   return (

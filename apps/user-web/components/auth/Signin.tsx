@@ -66,7 +66,7 @@ export default function Signin() {
                   <img
                     src="https://www.vectorlogo.zone/logos/google/google-ar21.svg"
                     alt="Google Logo"
-                    className="w-fit h-8 mx-2"
+                    className="w-16 h-8 mx-2"
                   />
                 </Button>
               </GoogleSignin>

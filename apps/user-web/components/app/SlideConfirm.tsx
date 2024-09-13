@@ -39,8 +39,16 @@ export default function SlideConfirm({
   };
 
   const handleDragEnd = () => {
+    console.log(
+      "End",
+      moveX,
+      (document.querySelector<HTMLDivElement>(".drag-container")?.offsetWidth ??
+        0) -
+        (document.querySelector<HTMLDivElement>(".drag-button")?.offsetWidth ??
+          0)
+    );
     if (
-      moveX + 1.5 <
+      moveX + 3 <
       (document.querySelector<HTMLDivElement>(".drag-container")?.offsetWidth ??
         0) -
         (document.querySelector<HTMLDivElement>(".drag-button")?.offsetWidth ??
@@ -49,6 +57,7 @@ export default function SlideConfirm({
       setMoveX(0); // Reset if not dragged to the end
       setConfirmed(false);
     } else {
+      console.log("Submitted");
       document.querySelector<HTMLButtonElement>(".drag-submit")?.click();
       setOpen?.(false);
       //   setTimeout(() => {
@@ -78,8 +87,9 @@ export default function SlideConfirm({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleDragEnd}
       >
+        <p className="opacity-10 text-sm mx-auto">Slide</p>
         <div
-          className="drag-button flex justify-center items-center font-semibold absolute w-24 p-2 h-full bg-green-600 rounded-full transition-[left_0.2s_ease] cursor-grab active:cursor-grabbing text-white"
+          className="drag-button flex justify-center items-center font-semibold absolute w-24 p-2 h-full bg-green-600 rounded-full cursor-grab active:cursor-grabbing text-white"
           style={{ left: `${moveX}px` }}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}

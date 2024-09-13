@@ -75,7 +75,7 @@ export default function BalancePieChart({
         <div className="h-full">
           <ChartContainer
             config={chartConfig}
-            className="mx-auto aspect-square"
+            className="mx-auto aspect-square min-h-48"
           >
             <PieChart>
               <ChartTooltip
@@ -84,7 +84,7 @@ export default function BalancePieChart({
               <Pie data={chartData} dataKey="amount" />
               <ChartLegend
                 content={<ChartLegendContent nameKey="txType" />}
-                className="-translate-y-3 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center text-base"
+                className="-translate-y-3 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center text-sm"
               />
             </PieChart>
           </ChartContainer>

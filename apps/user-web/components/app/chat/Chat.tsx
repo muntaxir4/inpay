@@ -135,7 +135,6 @@ export default function Chat() {
   if (!user || !socket || isLoading) return <Loading />;
   else if (error || !data.interactions)
     return <div>Error, try after some time.</div>;
-
   return (
     <div className="p-4 grid gap-3 overflow-hidden h-full">
       <div className="grid grid-rows-[2rem_auto]  h-full overflow-hidden gap-2">
@@ -151,15 +150,22 @@ export default function Chat() {
         >
           Chat
         </p>
-        <div className="grid grid-cols-[20%_1fr] gap-1 sm:gap-3 h-full overflow-hidden">
-          <Users
-            data={data}
-            selectedUser={selectedUser}
-            setSelectedUser={setSelectedUser}
-            messagesSetters={messagesSetters}
-          />
-          <MessengerCard selectedUser={selectedUser} />
-        </div>
+        {data?.interactions.length === 0 && (
+          <p className="flex flex-col justify-center items-center">
+            Start transfering to create a chat.
+          </p>
+        )}
+        {data?.interactions.length > 0 && (
+          <div className="grid grid-cols-[20%_1fr] gap-1 sm:gap-3 h-full overflow-hidden">
+            <Users
+              data={data}
+              selectedUser={selectedUser}
+              setSelectedUser={setSelectedUser}
+              messagesSetters={messagesSetters}
+            />
+            <MessengerCard selectedUser={selectedUser} />
+          </div>
+        )}
       </div>
     </div>
   );

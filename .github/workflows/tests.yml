@@ -43,8 +43,8 @@ jobs:
       - name: Install Turbo
         run: npm install turbo
 
-      - name: Run Unit Tests
-        run: npm run test:unit
-
       - name: Run Integration Tests
         run: npm run test:integration
+
+      - name: Run Unit Tests
+        run: npm run test:unit

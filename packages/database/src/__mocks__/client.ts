@@ -11,4 +11,8 @@ const prisma = {
   $transaction: jest.fn(),
 };
 
-export { prisma };
+declare namespace Prisma {
+  export class PrismaClientKnownRequestError extends Error {}
+}
+
+export { Prisma, prisma };

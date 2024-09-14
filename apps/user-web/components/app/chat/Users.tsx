@@ -3,10 +3,10 @@ import clsx from "clsx";
 import { ChatUser, MessagesSetters, onlineSetters } from "./Chat";
 import { useSocketInstance } from "@/store/customHooks";
 import { Dispatch, SetStateAction, useEffect } from "react";
-import Avatar, { genConfig } from "react-nice-avatar";
 import { useRecoilState } from "recoil";
 import { chatOnlineState, chatState, readMessagesState } from "@/store/atoms";
 import { Badge } from "@/components/ui/badge";
+import MultiAvatar from "../MultiAvatar";
 
 function UserAvatar({
   user,
@@ -63,8 +63,8 @@ function UserAvatar({
           {unread}
         </Badge>
       )}
-      <Avatar
-        {...genConfig(user.firstName + " " + user.lastName)}
+      <MultiAvatar
+        name={user.firstName + " " + user.lastName}
         className="h-10 w-10 mx-auto  sm:h-14 sm:w-14"
       />
       {online && (

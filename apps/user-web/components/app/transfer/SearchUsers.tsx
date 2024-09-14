@@ -24,9 +24,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 
-import Avatar, { genConfig } from "react-nice-avatar";
 import { ArrowRight } from "lucide-react";
 import SendTo from "./SendTo";
+import MultiAvatar from "../MultiAvatar";
 
 //delaying search while typing continuously
 function useDebounce(value: string, delay: number = 300) {
@@ -63,8 +63,8 @@ function UserItem({ user }: { user: any }) {
         className=" hover:bg-muted grid grid-cols-5 w-full p-2 items-center"
         onClick={() => setOpen(true)}
       >
-        <Avatar
-          {...genConfig(user.firstName + " " + user.lastName)}
+        <MultiAvatar
+          name={user.firstName + " " + user.lastName}
           className="h-8 w-8"
         />
         <p className="col-span-3 font-medium">

@@ -4,8 +4,8 @@ import Loading from "@/components/Loading";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-import Avatar, { genConfig } from "react-nice-avatar";
 import SendTo from "./SendTo";
+import MultiAvatar from "../MultiAvatar";
 
 async function fetchRecentUser() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -35,8 +35,8 @@ export default function RecentUsersContent() {
               id={user.id}
             >
               <div className="grid text-center gap-2 justify-items-center">
-                <Avatar
-                  {...genConfig(user.firstName + " " + user.lastName)}
+                <MultiAvatar
+                  name={user.firstName + " " + user.lastName}
                   className="h-20 w-20 hover:scale-110 transition-transform"
                 />
                 <p className="font-medium">

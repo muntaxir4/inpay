@@ -8,13 +8,16 @@ import { SidebarMobile } from "./app/Sidebar";
 import { usePathname } from "next/navigation";
 import Notification from "./Notification";
 import { SidebarMobileMerchant } from "./merchant/Sidebar";
+import { useRecoilValue } from "recoil";
+import { userState } from "@/store/atoms";
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
+  const user = useRecoilValue(userState);
   const pathname = usePathname();
   return (
     <nav className="grid grid-cols-3 border-b bg-muted/40 p-2 items-center">
-      {pathname.startsWith("/app") && (
+      {pathname.startsWith("/app") && user && (
         <SidebarMobile>
           <PanelLeftOpen className="ml-2 sm:hidden" />
         </SidebarMobile>

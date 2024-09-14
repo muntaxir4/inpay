@@ -78,7 +78,7 @@ function formatPaymentData(data: number[], rate: number) {
     prevDateMilliSeconds = currDateMilliSeconds;
     return {
       date: new Date(currDateMilliSeconds).toUTCString(),
-      amount: getCurrencyFloatAmount(item / 100, rate),
+      amount: getCurrencyFloatAmount((Math.random() * 100) / 100, rate),
     };
   });
   return res;

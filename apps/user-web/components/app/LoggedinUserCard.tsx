@@ -1,11 +1,11 @@
 "use client";
 import { userState } from "@/store/atoms";
-import Avatar, { genConfig } from "react-nice-avatar";
 import { useRecoilValue } from "recoil";
 import { Badge } from "../ui/badge";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import CurrencySelect from "../CurrencySelect";
+import MultiAvatar from "./MultiAvatar";
 
 export default function LoggedinUserCard() {
   const user = useRecoilValue(userState);
@@ -29,9 +29,9 @@ export default function LoggedinUserCard() {
     <div>
       <CurrencySelect />
       <div className=" border border-foreground rounded-3xl p-2 flex justify-between items-center gap-2">
-        <Avatar
+        <MultiAvatar
+          name={fullName}
           className="w-12 h-12 sm:w-0 lg:w-12 lg:h-12"
-          {...genConfig(fullName)}
         />
         <h3 className="font-semibold">{fullName}</h3>
         <Badge

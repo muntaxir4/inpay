@@ -9,14 +9,12 @@ import {
 } from "@/components/ui/drawer";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import Avatar, { genConfig } from "react-nice-avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -24,6 +22,7 @@ import TransferForm from "./TransferForm";
 import { useDisplayType } from "@/store/customHooks";
 import SlideConfirm from "../SlideConfirm";
 import { useState } from "react";
+import MultiAvatar from "../MultiAvatar";
 
 export default function SendTo({
   children,
@@ -63,10 +62,7 @@ export default function SendTo({
                   </DrawerDescription>
                 </DrawerHeader>
                 <div className="grid text-center gap-2">
-                  <Avatar
-                    {...genConfig(fullName)}
-                    className="h-20 w-20 mx-auto"
-                  />
+                  <MultiAvatar name={fullName} className="h-20 w-20 mx-auto" />
                   <TransferForm id={id}>
                     <textarea
                       className="border rounded-lg text-sm p-2"
@@ -114,7 +110,7 @@ export default function SendTo({
               </DialogHeader>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col items-center gap-2 justify-center">
-                  <Avatar {...genConfig(fullName)} className="h-28 w-28" />
+                  <MultiAvatar name={fullName} className="h-28 w-28" />
                   <p className="font-medium text-xl">{fullName}</p>
                 </div>
                 <div className="m-2">

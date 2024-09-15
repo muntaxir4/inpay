@@ -173,7 +173,7 @@ paths:
 
   /bulk:
     get:
-      summary: Get all users
+      summary: Get all users for a filter
       parameters:
         - $ref: "#/components/parameters/AuthCookie"
         - name: filter

@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Main Api, Auth Route
+  title: Main API, Auth Route
   description: Signup and Signin endpoints
   version: 1.0.0
 

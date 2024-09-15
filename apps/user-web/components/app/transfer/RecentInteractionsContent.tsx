@@ -44,7 +44,9 @@ export default function RecentInteractionsContent() {
                   className="h-20 w-20 hover:scale-110 transition-transform"
                 />
                 <p className="font-medium">
-                  {user.firstName + " " + user.lastName}
+                  {`${user.firstName + " " + user.lastName}`
+                    .split(" ")[0]
+                    ?.substring(0, 10)}
                 </p>
               </div>
             </SendTo>

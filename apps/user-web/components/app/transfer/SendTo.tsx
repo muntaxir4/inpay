@@ -111,7 +111,7 @@ export default function SendTo({
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col items-center gap-2 justify-center">
                   <MultiAvatar name={fullName} className="h-28 w-28" />
-                  <p className="font-medium text-xl">{fullName}</p>
+                  <p className="font-medium text-xl text-center">{fullName}</p>
                 </div>
                 <div className="m-2">
                   <TransferForm id={id}>

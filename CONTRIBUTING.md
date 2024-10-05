@@ -1,3 +1,12 @@
+# CONTRIBUTING
+
+Anyone interested can improve the repository. Browse through open issues if you want to take on a specific task.
+
+- Clone the dev branch to get started.
+  <br> </br>
+
+# GET STARTED
+
 ## Start Development Application (Docker)
 
 This runs the Full Application in dev mode and starts Database, Redis and Full App

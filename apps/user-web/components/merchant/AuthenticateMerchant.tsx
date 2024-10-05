@@ -5,13 +5,23 @@ import axios from "axios";
 import { useSetRecoilState } from "recoil";
 import Loading from "../Loading";
 import { merchantState } from "@/store/atomsMerch";
+import { useToast, toast as typeToast } from "../ui/use-toast";
 
-async function verifyMerchant() {
+async function verifyMerchant(toast: typeof typeToast) {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   try {
+    let toastObj: any = null;
+    const timeoutId = setTimeout(() => {
+      toastObj = toast({
+        title: "The server was asleep. Waking up...",
+        duration: 10000,
+      });
+    }, 2000);
     const response = await axios.get(API_URL + "/merchant", {
       withCredentials: true,
     });
+    if (toastObj) toastObj.dismiss();
+    clearTimeout(timeoutId);
     return response.data;
   } catch (error) {
     throw new Error("User not authenticated");
@@ -23,9 +33,10 @@ export default function AuthenticateMerchant({
 }: {
   children: React.ReactNode;
 }) {
+  const { toast } = useToast();
   const { data, error, isLoading } = useQuery({
     queryKey: [],
-    queryFn: verifyMerchant,
+    queryFn: async () => await verifyMerchant(toast),
     staleTime: 3000,
   });
   const setMerchant = useSetRecoilState(merchantState);

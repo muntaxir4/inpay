@@ -27,6 +27,12 @@ function AccessHandler() {
       duration: 15000,
     });
     try {
+      const timeoutId = setTimeout(() => {
+        toast({
+          title: "The server was asleep. Waking up...",
+          duration: 10000,
+        });
+      }, 2000);
       const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
       await axios.post(
         API_URL + "/auth/access/merchant",
@@ -38,6 +44,7 @@ function AccessHandler() {
         }
       );
       googleLogout();
+      clearTimeout(timeoutId);
       toast({
         title: "Logged in",
         duration: 2000,

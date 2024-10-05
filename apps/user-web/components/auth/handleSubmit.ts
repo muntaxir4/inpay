@@ -17,6 +17,12 @@ export async function handleSignin(
   const form = event.currentTarget;
   const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
   try {
+    const timeoutId = setTimeout(() => {
+      toast({
+        title: "The server was asleep. Waking up...",
+        duration: 10000,
+      });
+    }, 2000);
     const result = await axios.post(
       API_URL + "/auth/signin",
       {
@@ -27,6 +33,7 @@ export async function handleSignin(
         withCredentials: true,
       }
     );
+    clearTimeout(timeoutId);
     toast({
       title: "Logged in",
       duration: 2000,
@@ -67,6 +74,12 @@ export async function handleSignup(
   const form = event.currentTarget;
   const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
   try {
+    const timeoutId = setTimeout(() => {
+      toast({
+        title: "The server was asleep. Waking up...",
+        duration: 10000,
+      });
+    }, 2000);
     const result = await axios.post(
       API_URL + "/auth/signup",
       {
@@ -79,6 +92,7 @@ export async function handleSignup(
         withCredentials: true,
       }
     );
+    clearTimeout(timeoutId);
     toast({
       title: "Logged in",
       duration: 2000,

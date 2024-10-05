@@ -3,7 +3,6 @@ import { useTheme } from "next-themes";
 import { Button } from "./ui/button";
 import { Moon, PanelLeftOpen, Sun } from "lucide-react";
 import Link from "next/link";
-import { Badge } from "./ui/badge";
 import { SidebarMobile } from "./app/Sidebar";
 import { usePathname } from "next/navigation";
 import Notification from "./Notification";
@@ -30,11 +29,10 @@ export default function Navbar() {
 
       <h2 className="col-start-2 text-2xl font-bold text-center">
         <Link href={"/"}>inPay</Link>
-        {/* <Badge variant={"outline"}>beta</Badge> */}
       </h2>
       <div className="grid grid-cols-3 items-center">
         <div className="col-span-2 flex justify-end h-full items-center">
-          <Notification />
+          {user && <Notification />}
         </div>
         <div className="col-start-3 text-end">
           {theme === "light" ? (

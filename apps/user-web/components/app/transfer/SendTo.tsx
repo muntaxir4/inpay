@@ -85,7 +85,7 @@ export default function SendTo({
                         required
                       />
                     </div>
-                    <SlideConfirm setOpen={setOpenCurrent} />
+                    <SlideConfirm setOpen={onOpenChange ?? setOpenCurrent} />
                   </TransferForm>
                   <DrawerClose>
                     <Button variant={"outline"} className="w-full rounded-full">
@@ -136,7 +136,7 @@ export default function SendTo({
                         required
                       />
                     </div>
-                    <SlideConfirm setOpen={setOpenCurrent} />
+                    <SlideConfirm setOpen={onOpenChange ?? setOpenCurrent} />
                   </TransferForm>
                 </div>
               </div>

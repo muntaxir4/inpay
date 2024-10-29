@@ -49,7 +49,9 @@ export default function SlideConfirm({
       setMoveX(0); // Reset if not dragged to the end
       setConfirmed(false);
     } else {
-      document.querySelector<HTMLButtonElement>(".drag-submit")?.click();
+      if (confirmed)
+        document.querySelector<HTMLButtonElement>(".drag-submit")?.click();
+      setConfirmed(false);
       setOpen?.(false);
       //   setTimeout(() => {
       //     setMoveX(0);

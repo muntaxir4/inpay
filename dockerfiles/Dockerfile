@@ -1,6 +1,6 @@
 #Dockerize APP
 
-FROM node:20-alpine AS base
+FROM node:20-alpine3.18 AS base
 
 FROM base AS builder
 RUN apk update
@@ -33,6 +33,7 @@ RUN npm run build
 
 FROM base AS runner
 WORKDIR /usr/src/app
+# RUN apk add --no-cache
 
 # Don't run production as root
 # Doesn't work currently
@@ -40,6 +41,7 @@ WORKDIR /usr/src/app
 # RUN adduser --system --uid 1001 expressjs
 # USER expressjs
 COPY --from=installer /usr/src/app .
+COPY apps/user-web/.env apps/user-web/.env
 
 EXPOSE 3000 3001 3002 8080 5173
 

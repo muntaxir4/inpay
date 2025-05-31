@@ -243,13 +243,16 @@ auth.post("/signin/google", async (req, res) => {
       error instanceof Prisma.PrismaClientKnownRequestError
     ) {
       if (error.code === "P2002") {
+        console.error("User already exists:", error);
         res
           .status(409)
           .json({ message: "A user with this name already exists" });
       } else {
+        console.error("Error during Google Signin:", error);
         res.status(400).json({ message: "Google Signin Failed" });
       }
     } else {
+      console.error("Internal server error during Google Signin:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   }

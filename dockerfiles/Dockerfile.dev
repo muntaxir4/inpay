@@ -1,6 +1,6 @@
 #Dockerize APP for dev
 
-FROM node:20-alpine AS base
+FROM node:20-alpine3.18 AS base
 
 FROM base AS builder
 RUN apk update
@@ -30,6 +30,7 @@ COPY turbo.json turbo.json
 COPY .env .env
 
 FROM base AS runner
+# RUN apk add --no-cache
 WORKDIR /usr/src/app
 COPY --from=installer /usr/src/app .
 
@@ -39,4 +40,4 @@ EXPOSE 3002
 EXPOSE 8080
 EXPOSE 5173
 
-CMD npm run db:migrate && npm run dev
+CMD npm run db:migrate && sleep 20 && npm run dev

@@ -11,6 +11,7 @@
       "dependsOn": ["^lint"]
     },
     "dev": {
+      "dependsOn": ["^dev"],
       "cache": false,
       "persistent": true
     },

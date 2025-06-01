@@ -39,11 +39,12 @@ WORKDIR /usr/src/app
 # RUN addgroup --system --gid 1001 expressjs
 # RUN adduser --system --uid 1001 expressjs
 # USER expressjs
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates openssl
 COPY --from=installer /usr/src/app .
 
 #COPY Microsoft certificated for Postgres connection
-COPY ./microsoft-rsa-root-ca-2017.crt /usr/local/share/ca-certificates/microsoft-rsa-root-ca-2017.crt
+COPY ./microsoft-rsa-root-ca-2017.crt /usr/share/ca-certificates/microsoft-rsa-root-ca-2017.crt
+RUN cat /usr/share/ca-certificates/microsoft-rsa-root-ca-2017.crt >> /etc/ssl/certs/ca-certificates.crt
 
 # Update CA certificates so the cert is trusted
 RUN update-ca-certificates

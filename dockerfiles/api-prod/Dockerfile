@@ -42,10 +42,11 @@ WORKDIR /usr/src/app
 COPY --from=installer /usr/src/app .
 RUN apk add --no-cache nginx
 COPY nginx.conf /etc/nginx/nginx.conf
-RUN apk add --no-cache redis ca-certificates
+RUN apk add --no-cache redis ca-certificates openssl
 
 #COPY Microsoft certificated for Postgres connection
-COPY ./microsoft-rsa-root-ca-2017.crt /usr/local/share/ca-certificates/microsoft-rsa-root-ca-2017.crt
+COPY ./microsoft-rsa-root-ca-2017.crt /usr/share/ca-certificates/microsoft-rsa-root-ca-2017.crt
+RUN cat /usr/share/ca-certificates/microsoft-rsa-root-ca-2017.crt >> /etc/ssl/certs/ca-certificates.crt
 
 # Update CA certificates so the cert is trusted
 RUN update-ca-certificates

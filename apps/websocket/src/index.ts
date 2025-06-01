@@ -94,10 +94,7 @@ const httpServer = app
   });
 
 const io = new Server(httpServer, {
-  cors: {
-    origin: process.env.WEB_URL,
-    credentials: true,
-  },
+  cors: { origin: process.env.WEB_URL, credentials: true },
 });
 const users: { [key: string]: string } = {};
 const messageQueue: ChatMessage[] = [];
@@ -139,7 +136,7 @@ io.use((socket, next) => {
     return next(new Error("Authentication error"));
   }
 
-  jwt.verify(token, JWT_SECRET, (err) => {
+  jwt.verify(token, JWT_SECRET, (err: any) => {
     if (err) {
       console.error("Token verification failed", err);
       return next(new Error("Authentication error"));
@@ -161,13 +158,7 @@ io.on("connection", (socket) => {
       delete users[userId];
       await prisma.user.update({
         where: { id: parseInt(userId) },
-        data: {
-          userAccount: {
-            update: {
-              lastSeen: new Date(),
-            },
-          },
-        },
+        data: { userAccount: { update: { lastSeen: new Date() } } },
       });
       console.log("user disconnected", socket.id);
     });
@@ -191,11 +182,13 @@ io.on("connection", (socket) => {
       // console.log(socket.data);
       // console.log(await io.in(currentRoom).fetchSockets());
       const room = "chat:" + getRoomString(userId, msgObj.to);
-      socket.to(room).emit("message", {
-        message: msgObj.message,
-        from: userId,
-        createdAt: msgObj.createdAt,
-      });
+      socket
+        .to(room)
+        .emit("message", {
+          message: msgObj.message,
+          from: userId,
+          createdAt: msgObj.createdAt,
+        });
       messageQueue.push({
         from: parseInt(userId),
         to: parseInt(msgObj.to),

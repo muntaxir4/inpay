@@ -42,7 +42,13 @@ WORKDIR /usr/src/app
 COPY --from=installer /usr/src/app .
 RUN apk add --no-cache nginx
 COPY nginx.conf /etc/nginx/nginx.conf
-RUN apk add --no-cache redis
+RUN apk add --no-cache redis ca-certificates
+
+#COPY Microsoft certificated for Postgres connection
+COPY ./microsoft-rsa-root-ca-2017.crt /usr/local/share/ca-certificates/microsoft-rsa-root-ca-2017.crt
+
+# Update CA certificates so the cert is trusted
+RUN update-ca-certificates
 
 EXPOSE 80 3000 3001 3002 6379
 
